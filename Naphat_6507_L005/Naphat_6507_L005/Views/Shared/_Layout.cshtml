@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - LogiManage</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Material Icons -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <nav class="d-none d-md-flex flex-column position-fixed top-0 start-0 vh-100"
+         style="width: 280px; background-color: #14213d; z-index: 1000;">
+
+        <!-- Logo -->
+        <div class="p-4">
+            <div class="fs-3 fw-bold text-white">
+                LogiManage
+            </div>
+
+            <div class="small text-light opacity-75">
+                Warehouse Admin
+            </div>
+        </div>
+
+
+        <!-- Menu -->
+        <div class="flex-grow-1 pt-2">
+
+            <!-- Home -->
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="d-flex align-items-center gap-3 px-4 py-3 text-white text-decoration-none"
+               style="background-color: #1f355e; border-left: 4px solid #fca311;">
+
+                <span class="material-symbols-outlined">
+                    home
+                </span>
+
+                <span>Home</span>
+            </a>
+
+
+            <!-- My Bookings -->
+            <a href="#"
+               class="d-flex align-items-center gap-3 px-4 py-3 text-white text-decoration-none opacity-75">
+
+                <span class="material-symbols-outlined">
+                    book_online
+                </span>
+
+                <span>My Bookings</span>
+            </a>
+
+
+            <!-- Payments -->
+            <a href="#"
+               class="d-flex align-items-center gap-3 px-4 py-3 text-white text-decoration-none opacity-75">
+
+                <span class="material-symbols-outlined">
+                    payments
+                </span>
+
+                <span>Payments</span>
+            </a>
+
+
+            <!-- Reviews -->
+            <a href="#"
+               class="d-flex align-items-center gap-3 px-4 py-3 text-white text-decoration-none opacity-75">
+
+                <span class="material-symbols-outlined">
+                    rate_review
+                </span>
+
+                <span>Reviews</span>
+            </a>
+
+        </div>
+
+
+        <!-- Bottom -->
+        <div class="p-4 border-top border-light border-opacity-25">
+
+            <!-- Help -->
+            <a href="#"
+               class="d-flex align-items-center gap-3 mb-3 text-white text-decoration-none opacity-75">
+
+                <span class="material-symbols-outlined">
+                    help
+                </span>
+
+                <span>Help</span>
+            </a>
+
+
+            <!-- Logout -->
+            <a href="#"
+               class="d-flex align-items-center gap-3 text-white text-decoration-none opacity-75">
+
+                <span class="material-symbols-outlined">
+                    logout
+                </span>
+
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- Main Content -->
+    <div class="min-vh-100" style="margin-left: 280px;">
+
+        <main class="container-fluid p-4">
+            @RenderBody()
+        </main>
+
+
+        <!-- Footer -->
+        <footer class="border-top text-muted mt-5 p-4">
+            <div class="container-fluid">
+                &copy; 2026 - LogiManage -
+                <a asp-controller="Home"
+                   asp-action="Privacy">
+                    Privacy
+                </a>
+            </div>
+        </footer>
+
+    </div>
+
+
+    <!-- Bootstrap JS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

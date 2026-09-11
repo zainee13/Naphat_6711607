@@ -1,0 +1,109 @@
+﻿@{
+	ViewData["Title"] = "ค้นหาคลังสินค้า";
+	Layout = "_Layout";
+}
+
+<div class="customer-page">
+	<div class="mb-4">
+		<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+			<div>
+				<h1 class="h2 fw-bold text-primary mb-1">ค้นหาคลังสินค้า</h1>
+				<p class="text-secondary mb-0">ค้นหาพื้นที่จัดเก็บที่เหมาะสมกับธุรกิจของคุณ</p>
+			</div>
+			<a asp-controller="Home" asp-action="Secirity" class="btn btn-primary d-flex align-items-center gap-2">
+				<span class="material-symbols-outlined">login</span>
+				Login
+			</a>
+		</div>
+	</div>
+
+	<div class="card border-0 shadow-sm mb-4">
+		<div class="card-body p-4">
+			<div class="row g-3 align-items-end">
+				<div class="col-12 col-md-3">
+					<label class="form-label small fw-semibold text-secondary">ทำเล</label>
+					<div class="input-group">
+						<span class="input-group-text bg-white"><span class="material-symbols-outlined">location_on</span></span>
+						<select class="form-select" aria-label="เลือกทำเล">
+							<option>ทั้งหมด</option>
+							<option>บางนา</option>
+							<option>วังน้อย</option>
+							<option>แหลมฉบัง</option>
+						</select>
+					</div>
+				</div>
+				<div class="col-12 col-md-3">
+					<label class="form-label small fw-semibold text-secondary">ขนาด (ตร.ม.)</label>
+					<div class="input-group">
+						<span class="input-group-text bg-white"><span class="material-symbols-outlined">square_foot</span></span>
+						<select class="form-select" aria-label="เลือกขนาดคลังสินค้า">
+							<option>ทั้งหมด</option>
+							<option>50 - 100</option>
+							<option>101 - 500</option>
+							<option>500+</option>
+						</select>
+					</div>
+				</div>
+				<div class="col-12 col-md-3">
+					<label class="form-label small fw-semibold text-secondary">ช่วงราคา</label>
+					<div class="input-group">
+						<span class="input-group-text bg-white"><span class="material-symbols-outlined">payments</span></span>
+						<select class="form-select" aria-label="เลือกช่วงราคา">
+							<option>ทั้งหมด</option>
+							<option>น้อยกว่า 10,000</option>
+							<option>10,000 - 50,000</option>
+						</select>
+					</div>
+				</div>
+				<div class="col-12 col-md-3">
+					<button type="button" class="btn btn-primary w-100 d-flex justify-content-center align-items-center gap-2">
+						<span class="material-symbols-outlined">search</span>
+						ค้นหา
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row g-4">
+		<div class="col-12 col-md-6 col-xl-4">
+			<div class="card h-100 border-0 shadow-sm overflow-hidden">
+				<img class="customer-warehouse-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPAmQxgBpIIk2c0iFR4HKDfCi5I--UhLTgv8gmNW4KK3jPUmXdNwlsE564pkNPLycOuLdsl43U5N7BZPWp-JCi4gzw_R5bbMowovh9hgwEqahJCfi-28GSQqZ6qjipPZS7SxiWmspdh0Er1VzEp7ZN45HZ8IIA2qF5e26X-7V21KNgXIN1tBQw_DjL3W9x_jJs5Ni0OPydJjBAGQBgeYb1heqym6ZS00pbjqNW-JkrmruQMTwkPqDdmQ" alt="คลังสินค้าบางนา">
+				<div class="card-body d-flex flex-column">
+					<span class="badge text-bg-success align-self-start mb-2"><span class="material-symbols-outlined align-middle small">check_circle</span> ว่าง</span>
+					<h2 class="h5 text-primary">BN-A01 (บางนา)</h2>
+					<p class="text-secondary small">โกดังมาตรฐาน พื้นอีพ็อกซี่ ใกล้ทางด่วน</p>
+					<div class="row border-top pt-3 mt-auto mb-3">
+						<div class="col-6"><small class="text-secondary d-block">ขนาด</small><strong>150 ตร.ม.</strong></div>
+						<div class="col-6"><small class="text-secondary d-block">ราคา/เดือน</small><strong class="text-primary">฿25,000</strong></div>
+					</div>
+					<div class="d-flex gap-2"><button type="button" class="btn btn-primary flex-fill">จองทันที</button><button type="button" class="btn btn-outline-primary flex-fill">ดูรายละเอียด</button></div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-md-6 col-xl-4">
+			<div class="card h-100 border-0 shadow-sm overflow-hidden">
+				<img class="customer-warehouse-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCW6tmUmNaI34_4GGR5e4anJONWUO8GqTjfEi8GjezxXd_ENjNZC-rZzl6pECpTm7Q3KgYjT2RWb3m_u2CrWVmYHi0I6nBFPoFPa3d67CCuokSv-Q0Zt-fuWBxr4KHqJSXMcUd1_PZBZbH4wNrOQpGypEx87nl36FAkDVXWW3cgw0bd8FDcPpP8tdnrZ0tg0B0LLEtVJoOQo4icZuZ5MZsIXcNecAZ5DLn9ca2fva8LbFhwTCyqNDCqQ" alt="คลังสินค้าวังน้อย">
+				<div class="card-body d-flex flex-column">
+					<span class="badge text-bg-success align-self-start mb-2"><span class="material-symbols-outlined align-middle small">check_circle</span> ว่าง</span>
+					<h2 class="h5 text-primary">WN-B12 (วังน้อย)</h2>
+					<p class="text-secondary small">คลังสินค้าขนาดใหญ่ รองรับรถพ่วง 18 ล้อ</p>
+					<div class="row border-top pt-3 mt-auto mb-3"><div class="col-6"><small class="text-secondary d-block">ขนาด</small><strong>500 ตร.ม.</strong></div><div class="col-6"><small class="text-secondary d-block">ราคา/เดือน</small><strong class="text-primary">฿75,000</strong></div></div>
+					<div class="d-flex gap-2"><button type="button" class="btn btn-primary flex-fill">จองทันที</button><button type="button" class="btn btn-outline-primary flex-fill">ดูรายละเอียด</button></div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-md-6 col-xl-4">
+			<div class="card h-100 border-0 shadow-sm overflow-hidden">
+				<img class="customer-warehouse-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTdHAnFluQmTkv-2Xtu3K5Ip49EK4qiSw_5Mj5OWFfPIxqVz1-aLYZA8o2hgKlElqMo5iSBx0YDPfbpQ5OA7cyAaLervKmQxjswkU4BnN7EipPw3krcJNRE6KRMmpUyJIKPdmQkOrx_7TC181yvCyytsiCeLlDc9NVdqWwRxWKwwlBRstt7s4Qtb8CADHGn7vUJROywz1WRloKEB-aHRAzppAJIcD1pIuU1vNZrD6ckrnchWOK5gZIHA" alt="คลังสินค้าแหลมฉบัง">
+				<div class="card-body d-flex flex-column">
+					<span class="badge text-bg-success align-self-start mb-2"><span class="material-symbols-outlined align-middle small">check_circle</span> ว่าง</span>
+					<h2 class="h5 text-primary">LC-C05 (แหลมฉบัง)</h2>
+					<p class="text-secondary small">ห้องเย็นควบคุมอุณหภูมิ ใกล้ท่าเรือ</p>
+					<div class="row border-top pt-3 mt-auto mb-3"><div class="col-6"><small class="text-secondary d-block">ขนาด</small><strong>200 ตร.ม.</strong></div><div class="col-6"><small class="text-secondary d-block">ราคา/เดือน</small><strong class="text-primary">฿40,000</strong></div></div>
+					<div class="d-flex gap-2"><button type="button" class="btn btn-primary flex-fill">จองทันที</button><button type="button" class="btn btn-outline-primary flex-fill">ดูรายละเอียด</button></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

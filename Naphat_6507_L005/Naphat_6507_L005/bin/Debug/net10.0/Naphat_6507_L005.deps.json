@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "Naphat_6507_L005/1.0.0": {
+        "runtime": {
+          "Naphat_6507_L005.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Naphat_6507_L005/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
