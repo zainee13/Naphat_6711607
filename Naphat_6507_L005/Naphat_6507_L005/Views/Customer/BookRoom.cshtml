@@ -1,0 +1,174 @@
+@{
+    var roomId = ViewBag.RoomId as string ?? "BN-A01";
+    ViewData["Title"] = $"จองห้อง {roomId}";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="@roomId"
+       class="btn btn-sm btn-outline-secondary mb-3" style="border-radius:8px;">
+        <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">arrow_back</span>
+        กลับ
+    </a>
+    <h1><span class="material-symbols-outlined align-middle me-2 text-orange">bookmark_add</span>จองห้องคลัง — @roomId</h1>
+    <p>กรอกข้อมูลเพื่อยืนยันการจอง</p>
+</div>
+
+<div class="row g-4">
+
+    <!-- Booking Form -->
+    <div class="col-12 col-lg-8">
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined text-orange">person</span> ข้อมูลผู้เช่า</h2>
+            </div>
+
+            <form>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">ชื่อ - นามสกุล *</label>
+                        <input type="text" class="form-control" value="@ViewBag.FullName" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">บริษัท / องค์กร</label>
+                        <input type="text" class="form-control" placeholder="ระบุชื่อบริษัท (ถ้ามี)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">เบอร์โทรศัพท์ *</label>
+                        <input type="tel" class="form-control" placeholder="0812345678" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">อีเมล *</label>
+                        <input type="email" class="form-control" placeholder="example@email.com" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">เลขบัตรประชาชน / เลขทะเบียนนิติบุคคล *</label>
+                        <input type="text" class="form-control" placeholder="X-XXXX-XXXXX-XX-X" />
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined text-orange">calendar_month</span> ช่วงเวลาเช่า</h2>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">วันที่เริ่มเช่า *</label>
+                    <input type="date" class="form-control" id="bookStart" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">ระยะเวลา *</label>
+                    <select class="form-select" id="bookDuration" onchange="calcPrice()">
+                        <option value="1">1 เดือน</option>
+                        <option value="3">3 เดือน</option>
+                        <option value="6" selected>6 เดือน</option>
+                        <option value="12">12 เดือน</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">วันสิ้นสุด (คำนวณอัตโนมัติ)</label>
+                    <input type="date" class="form-control" id="bookEnd" readonly style="background:#f9fafb;" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label small fw-semibold">ประเภทสินค้าที่จะเก็บ</label>
+                    <select class="form-select">
+                        <option>สินค้าทั่วไป</option>
+                        <option>สินค้าอาหารและเครื่องดื่ม</option>
+                        <option>สินค้าอุตสาหกรรม</option>
+                        <option>สินค้าอิเล็กทรอนิกส์</option>
+                        <option>สินค้า Hazmat</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label small fw-semibold">หมายเหตุเพิ่มเติม</label>
+                    <textarea class="form-control" rows="3"
+                              placeholder="เช่น ต้องการโฟล์คลิฟท์, ต้องการห้องเย็น ฯลฯ"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Panel -->
+    <div class="col-12 col-lg-4">
+        <div class="section-card" style="position:sticky; top:80px;">
+            <h3 class="h6 fw-bold mb-3" style="color:#14213d;">
+                <span class="material-symbols-outlined align-middle text-orange" style="font-size:1rem;">receipt</span>
+                สรุปการจอง
+            </h3>
+
+            <div style="background:#f8f9fa; border-radius:10px; padding:1rem; margin-bottom:1rem;">
+                <div class="d-flex gap-3 mb-2">
+                    <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=200&q=80"
+                         style="width:60px; height:50px; object-fit:cover; border-radius:8px; flex-shrink:0;" alt="room" />
+                    <div>
+                        <div class="fw-semibold" style="font-size:0.875rem; color:#14213d;">@roomId</div>
+                        <div style="font-size:0.78rem; color:#6c757d;">บางนา • 150 ตร.ม.</div>
+                        <span class="badge-status badge-available" style="font-size:0.7rem;">ว่าง</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-1 d-flex justify-content-between" style="font-size:0.85rem;">
+                <span class="text-secondary">ค่าเช่า/เดือน</span>
+                <span>฿25,000</span>
+            </div>
+            <div class="mb-1 d-flex justify-content-between" style="font-size:0.85rem;">
+                <span class="text-secondary">ระยะเวลา</span>
+                <span id="summaryDuration">6 เดือน</span>
+            </div>
+            <div class="mb-1 d-flex justify-content-between" style="font-size:0.85rem;">
+                <span class="text-secondary">ค่าเช่ารวม</span>
+                <span id="summaryRent">฿150,000</span>
+            </div>
+            <div class="mb-1 d-flex justify-content-between" style="font-size:0.85rem;">
+                <span class="text-secondary">ค่ามัดจำ (2 เดือน)</span>
+                <span>฿50,000</span>
+            </div>
+            <hr />
+            <div class="d-flex justify-content-between fw-bold">
+                <span>ยอดรวมทั้งหมด</span>
+                <span class="text-orange" id="summaryTotal">฿200,000</span>
+            </div>
+
+            <div class="mt-3 p-2" style="background:#eff6ff; border-radius:8px; font-size:0.75rem; color:#1d4ed8;">
+                <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">info</span>
+                ยืนยันการจองแล้ว ทีมงานจะติดต่อกลับภายใน 1 วันทำการ
+            </div>
+
+            <button class="btn btn-primary w-100 mt-3"
+                    onclick="alert('ส่งคำขอจองเรียบร้อยแล้ว! สถานะ: รอการยืนยัน')"
+                    style="background:linear-gradient(135deg,#3b82f6,#1d4ed8); border:none; border-radius:10px; padding:0.75rem; font-weight:600;">
+                <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">send</span>
+                ยืนยันการจอง
+            </button>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+const monthlyRate = 25000;
+function calcPrice() {
+    const dur = parseInt(document.getElementById('bookDuration').value);
+    const rent = monthlyRate * dur;
+    const total = rent + 50000;
+    document.getElementById('summaryDuration').textContent = dur + ' เดือน';
+    document.getElementById('summaryRent').textContent = '฿' + rent.toLocaleString();
+    document.getElementById('summaryTotal').textContent = '฿' + total.toLocaleString();
+    const start = document.getElementById('bookStart').value;
+    if (start) {
+        const end = new Date(start);
+        end.setMonth(end.getMonth() + dur);
+        document.getElementById('bookEnd').value = end.toISOString().split('T')[0];
+    }
+}
+document.getElementById('bookStart').addEventListener('change', calcPrice);
+// Set default start date to today
+document.getElementById('bookStart').valueAsDate = new Date();
+calcPrice();
+</script>
+}

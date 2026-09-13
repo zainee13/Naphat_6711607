@@ -1,0 +1,88 @@
+@{
+    ViewData["Title"] = "เข้าสู่ระบบ";
+    Layout = "_LayoutLogin";
+}
+
+<div class="login-page">
+    <div class="login-card">
+
+        <!-- Logo -->
+        <div class="text-center mb-4">
+            <div class="logo-text">Logi<span>Manage</span></div>
+            <p style="color:rgba(255,255,255,0.5); font-size:0.82rem; margin-top:0.25rem;">
+                ระบบเช่าห้องคลังสินค้าออนไลน์
+            </p>
+        </div>
+
+        <!-- Error Alert -->
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.85rem;">
+                <span class="material-symbols-outlined align-middle" style="font-size:1rem;">error</span>
+                @ViewBag.Error
+            </div>
+        }
+
+        <!-- Login Form -->
+        <form asp-controller="Account" asp-action="Login" method="post">
+            <div class="mb-3">
+                <label class="form-label">
+                    <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">person</span>
+                    ชื่อผู้ใช้งาน
+                </label>
+                <input type="text" name="username" class="form-control"
+                       placeholder="กรอกชื่อผู้ใช้" autocomplete="username" required />
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">
+                    <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">lock</span>
+                    รหัสผ่าน
+                </label>
+                <input type="password" name="password" class="form-control"
+                       placeholder="กรอกรหัสผ่าน" autocomplete="current-password" required />
+            </div>
+
+            <button type="submit" class="btn-login">
+                <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">login</span>
+                เข้าสู่ระบบ
+            </button>
+        </form>
+
+        <!-- Demo Accounts -->
+        <div class="mt-4" style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
+            <p style="color:rgba(255,255,255,0.4); font-size:0.72rem; text-align:center; margin-bottom:0.75rem; letter-spacing:0.5px; text-transform:uppercase;">
+                Demo Accounts (รหัสผ่าน: 1234)
+            </p>
+            <div class="row g-2">
+                @foreach (var account in new[] {
+                    ("customer1",   "👤 ลูกค้า",              "#3b82f6"),
+                    ("accounting1", "💰 พนักงานบัญชี",        "#10b981"),
+                    ("inventory1",  "📦 พนักงานคลัง",         "#8b5cf6"),
+                    ("cs1",         "🎧 บริการลูกค้า",        "#f59e0b"),
+                    ("manager1",    "📊 ผู้จัดการ",            "#ef4444"),
+                    ("admin",       "⚙️ แอดมิน",              "#06b6d4"),
+                })
+                {
+                    <div class="col-6">
+                        <button type="button"
+                                onclick="fillLogin('@account.Item1')"
+                                style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:0.4rem 0.6rem; color:rgba(255,255,255,0.75); font-size:0.72rem; cursor:pointer; transition:all 0.15s; text-align:left;">
+                            <span style="color:@account.Item3;">●</span> @account.Item2
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function fillLogin(username) {
+    document.querySelector('input[name="username"]').value = username;
+    document.querySelector('input[name="password"]').value = '1234';
+}
+</script>
+}

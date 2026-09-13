@@ -1,0 +1,228 @@
+@{
+    var bookingId = ViewBag.BookingId as string ?? "BK-2026-002";
+    ViewData["Title"] = "ชำระเงิน";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <h1><span class="material-symbols-outlined align-middle me-2 text-orange">payments</span>ชำระเงิน</h1>
+    <p>การจอง: <strong>@bookingId</strong></p>
+</div>
+
+<div class="row g-4">
+
+    <!-- Payment Method -->
+    <div class="col-12 col-lg-7">
+
+        <!-- Invoice Summary -->
+        <div class="section-card mb-4">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined text-orange">receipt_long</span> ใบแจ้งยอด</h2>
+                <span class="badge-status badge-pending">รอชำระ</span>
+            </div>
+            <div class="p-3 mb-3" style="background:#f8f9fa; border-radius:10px; font-size:0.875rem;">
+                <div class="row mb-2">
+                    <div class="col-6 text-secondary">รหัสการจอง</div>
+                    <div class="col-6 fw-semibold">@bookingId</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6 text-secondary">ห้องคลัง</div>
+                    <div class="col-6 fw-semibold">WN-B12 (วังน้อย)</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6 text-secondary">ช่วงเวลา</div>
+                    <div class="col-6 fw-semibold">1 ก.พ. — 31 ก.ค. 2569</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6 text-secondary">ค่าเช่า (6 เดือน)</div>
+                    <div class="col-6">฿450,000</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6 text-secondary">ค่ามัดจำ</div>
+                    <div class="col-6">฿150,000</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6 text-secondary">VAT 7%</div>
+                    <div class="col-6">฿42,000</div>
+                </div>
+                <hr />
+                <div class="row fw-bold">
+                    <div class="col-6">ยอดรวมทั้งหมด</div>
+                    <div class="col-6 text-orange" style="font-size:1.1rem;">฿642,000</div>
+                </div>
+            </div>
+            <div class="alert alert-warning" style="background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; color:#92400e; font-size:0.82rem;">
+                <span class="material-symbols-outlined align-middle" style="font-size:1rem;">schedule</span>
+                กรุณาชำระเงินภายใน: <strong>16 ก.ย. 2569 ก่อน 23:59 น.</strong>
+            </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined text-orange">account_balance</span> วิธีการชำระเงิน</h2>
+            </div>
+
+            <div class="row g-3 mb-4">
+                @foreach (var method in new[] {
+                    ("bank","โอนเงินผ่านธนาคาร","transfer","#eff6ff","#3b82f6"),
+                    ("qr_code","QR Code / พร้อมเพย์","qr","#f0fdf4","#10b981"),
+                    ("credit_card","บัตรเครดิต / เดบิต","card","#fdf4ff","#8b5cf6"),
+                })
+                {
+                    <div class="col-4">
+                        <label style="cursor:pointer; width:100%;">
+                            <input type="radio" name="paymentMethod" value="@method.Item3"
+                                   class="d-none" onchange="showPaymentDetail('@method.Item3')" />
+                            <div class="payment-option p-3 text-center" id="opt_@method.Item3"
+                                 style="border:2px solid #e5e7eb; border-radius:10px; transition:all 0.2s; background:@method.Item4;"
+                                 onclick="selectPayment('@method.Item3', '@method.Item4', '@method.Item5')">
+                                <span class="material-symbols-outlined" style="font-size:1.75rem; color:@method.Item5;">@method.Item1</span>
+                                <div style="font-size:0.75rem; font-weight:600; color:#374151; margin-top:0.25rem;">@method.Item2</div>
+                            </div>
+                        </label>
+                    </div>
+                }
+            </div>
+
+            <!-- Bank Transfer Detail -->
+            <div id="detail_transfer" class="payment-detail">
+                <div class="p-3" style="background:#eff6ff; border-radius:10px; margin-bottom:1rem;">
+                    <div class="fw-semibold mb-2" style="color:#1d4ed8;">ข้อมูลบัญชีธนาคาร</div>
+                    <div style="font-size:0.875rem; line-height:2;">
+                        <div><strong>ธนาคาร:</strong> ไทยพาณิชย์ (SCB)</div>
+                        <div><strong>ชื่อบัญชี:</strong> บริษัท โลจิแมเนจ จำกัด</div>
+                        <div><strong>เลขบัญชี:</strong> 123-4-56789-0</div>
+                        <div><strong>ยอดโอน:</strong> <span class="text-orange fw-bold">฿642,000</span></div>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold">แนบสลิปหลักฐานการโอนเงิน *</label>
+                    <div class="p-4 text-center" style="border:2px dashed #d1d5db; border-radius:10px; cursor:pointer; background:#f9fafb;"
+                         onclick="document.getElementById('slipFile').click()">
+                        <span class="material-symbols-outlined" style="font-size:2.5rem; color:#9ca3af;">upload_file</span>
+                        <div style="font-size:0.82rem; color:#6c757d; margin-top:0.25rem;">คลิกเพื่ออัปโหลดสลิป</div>
+                        <div style="font-size:0.72rem; color:#9ca3af;">PNG, JPG ไม่เกิน 5MB</div>
+                        <input type="file" id="slipFile" class="d-none" accept="image/*" onchange="previewSlip(this)" />
+                    </div>
+                    <img id="slipPreview" class="mt-2 d-none" style="max-height:150px; border-radius:8px;" alt="slip preview" />
+                </div>
+            </div>
+
+            <!-- QR Code Detail -->
+            <div id="detail_qr" class="payment-detail d-none">
+                <div class="text-center p-3" style="background:#f0fdf4; border-radius:10px;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=LogiManage-Payment-@bookingId"
+                         alt="QR Code" style="width:160px; height:160px; border-radius:8px;" />
+                    <div class="mt-2 fw-semibold" style="color:#065f46;">สแกน QR พร้อมเพย์</div>
+                    <div style="font-size:0.78rem; color:#6c757d;">พร้อมเพย์: 0-2345-6789-0</div>
+                    <div class="mt-1 fw-bold text-orange">฿642,000</div>
+                </div>
+            </div>
+
+            <!-- Card Detail -->
+            <div id="detail_card" class="payment-detail d-none">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">หมายเลขบัตร</label>
+                        <input type="text" class="form-control" placeholder="XXXX XXXX XXXX XXXX" maxlength="19"
+                               oninput="formatCard(this)" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">วันหมดอายุ</label>
+                        <input type="text" class="form-control" placeholder="MM/YY" maxlength="5" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">CVV</label>
+                        <input type="password" class="form-control" placeholder="XXX" maxlength="3" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">ชื่อบนบัตร</label>
+                        <input type="text" class="form-control" placeholder="NAPHAT NAVAHASDINKULL" style="text-transform:uppercase;" />
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary w-100 mt-4"
+                    onclick="submitPayment()"
+                    style="background:linear-gradient(135deg,#3b82f6,#1d4ed8); border:none; border-radius:10px; padding:0.8rem; font-weight:600; font-size:0.95rem;">
+                <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">send</span>
+                ส่งหลักฐานการชำระเงิน
+            </button>
+        </div>
+    </div>
+
+    <!-- Status Timeline -->
+    <div class="col-12 col-lg-5">
+        <div class="section-card" style="position:sticky; top:80px;">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined text-orange">timeline</span> สถานะการจอง</h2>
+            </div>
+            <div class="timeline">
+                @foreach (var step in new[] {
+                    ("check_circle","ส่งคำขอจอง","12 ก.ย. 2569 10:30","done","#10b981"),
+                    ("pending","รอการยืนยันจากทีมงาน","12 ก.ย. 2569 10:35","done","#10b981"),
+                    ("payments","รอการชำระเงิน","—","current","#f59e0b"),
+                    ("verified","ตรวจสอบการชำระเงิน","—","upcoming","#9ca3af"),
+                    ("task_alt","ยืนยันการจองสำเร็จ","—","upcoming","#9ca3af"),
+                })
+                {
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background:@step.Item5;"></div>
+                        <div class="d-flex align-items-start gap-2">
+                            <span class="material-symbols-outlined" style="font-size:1.1rem; color:@step.Item5; flex-shrink:0; margin-top:0.1rem;">@step.Item1</span>
+                            <div>
+                                <div class="fw-semibold" style="font-size:0.85rem; color:@(step.Item4 == "upcoming" ? "#9ca3af" : "#14213d");">@step.Item2</div>
+                                <div style="font-size:0.72rem; color:#9ca3af;">@step.Item3</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function selectPayment(method, bg, color) {
+    document.querySelectorAll('.payment-option').forEach(el => {
+        el.style.borderColor = '#e5e7eb';
+        el.style.boxShadow = 'none';
+    });
+    const opt = document.getElementById('opt_' + method);
+    if (opt) {
+        opt.style.borderColor = color;
+        opt.style.boxShadow = '0 0 0 3px ' + color + '30';
+    }
+    document.querySelectorAll('.payment-detail').forEach(el => el.classList.add('d-none'));
+    document.getElementById('detail_' + method)?.classList.remove('d-none');
+}
+
+function previewSlip(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = document.getElementById('slipPreview');
+            img.src = e.target.result;
+            img.classList.remove('d-none');
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function formatCard(input) {
+    let v = input.value.replace(/\D/g,'').substring(0,16);
+    input.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+
+function submitPayment() {
+    if (confirm('ยืนยันการส่งหลักฐานการชำระเงิน?')) {
+        alert('ส่งหลักฐานเรียบร้อยแล้ว!\nสถานะ: รอพนักงานบัญชีตรวจสอบ\nประมาณ 1-2 ชั่วโมง');
+    }
+}
+
+// Select transfer by default
+selectPayment('transfer', '#eff6ff', '#3b82f6');
+</script>
+}

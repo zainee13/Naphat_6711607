@@ -1,0 +1,203 @@
+@{
+    ViewData["Title"] = "Business Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><span class="material-symbols-outlined align-middle me-2" style="color:#ef4444;">insights</span>Business Dashboard</h1>
+            <p>ข้อมูลเชิงลึกเพื่อการตัดสินใจทางธุรกิจ — อัปเดตล่าสุด: 13 ก.ย. 2569 13:37 น.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <select class="form-select form-select-sm" style="width:auto; border-radius:8px;">
+                <option>เดือนนี้</option><option>ไตรมาสนี้</option><option>ปีนี้</option>
+            </select>
+            <button class="btn btn-sm" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:0.5rem 0.9rem;">
+                <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">download</span>
+                Export PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Top KPIs -->
+<div class="row g-3 mb-4">
+    @foreach (var k in new[] {
+        ("paid","รายรับเดือนนี้","฿1,842,000","↑ 18%","#10b981","#ecfdf5"),
+        ("warehouse","ห้องที่เช่าอยู่","4 / 6","66.7%","#3b82f6","#eff6ff"),
+        ("people","ลูกค้าทั้งหมด","128 ราย","เพิ่ม 12 รายใหม่","#8b5cf6","#f3e8ff"),
+        ("star","คะแนนเฉลี่ย","4.7 / 5","จาก 47 รีวิว","#f59e0b","#fef3c7"),
+    })
+    {
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background:@k.Item5;">
+                    <span class="material-symbols-outlined">@k.Item1</span>
+                </div>
+                <div class="kpi-value">@k.Item3</div>
+                <div class="kpi-label">@k.Item2</div>
+                <div class="kpi-change" style="color:@k.Item5;">@k.Item4</div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Charts Row 1 -->
+<div class="row g-4 mb-4">
+    <div class="col-12 col-lg-8">
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined" style="color:#ef4444;">show_chart</span> รายรับรายเดือน 2569</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-4">
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined" style="color:#ef4444;">pie_chart</span> อัตราการเช่า</h2>
+            </div>
+            <div class="chart-container" style="height:200px;">
+                <canvas id="occupancyChart"></canvas>
+            </div>
+            <div class="mt-2 text-center">
+                <div style="font-size:1.5rem; font-weight:800; color:#14213d;">66.7%</div>
+                <div style="font-size:0.78rem; color:#6c757d;">อัตราการเช่าเฉลี่ย</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Rooms + Top Customers -->
+<div class="row g-4 mb-4">
+    <div class="col-12 col-lg-6">
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined" style="color:#ef4444;">warehouse</span> ห้องยอดนิยม</h2>
+            </div>
+            @foreach (var room in new[] {
+                ("BN-A01 (บางนา)","12 การจอง","฿1,200,000","95%","#3b82f6"),
+                ("LC-C05 (แหลมฉบัง)","9 การจอง","฿900,000","85%","#10b981"),
+                ("WN-B12 (วังน้อย)","7 การจอง","฿1,750,000","78%","#8b5cf6"),
+                ("LK-D03 (ลาดกระบัง)","5 การจอง","฿550,000","65%","#f59e0b"),
+            })
+            {
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-semibold" style="font-size:0.85rem;">@room.Item1</span>
+                        <span style="font-size:0.78rem; color:#6c757d;">@room.Item2 • @room.Item3</span>
+                    </div>
+                    <div style="height:8px; background:#f3f4f6; border-radius:4px; overflow:hidden;">
+                        <div style="width:@room.Item4; height:100%; background:@room.Item5; border-radius:4px;"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined" style="color:#ef4444;">emoji_events</span> ลูกค้า Top 5</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table-custom w-100">
+                    <thead><tr><th>#</th><th>ลูกค้า</th><th>การจอง</th><th>ยอดรวม</th></tr></thead>
+                    <tbody>
+                        @{
+                            var medals = new[]{"🥇","🥈","🥉","4","5"};
+                        }
+                        @foreach (var (cust, idx) in new[] {
+                            ("บริษัท ABC จำกัด","5 รายการ","฿1,250,000"),
+                            ("ร้านค้า XYZ","4 รายการ","฿980,000"),
+                            ("คุณสมชาย ใจดี","3 รายการ","฿720,000"),
+                            ("บริษัท DEF","3 รายการ","฿650,000"),
+                            ("นภัส นาวาหัสดินกุล","2 รายการ","฿642,000"),
+                        }.Select((c, i) => (c, i)))
+                        {
+                            <tr>
+                                <td style="font-size:1rem;">@medals[idx]</td>
+                                <td style="font-size:0.875rem; font-weight:500;">@cust.Item1</td>
+                                <td style="font-size:0.82rem; color:#6c757d;">@cust.Item2</td>
+                                <td class="fw-bold text-orange">@cust.Item3</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Room Status Table -->
+<div class="section-card">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#ef4444;">grid_view</span> สถานะห้องคลังทั้งหมด</h2>
+    </div>
+    <div class="row g-3">
+        @foreach (var room in new[] {
+            ("BN-A01","บางนา","150 ตร.ม.","฿25,000","เช่าอยู่","occupied","นภัส N.","30 มิ.ย. 2570"),
+            ("WN-B12","วังน้อย","500 ตร.ม.","฿75,000","รอยืนยัน","pending","นภัส N.","31 ก.ค. 2570"),
+            ("LC-C05","แหลมฉบัง","200 ตร.ม.","฿40,000","เช่าอยู่","occupied","บ. ABC","31 ธ.ค. 2569"),
+            ("LK-D03","ลาดกระบัง","350 ตร.ม.","฿55,000","เช่าอยู่","occupied","ร้าน XYZ","28 ก.พ. 2570"),
+            ("BN-A07","บางนา","80 ตร.ม.","฿15,000","ว่าง","available","—","—"),
+            ("WN-E01","วังน้อย","1200 ตร.ม.","฿180,000","ว่าง","available","—","—"),
+        })
+        {
+            <div class="col-12 col-md-6 col-xl-4">
+                <div style="background:#f8f9fa; border-radius:10px; padding:1rem; border-left:4px solid @(room.Item6=="occupied"?"#3b82f6": room.Item6=="pending"?"#f59e0b":"#10b981");">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-bold" style="color:#14213d;">@room.Item1</span>
+                        <span class="badge-status badge-@room.Item6">@room.Item5</span>
+                    </div>
+                    <div style="font-size:0.78rem; color:#6c757d; margin-bottom:0.5rem;">@room.Item2 • @room.Item3 • @room.Item4/เดือน</div>
+                    @if (room.Item7 != "—")
+                    {
+                        <div style="font-size:0.78rem;">
+                            <strong>ผู้เช่า:</strong> @room.Item7
+                            <span style="color:#9ca3af; margin-left:0.5rem;">ถึง @room.Item8</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+// Revenue chart
+new Chart(document.getElementById('revenueChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+        labels: ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'],
+        datasets: [
+            { label: 'รายรับ 2569', data: [1200000,1350000,1100000,1450000,1600000,1380000,1750000,1560000,1842000],
+              backgroundColor: 'rgba(239,68,68,0.15)', borderColor: '#ef4444', borderWidth: 2, borderRadius: 6 },
+            { label: 'รายรับ 2568', data: [980000,1100000,950000,1200000,1300000,1150000,1400000,1250000,1350000],
+              backgroundColor: 'rgba(156,163,175,0.1)', borderColor: '#9ca3af', borderWidth: 2, borderRadius: 6 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+        scales: {
+            y: { grid: { color: '#f3f4f6' }, ticks: { callback: v => '฿'+(v/1000000).toFixed(1)+'M', font: { size: 10 } } },
+            x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+    }
+});
+
+// Occupancy donut
+new Chart(document.getElementById('occupancyChart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+        labels: ['เช่าอยู่','รอยืนยัน','ว่าง'],
+        datasets: [{ data: [3,1,2], backgroundColor: ['#3b82f6','#f59e0b','#d1d5db'], borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } }, cutout: '60%' }
+});
+</script>
+}

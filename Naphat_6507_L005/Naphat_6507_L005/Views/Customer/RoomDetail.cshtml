@@ -1,0 +1,141 @@
+@{
+    var roomId = ViewBag.RoomId as string ?? "BN-A01";
+    ViewData["Title"] = $"รายละเอียด {roomId}";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <a asp-controller="Customer" asp-action="Search"
+       class="btn btn-sm btn-outline-secondary mb-3" style="border-radius:8px;">
+        <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">arrow_back</span>
+        กลับไปยังหน้าค้นหาคลังสินค้า
+    </a>
+    <h1>รายละเอียดห้องคลัง — @roomId</h1>
+</div>
+
+<div class="row g-4">
+
+    <!-- Image & Quick Info -->
+    <div class="col-12 col-lg-7">
+        <div class="section-card p-0 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80"
+                 alt="@roomId" style="width:100%; height:320px; object-fit:cover;" />
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h2 class="h4 fw-bold" style="color:#14213d;">BN-A01 (บางนา)</h2>
+                    <span class="badge-status badge-available">ว่าง</span>
+                </div>
+                <p class="text-secondary">โกดังมาตรฐาน พื้นอีพ็อกซี่ ใกล้ทางด่วนพิเศษ บุรีรัมย์ เหมาะสำหรับสินค้าทั่วไปและสินค้าอุตสาหกรรม ระบบรักษาความปลอดภัย 24 ชั่วโมง กล้อง CCTV ครบทุกมุม</p>
+
+                <div class="row g-3 mt-2">
+                    @foreach (var spec in new[] {
+                        ("square_foot","ขนาด","150 ตร.ม."),
+                        ("height","ความสูง","8 เมตร"),
+                        ("location_on","ที่ตั้ง","บางนา กม.12"),
+                        ("local_shipping","รถที่รองรับ","10 ล้อ"),
+                        ("thermostat","อุณหภูมิ","ปกติ"),
+                        ("electrical_services","ไฟฟ้า","380V, 3 เฟส"),
+                    })
+                    {
+                        <div class="col-6 col-md-4">
+                            <div style="background:#f8f9fa; border-radius:10px; padding:0.75rem; text-align:center;">
+                                <span class="material-symbols-outlined" style="font-size:1.4rem; color:#3b82f6;">@spec.Item1</span>
+                                <div style="font-size:0.7rem; color:#6c757d; margin-top:0.2rem;">@spec.Item2</div>
+                                <div style="font-size:0.85rem; font-weight:600; color:#14213d;">@spec.Item3</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Amenities -->
+                <div class="mt-3">
+                    <h3 class="h6 fw-semibold mb-2">สิ่งอำนวยความสะดวก</h3>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var amenity in new[] { "🚿 ห้องน้ำ", "🅿️ ลานจอดรถ", "🔒 CCTV 24 ชม.", "🔥 ระบบดับเพลิง", "📶 WiFi", "☀️ Solar roof" })
+                        {
+                            <span class="badge" style="background:#eff6ff; color:#1d4ed8; font-size:0.78rem; padding:0.35rem 0.7rem; border-radius:20px;">@amenity</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="section-card mt-4">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined text-orange">star</span> รีวิวจากลูกค้า</h2>
+                <div>
+                    <strong style="font-size:1.5rem; color:#14213d;">4.8</strong>
+                    <span class="star-rating ms-1">★★★★★</span>
+                    <span style="font-size:0.78rem; color:#6c757d;">(12 รีวิว)</span>
+                </div>
+            </div>
+            @foreach (var rev in new[] {
+                ("บริษัท ABC จำกัด","5","ห้องสะอาด ปลอดภัย พนักงานดูแลดีมาก แนะนำเลยครับ"),
+                ("คุณสมชาย ใจดี","4","ทำเลดี ใกล้ทางด่วน ราคาสมเหตุสมผล"),
+                ("ร้านค้า XYZ","5","ใช้บริการมาหลายปีแล้ว ไม่เคยผิดหวัง"),
+            })
+            {
+                <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+                    <div class="avatar" style="background:#e0e7ff; color:#3b82f6; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">
+                        @rev.Item1[0]
+                    </div>
+                    <div>
+                        <div class="fw-semibold" style="font-size:0.875rem;">@rev.Item1</div>
+                        <div class="star-rating" style="font-size:0.8rem;">
+                            @for (int i = 0; i < int.Parse(rev.Item2); i++) { <text>★</text> }
+                        </div>
+                        <p style="font-size:0.85rem; color:#6c757d; margin:0.25rem 0 0;">@rev.Item3</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Booking Panel -->
+    <div class="col-12 col-lg-5">
+        <div class="section-card" style="position:sticky; top:80px;">
+            <h3 class="h5 fw-bold mb-1" style="color:#14213d;">ราคาและการจอง</h3>
+            <div class="mb-3">
+                <span style="font-size:1.75rem; font-weight:700; color:#fca311;">฿25,000</span>
+                <span style="color:#6c757d; font-size:0.85rem;"> / เดือน</span>
+            </div>
+            <hr />
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">วันที่เริ่มเช่า</label>
+                <input type="date" class="form-control form-control-sm" id="startDate" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">ระยะเวลาเช่า</label>
+                <select class="form-select form-select-sm" id="duration">
+                    <option>1 เดือน</option>
+                    <option>3 เดือน</option>
+                    <option selected>6 เดือน</option>
+                    <option>12 เดือน</option>
+                </select>
+            </div>
+            <div class="p-3 mb-3" style="background:#f8f9fa; border-radius:10px;">
+                <div class="d-flex justify-content-between mb-1">
+                    <span style="font-size:0.85rem; color:#6c757d;">ค่าเช่า 6 เดือน</span>
+                    <span style="font-size:0.85rem;">฿150,000</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span style="font-size:0.85rem; color:#6c757d;">ค่ามัดจำ</span>
+                    <span style="font-size:0.85rem;">฿50,000</span>
+                </div>
+                <hr class="my-2" />
+                <div class="d-flex justify-content-between">
+                    <span style="font-weight:600;">รวมทั้งสิ้น</span>
+                    <span style="font-weight:700; color:#fca311; font-size:1rem;">฿200,000</span>
+                </div>
+            </div>
+            <a asp-controller="Customer" asp-action="BookRoom" asp-route-id="@roomId"
+               class="btn btn-primary w-100 mb-2" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8); border:none; border-radius:10px; padding:0.75rem;">
+                <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">bookmark_add</span>
+                จองห้องนี้
+            </a>
+            <p style="font-size:0.72rem; color:#9ca3af; text-align:center;">ฟรี — ไม่มีค่าใช้จ่ายจนกว่าจะได้รับการยืนยัน</p>
+        </div>
+    </div>
+
+</div>

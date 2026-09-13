@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\5-903\\Desktop\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005.csproj": {}
+    "C:\\Users\\Napha\\OneDrive - Sripatum University\\Desktop\\Workshop6\\Naphat_6711607\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005.csproj": {}
   },
   "projects": {
-    "C:\\Users\\5-903\\Desktop\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005.csproj": {
+    "C:\\Users\\Napha\\OneDrive - Sripatum University\\Desktop\\Workshop6\\Naphat_6711607\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\5-903\\Desktop\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005.csproj",
+        "projectUniqueName": "C:\\Users\\Napha\\OneDrive - Sripatum University\\Desktop\\Workshop6\\Naphat_6711607\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005.csproj",
         "projectName": "Naphat_6507_L005",
-        "projectPath": "C:\\Users\\5-903\\Desktop\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005.csproj",
-        "packagesPath": "C:\\Users\\5-903\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\5-903\\Desktop\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005\\obj\\",
+        "projectPath": "C:\\Users\\Napha\\OneDrive - Sripatum University\\Desktop\\Workshop6\\Naphat_6711607\\Naphat_6507_L005\\Naphat_6507_L005\\Naphat_6507_L005.csproj",
+        "packagesPath": "C:\\Users\\Napha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Napha\\OneDrive - Sripatum University\\Desktop\\Workshop6\\Naphat_6711607\\Naphat_6507_L005\\Naphat_6507_L005\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\5-903\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Napha\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -64,7 +64,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

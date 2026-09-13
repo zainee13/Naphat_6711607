@@ -1,0 +1,111 @@
+@{
+    ViewData["Title"] = "ภาพรวมคลังสินค้า";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <h1><span class="material-symbols-outlined align-middle me-2" style="color:#8b5cf6;">dashboard</span>ภาพรวมคลังสินค้า</h1>
+    <p>ตรวจสอบสต็อกและบันทึกรายการสินค้า</p>
+</div>
+
+<!-- KPI -->
+<div class="row g-3 mb-4">
+    @foreach (var k in new[] {
+        ("inventory_2","สินค้าทั้งหมด","1,248 รายการ","เพิ่มขึ้น 32","#8b5cf6"),
+        ("warning","สต็อกต่ำ","14 รายการ","ต้องเติม","#f59e0b"),
+        ("emergency","สต็อกวิกฤต","3 รายการ","เร่งด่วน","#ef4444"),
+        ("done_all","อัปเดตล่าสุด","วันนี้ 11:30","ระบบ real-time","#10b981"),
+    })
+    {
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background:@k.Item5;">
+                    <span class="material-symbols-outlined">@k.Item1</span>
+                </div>
+                <div class="kpi-value" style="font-size:1.2rem;">@k.Item3</div>
+                <div class="kpi-label">@k.Item2</div>
+                <div class="kpi-change" style="color:@k.Item5;">@k.Item4</div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Alert Banner -->
+<div class="alert-low-stock mb-4 d-flex align-items-center gap-3">
+    <span class="material-symbols-outlined" style="font-size:1.5rem; color:#d97706;">notification_important</span>
+    <div>
+        <strong style="color:#92400e;">แจ้งเตือน:</strong>
+        <span style="color:#92400e; font-size:0.875rem;">
+            มีสินค้า <strong>3 รายการ</strong> ที่สต็อกถึงระดับวิกฤต — กรุณาเติมสต็อกโดยด่วน
+        </span>
+    </div>
+    <a asp-controller="Inventory" asp-action="Alerts"
+       class="btn btn-sm ms-auto"
+       style="background:#f59e0b; color:#fff; border:none; border-radius:8px; white-space:nowrap;">
+        ดูทั้งหมด
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Stock In -->
+    <div class="col-12 col-lg-7">
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined" style="color:#8b5cf6;">input</span> สินค้าเข้าล่าสุด</h2>
+                <a asp-controller="Inventory" asp-action="StockList"
+                   style="font-size:0.78rem; color:#8b5cf6; text-decoration:none;">ดูทั้งหมด →</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table-custom w-100">
+                    <thead>
+                        <tr><th>รหัสสินค้า</th><th>ชื่อสินค้า</th><th>ห้อง</th><th>จำนวนเข้า</th><th>วันที่</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in new[] {
+                            ("PRD-0981","เครื่องใช้ไฟฟ้า Samsung","BN-A01","120 ชิ้น","13 ก.ย. 11:00"),
+                            ("PRD-0974","อาหารกระป๋อง (ลัง)","LC-C05","500 ลัง","13 ก.ย. 09:30"),
+                            ("PRD-0963","ชิ้นส่วนยานยนต์","WN-B12","80 ชิ้น","12 ก.ย. 16:45"),
+                            ("PRD-0955","สินค้าแฟชั่น","BN-A07","250 ชิ้น","12 ก.ย. 14:00"),
+                        })
+                        {
+                            <tr>
+                                <td><span style="font-size:0.78rem; color:#8b5cf6; font-weight:600;">@s.Item1</span></td>
+                                <td style="font-size:0.875rem;">@s.Item2</td>
+                                <td><span class="badge" style="background:#f3e8ff; color:#7c3aed; font-size:0.72rem;">@s.Item3</span></td>
+                                <td style="font-size:0.875rem; font-weight:600;">@s.Item4</td>
+                                <td style="font-size:0.75rem; color:#9ca3af;">@s.Item5</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Room Capacity -->
+    <div class="col-12 col-lg-5">
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined" style="color:#8b5cf6;">storage</span> ความจุห้อง</h2>
+            </div>
+            @foreach (var room in new[] {
+                ("BN-A01","บางนา",85,"#ef4444"),
+                ("WN-B12","วังน้อย",62,"#f59e0b"),
+                ("LC-C05","แหลมฉบัง",41,"#10b981"),
+                ("BN-A07","บางนา A07",23,"#10b981"),
+                ("LK-D03","ลาดกระบัง",95,"#ef4444"),
+            })
+            {
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span style="font-size:0.82rem; font-weight:600;">@room.Item1 (@room.Item2)</span>
+                        <span style="font-size:0.78rem; color:@room.Item4; font-weight:600;">@(room.Item3)%</span>
+                    </div>
+                    <div style="height:8px; background:#f3f4f6; border-radius:4px; overflow:hidden;">
+                        <div style="width:@(room.Item3)%; height:100%; background:@room.Item4; border-radius:4px; transition:width 0.5s;"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

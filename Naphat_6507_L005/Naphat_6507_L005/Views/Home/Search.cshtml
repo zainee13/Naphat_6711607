@@ -1,0 +1,146 @@
+@{
+    ViewData["Title"] = "ค้นหาคลังสินค้า";
+    Layout = "_Layout";
+}
+
+<div class="customer-page">
+    <div class="mb-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+            <div>
+                <h1 class="h2 fw-bold text-primary mb-1">
+                    <span class="material-symbols-outlined align-middle me-2">search</span>
+                    ค้นหาคลังสินค้า
+                </h1>
+                <p class="text-secondary mb-0">ค้นหาพื้นที่จัดเก็บที่เหมาะสมกับธุรกิจของคุณ พร้อมเช่าได้ทันที</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined">local_offer</span>
+                    ดูโปรโมชั่นพิเศษ
+                </a>
+                <a asp-controller="Home" asp-action="Secirity" class="btn btn-primary d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined">login</span>
+                    เข้าสู่ระบบ
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card border-0 shadow-sm mb-4" style="border-radius:14px;">
+        <div class="card-body p-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold text-secondary">ทำเลที่ตั้ง</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><span class="material-symbols-outlined">location_on</span></span>
+                        <select class="form-select" aria-label="เลือกทำเล">
+                            <option>ทั้งหมด</option>
+                            <option>บางนา</option>
+                            <option>วังน้อย</option>
+                            <option>แหลมฉบัง</option>
+                            <option>ลาดกระบัง</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold text-secondary">ขนาด (ตร.ม.)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><span class="material-symbols-outlined">square_foot</span></span>
+                        <select class="form-select" aria-label="เลือกขนาดคลังสินค้า">
+                            <option>ทั้งหมด</option>
+                            <option>50 - 100</option>
+                            <option>101 - 500</option>
+                            <option>500+</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold text-secondary">ช่วงราคา</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><span class="material-symbols-outlined">payments</span></span>
+                        <select class="form-select" aria-label="เลือกช่วงราคา">
+                            <option>ทั้งหมด</option>
+                            <option>น้อยกว่า 20,000</option>
+                            <option>20,000 - 50,000</option>
+                            <option>50,000+</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <button type="button" class="btn btn-primary w-100 d-flex justify-content-center align-items-center gap-2" style="border-radius:8px;">
+                        <span class="material-symbols-outlined">search</span>
+                        ค้นหาห้องว่าง
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Units Cards -->
+    <div class="row g-4">
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:14px;">
+                <div style="position:relative; height:200px;">
+                    <img style="width:100%; height:100%; object-fit:cover;" src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80" alt="คลังสินค้าบางนา">
+                    <span class="badge bg-danger position-absolute top-0 end-0 m-2 px-2 py-1">🔥 ลด 14%</span>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <span class="badge text-bg-success align-self-start mb-2"><span class="material-symbols-outlined align-middle small">check_circle</span> ว่างพร้อมใช้</span>
+                    <h2 class="h5 text-primary">BN-A01 (บางนา)</h2>
+                    <p class="text-secondary small">โกดังมาตรฐาน พื้นอีพ็อกซี่ ใกล้ทางด่วน</p>
+                    <div class="row border-top pt-3 mt-auto mb-3">
+                        <div class="col-6"><small class="text-secondary d-block">ขนาด</small><strong>150 ตร.ม.</strong></div>
+                        <div class="col-6"><small class="text-secondary d-block">ราคา/เดือน</small><strong class="text-primary">฿25,000</strong></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a asp-controller="Home" asp-action="Secirity" class="btn btn-primary flex-fill" style="border-radius:8px;">จองทันที</a>
+                        <a asp-controller="Home" asp-action="Secirity" class="btn btn-outline-primary flex-fill" style="border-radius:8px;">ดูรายละเอียด</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:14px;">
+                <div style="position:relative; height:200px;">
+                    <img style="width:100%; height:100%; object-fit:cover;" src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80" alt="คลังสินค้าวังน้อย">
+                    <span class="badge bg-danger position-absolute top-0 end-0 m-2 px-2 py-1">🔥 ลด 12%</span>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <span class="badge text-bg-success align-self-start mb-2"><span class="material-symbols-outlined align-middle small">check_circle</span> ว่างพร้อมใช้</span>
+                    <h2 class="h5 text-primary">WN-B12 (วังน้อย)</h2>
+                    <p class="text-secondary small">คลังสินค้าขนาดใหญ่ รองรับรถพ่วง 18 ล้อ</p>
+                    <div class="row border-top pt-3 mt-auto mb-3">
+                        <div class="col-6"><small class="text-secondary d-block">ขนาด</small><strong>500 ตร.ม.</strong></div>
+                        <div class="col-6"><small class="text-secondary d-block">ราคา/เดือน</small><strong class="text-primary">฿75,000</strong></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a asp-controller="Home" asp-action="Secirity" class="btn btn-primary flex-fill" style="border-radius:8px;">จองทันที</a>
+                        <a asp-controller="Home" asp-action="Secirity" class="btn btn-outline-primary flex-fill" style="border-radius:8px;">ดูรายละเอียด</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:14px;">
+                <div style="position:relative; height:200px;">
+                    <img style="width:100%; height:100%; object-fit:cover;" src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&q=80" alt="คลังสินค้าแหลมฉบัง">
+                    <span class="badge bg-info text-dark position-absolute top-0 end-0 m-2 px-2 py-1">❄️ HOT DEAL</span>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <span class="badge text-bg-success align-self-start mb-2"><span class="material-symbols-outlined align-middle small">check_circle</span> ว่างพร้อมใช้</span>
+                    <h2 class="h5 text-primary">LC-C05 (แหลมฉบัง)</h2>
+                    <p class="text-secondary small">ห้องเย็นควบคุมอุณหภูมิ ใกล้ท่าเรือ</p>
+                    <div class="row border-top pt-3 mt-auto mb-3">
+                        <div class="col-6"><small class="text-secondary d-block">ขนาด</small><strong>200 ตร.ม.</strong></div>
+                        <div class="col-6"><small class="text-secondary d-block">ราคา/เดือน</small><strong class="text-primary">฿40,000</strong></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a asp-controller="Home" asp-action="Secirity" class="btn btn-primary flex-fill" style="border-radius:8px;">จองทันที</a>
+                        <a asp-controller="Home" asp-action="Secirity" class="btn btn-outline-primary flex-fill" style="border-radius:8px;">ดูรายละเอียด</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,189 @@
+@* Shared Sidebar Partial — rendered by each role layout *@
+@{
+    var role = (string)(ViewBag.Role ?? "Customer");
+    var fullName = (string)(ViewBag.FullName ?? "ผู้ใช้งาน");
+    var initial = fullName.Length > 0 ? fullName[0].ToString() : "U";
+
+    // Role display info
+    var roleLabel = role switch {
+        "Customer"        => "ลูกค้า",
+        "Accounting"      => "พนักงานบัญชี",
+        "Inventory"       => "พนักงานคลัง",
+        "CustomerService" => "ฝ่ายบริการลูกค้า",
+        "Manager"         => "ผู้จัดการ",
+        "Admin"           => "ผู้ดูแลระบบ",
+        _                 => role
+    };
+
+    var avatarColor = role switch {
+        "Customer"        => "#3b82f6",
+        "Accounting"      => "#10b981",
+        "Inventory"       => "#8b5cf6",
+        "CustomerService" => "#f59e0b",
+        "Manager"         => "#ef4444",
+        "Admin"           => "#06b6d4",
+        _                 => "#6c757d"
+    };
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction     = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    bool IsActive(string ctrl, string act = "") =>
+        currentController.Equals(ctrl, StringComparison.OrdinalIgnoreCase) &&
+        (string.IsNullOrEmpty(act) || currentAction.Equals(act, StringComparison.OrdinalIgnoreCase));
+}
+
+<nav class="sidebar">
+
+    {{!-- Logo --}}
+    <div class="sidebar-logo">
+        <div class="brand">Logi<span>Manage</span></div>
+        <div class="sub">Warehouse Management</div>
+    </div>
+
+    {{!-- User Info --}}
+    <div class="sidebar-user">
+        <div class="avatar" style="background: @avatarColor; color:#fff;">
+            @initial
+        </div>
+        <div>
+            <div class="user-name">@fullName</div>
+            <div class="user-role">@roleLabel</div>
+        </div>
+    </div>
+
+    {{!-- Navigation by Role --}}
+    <div class="sidebar-nav">
+
+        @if (role == "Customer")
+        {
+            <div class="nav-section-label">เมนูหลัก</div>
+            <a asp-controller="Customer" asp-action="Dashboard"
+               class="nav-item-link @(IsActive("Customer","Dashboard") ? "active" : "")">
+                <span class="material-symbols-outlined">campaign</span>
+                <span>หน้าหลัก (โปรโมชั่น)</span>
+            </a>
+            <a asp-controller="Customer" asp-action="Search"
+               class="nav-item-link @(IsActive("Customer","Search") ? "active" : "")">
+                <span class="material-symbols-outlined">search</span>
+                <span>ค้นหาคลังสินค้า</span>
+            </a>
+            <a asp-controller="Customer" asp-action="MyBookings"
+               class="nav-item-link @(IsActive("Customer","MyBookings") ? "active" : "")">
+                <span class="material-symbols-outlined">book_online</span>
+                <span>การจองของฉัน</span>
+            </a>
+            <a asp-controller="Customer" asp-action="Payment"
+               class="nav-item-link @(IsActive("Customer","Payment") ? "active" : "")">
+                <span class="material-symbols-outlined">payments</span>
+                <span>ชำระเงิน</span>
+            </a>
+            <a asp-controller="Customer" asp-action="Reviews"
+               class="nav-item-link @(IsActive("Customer","Reviews") ? "active" : "")">
+                <span class="material-symbols-outlined">rate_review</span>
+                <span>รีวิวและคะแนน</span>
+            </a>
+        }
+
+        @if (role == "Accounting")
+        {
+            <div class="nav-section-label">บัญชีการเงิน</div>
+            <a asp-controller="Accounting" asp-action="Dashboard"
+               class="nav-item-link @(IsActive("Accounting","Dashboard") ? "active" : "")">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>ภาพรวม</span>
+            </a>
+            <a asp-controller="Accounting" asp-action="Invoices"
+               class="nav-item-link @(IsActive("Accounting","Invoices") ? "active" : "")">
+                <span class="material-symbols-outlined">receipt_long</span>
+                <span>ใบแจ้งหนี้ / ใบเสร็จ</span>
+            </a>
+            <a asp-controller="Accounting" asp-action="DailySummary"
+               class="nav-item-link @(IsActive("Accounting","DailySummary") ? "active" : "")">
+                <span class="material-symbols-outlined">bar_chart</span>
+                <span>สรุปรายรับ</span>
+            </a>
+            <a asp-controller="Accounting" asp-action="Refunds"
+               class="nav-item-link @(IsActive("Accounting","Refunds") ? "active" : "")">
+                <span class="material-symbols-outlined">currency_exchange</span>
+                <span>การคืนเงิน</span>
+            </a>
+        }
+
+        @if (role == "Inventory")
+        {
+            <div class="nav-section-label">คลังสินค้า</div>
+            <a asp-controller="Inventory" asp-action="Dashboard"
+               class="nav-item-link @(IsActive("Inventory","Dashboard") ? "active" : "")">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>ภาพรวม</span>
+            </a>
+            <a asp-controller="Inventory" asp-action="StockList"
+               class="nav-item-link @(IsActive("Inventory","StockList") ? "active" : "")">
+                <span class="material-symbols-outlined">inventory_2</span>
+                <span>รายการสต็อก</span>
+            </a>
+            <a asp-controller="Inventory" asp-action="AddStock"
+               class="nav-item-link @(IsActive("Inventory","AddStock") ? "active" : "")">
+                <span class="material-symbols-outlined">add_box</span>
+                <span>เพิ่ม / แก้ไขสินค้า</span>
+            </a>
+            <a asp-controller="Inventory" asp-action="Alerts"
+               class="nav-item-link @(IsActive("Inventory","Alerts") ? "active" : "")">
+                <span class="material-symbols-outlined">notification_important</span>
+                <span>แจ้งเตือนสต็อกต่ำ</span>
+            </a>
+        }
+
+        @if (role == "CustomerService")
+        {
+            <div class="nav-section-label">บริการลูกค้า</div>
+            <a asp-controller="CustomerService" asp-action="Dashboard"
+               class="nav-item-link @(IsActive("CustomerService","Dashboard") ? "active" : "")">
+                <span class="material-symbols-outlined">support_agent</span>
+                <span>ภาพรวม</span>
+            </a>
+            <a asp-controller="CustomerService" asp-action="Tickets"
+               class="nav-item-link @(IsActive("CustomerService","Tickets") ? "active" : "")">
+                <span class="material-symbols-outlined">confirmation_number</span>
+                <span>รายการ Ticket</span>
+            </a>
+        }
+
+        @if (role == "Manager")
+        {
+            <div class="nav-section-label">บริหาร</div>
+            <a asp-controller="Manager" asp-action="Dashboard"
+               class="nav-item-link @(IsActive("Manager","Dashboard") ? "active" : "")">
+                <span class="material-symbols-outlined">insights</span>
+                <span>Business Dashboard</span>
+            </a>
+        }
+
+        @if (role == "Admin")
+        {
+            <div class="nav-section-label">ระบบ</div>
+            <a asp-controller="Admin" asp-action="Dashboard"
+               class="nav-item-link @(IsActive("Admin","Dashboard") ? "active" : "")">
+                <span class="material-symbols-outlined">admin_panel_settings</span>
+                <span>ภาพรวมระบบ</span>
+            </a>
+            <a asp-controller="Admin" asp-action="Users"
+               class="nav-item-link @(IsActive("Admin","Users") ? "active" : "")">
+                <span class="material-symbols-outlined">manage_accounts</span>
+                <span>จัดการผู้ใช้</span>
+            </a>
+        }
+
+    </div>
+
+    {{!-- Bottom --}}
+    <div class="sidebar-bottom">
+        <a asp-controller="Account" asp-action="Logout"
+           class="nav-item-link" style="padding: 0.5rem 0; border:none;">
+            <span class="material-symbols-outlined" style="color:#ef4444;">logout</span>
+            <span style="color:rgba(255,255,255,0.6);">ออกจากระบบ</span>
+        </a>
+    </div>
+
+</nav>

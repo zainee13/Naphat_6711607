@@ -1,0 +1,171 @@
+@{
+    ViewData["Title"] = "รีวิวและคะแนน";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <h1><span class="material-symbols-outlined align-middle me-2 text-orange">rate_review</span>รีวิวและให้คะแนน</h1>
+    <p>แชร์ประสบการณ์การใช้บริการคลังสินค้าของคุณ</p>
+</div>
+
+<div class="row g-4">
+
+    <!-- Write Review -->
+    <div class="col-12 col-lg-5">
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined text-orange">edit</span> เขียนรีวิว</h2>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">เลือกการจองที่ต้องการรีวิว</label>
+                <select class="form-select form-select-sm">
+                    <option>BK-2026-001 — BN-A01 (บางนา)</option>
+                    <option>BK-2025-018 — LC-C05 (แหลมฉบัง)</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">คะแนนความพึงพอใจ</label>
+                <div class="d-flex gap-2" id="starContainer">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <span class="material-symbols-outlined"
+                              id="star_@i"
+                              onclick="setStar(@i)"
+                              style="font-size:2rem; cursor:pointer; color:#d1d5db; transition:color 0.1s;">
+                            star
+                        </span>
+                    }
+                </div>
+                <div id="starLabel" style="font-size:0.78rem; color:#6c757d; margin-top:0.25rem;">คลิกเพื่อให้คะแนน</div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                @foreach (var cat in new[] { "ความสะอาด", "ความปลอดภัย", "การบริการ", "ความคุ้มค่า" })
+                {
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold" style="font-size:0.78rem;">@cat</label>
+                        <select class="form-select form-select-sm">
+                            <option>5 ★</option>
+                            <option>4 ★</option>
+                            <option selected>3 ★</option>
+                            <option>2 ★</option>
+                            <option>1 ★</option>
+                        </select>
+                    </div>
+                }
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">ความคิดเห็น</label>
+                <textarea class="form-control" rows="4"
+                          placeholder="บอกเล่าประสบการณ์ของคุณ เช่น ความสะอาด การบริการ ความปลอดภัย..."></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">รูปภาพประกอบ (ไม่บังคับ)</label>
+                <div class="p-3 text-center" style="border:2px dashed #d1d5db; border-radius:10px; cursor:pointer; background:#f9fafb;"
+                     onclick="document.getElementById('reviewImg').click()">
+                    <span class="material-symbols-outlined" style="font-size:1.75rem; color:#9ca3af;">add_photo_alternate</span>
+                    <div style="font-size:0.75rem; color:#9ca3af; margin-top:0.2rem;">คลิกเพื่อเพิ่มรูป</div>
+                    <input type="file" id="reviewImg" class="d-none" accept="image/*" multiple />
+                </div>
+            </div>
+
+            <button class="btn btn-primary w-100"
+                    onclick="alert('ขอบคุณสำหรับรีวิวของคุณ!')"
+                    style="background:linear-gradient(135deg,#3b82f6,#1d4ed8); border:none; border-radius:10px; padding:0.75rem; font-weight:600;">
+                <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">send</span>
+                ส่งรีวิว
+            </button>
+        </div>
+    </div>
+
+    <!-- All Reviews -->
+    <div class="col-12 col-lg-7">
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined text-orange">forum</span> รีวิวทั้งหมด</h2>
+                <div>
+                    <span style="font-size:1.5rem; font-weight:700; color:#14213d;">4.7</span>
+                    <span class="star-rating ms-1">★★★★★</span>
+                    <span style="font-size:0.75rem; color:#6c757d;">(47 รีวิว)</span>
+                </div>
+            </div>
+
+            <!-- Rating Bar -->
+            @foreach (var bar in new[] { ("5",80), ("4",60), ("3",30), ("2",10), ("1",5) })
+            {
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span style="width:20px; font-size:0.78rem; text-align:right; color:#6c757d;">@bar.Item1</span>
+                    <span class="material-symbols-outlined" style="font-size:0.85rem; color:#f59e0b;">star</span>
+                    <div style="flex:1; height:6px; background:#f3f4f6; border-radius:3px; overflow:hidden;">
+                        <div style="width:@(bar.Item2)%; height:100%; background:#f59e0b; border-radius:3px;"></div>
+                    </div>
+                    <span style="width:28px; font-size:0.75rem; color:#6c757d;">@(bar.Item2)%</span>
+                </div>
+            }
+            <hr />
+
+            <!-- Review Cards -->
+            @foreach (var rev in new[] {
+                ("บริษัท ABC จำกัด","BN-A01 (บางนา)","5","ห้องสะอาด ปลอดภัยมาก พนักงานดูแลดี แนะนำเลยครับ ใช้บริการมา 2 ปีแล้วไม่เคยผิดหวัง","A","#3b82f6","12 ก.ย. 2569","5"),
+                ("คุณสมชาย ใจดี","LC-C05 (แหลมฉบัง)","4","ทำเลดีมาก ใกล้ท่าเรือ ระบบขนถ่ายสะดวก แต่ที่จอดรถค่อนข้างแน่นในช่วงเช้า","ส","#10b981","8 ก.ย. 2569","4"),
+                ("ร้าน XYZ Trading","WN-B12 (วังน้อย)","5","คลังใหญ่มาก รองรับสินค้าได้เยอะ ราคาสมเหตุสมผล ทีมงาน CS ตอบรับเร็ว","ร","#8b5cf6","5 ก.ย. 2569","5"),
+                ("คุณวรรณิสา","BN-A01 (บางนา)","3","ห้องโอเค แต่ระบบ CCTV บางมุมยังไม่ครอบคลุม หวังว่าจะปรับปรุงเร็วๆ นี้","ว","#f59e0b","1 ก.ย. 2569","3"),
+            })
+            {
+                <div class="d-flex gap-3 mb-4 pb-3 border-bottom">
+                    <div class="avatar" style="background:@rev.Item6; color:#fff; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; font-size:0.9rem;">
+                        @rev.Item5
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="fw-semibold" style="font-size:0.875rem;">@rev.Item1</div>
+                                <div style="font-size:0.72rem; color:#6c757d;">@rev.Item2</div>
+                            </div>
+                            <span style="font-size:0.72rem; color:#9ca3af;">@rev.Item7</span>
+                        </div>
+                        <div class="star-rating my-1" style="font-size:0.85rem;">
+                            @for (int i = 0; i < int.Parse(rev.Item8); i++) { <text>★</text> }
+                            @for (int i = int.Parse(rev.Item8); i < 5; i++) { <span style="color:#d1d5db;">★</span> }
+                        </div>
+                        <p style="font-size:0.83rem; color:#4b5563; margin:0;">@rev.Item4</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+let currentStar = 0;
+const labels = ['','แย่มาก','แย่','พอใช้','ดี','ดีมาก'];
+const colors = ['','#ef4444','#f97316','#f59e0b','#3b82f6','#10b981'];
+
+function setStar(n) {
+    currentStar = n;
+    for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById('star_' + i);
+        el.style.color = i <= n ? colors[n] : '#d1d5db';
+    }
+    document.getElementById('starLabel').textContent = n + ' ดาว — ' + labels[n];
+    document.getElementById('starLabel').style.color = colors[n];
+}
+
+// Hover effects
+for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('star_' + i);
+    el.addEventListener('mouseenter', () => {
+        for (let j = 1; j <= 5; j++) {
+            document.getElementById('star_' + j).style.color = j <= i ? '#f59e0b' : '#d1d5db';
+        }
+    });
+    el.addEventListener('mouseleave', () => setStar(currentStar));
+}
+</script>
+}

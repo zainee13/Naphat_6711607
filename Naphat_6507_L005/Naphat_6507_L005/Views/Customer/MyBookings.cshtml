@@ -1,0 +1,103 @@
+@{
+    ViewData["Title"] = "การจองของฉัน";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <h1><span class="material-symbols-outlined align-middle me-2 text-orange">book_online</span>การจองของฉัน</h1>
+    <p>ประวัติและสถานะการจองห้องคลังสินค้าทั้งหมด</p>
+</div>
+
+<!-- Status Summary -->
+<div class="row g-3 mb-4">
+    @foreach (var s in new[] {
+        ("book_online","การจองทั้งหมด","4","#3b82f6","#eff6ff"),
+        ("pending","รอการยืนยัน","1","#f59e0b","#fffbeb"),
+        ("check_circle","ยืนยันแล้ว","2","#10b981","#ecfdf5"),
+        ("cancel","ยกเลิก","1","#ef4444","#fef2f2"),
+    })
+    {
+        <div class="col-6 col-md-3">
+            <div class="kpi-card" style="padding:1rem;">
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <div class="kpi-icon" style="background:@s.Item5; width:36px; height:36px; border-radius:8px;">
+                        <span class="material-symbols-outlined" style="font-size:1rem; color:@s.Item4;">@s.Item1</span>
+                    </div>
+                    <div>
+                        <div class="kpi-value" style="font-size:1.4rem;">@s.Item3</div>
+                        <div class="kpi-label" style="font-size:0.72rem;">@s.Item2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Bookings Table -->
+<div class="section-card">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined text-orange">list_alt</span> รายการจองทั้งหมด</h2>
+        <div class="d-flex gap-2">
+            <select class="form-select form-select-sm" style="width:auto;">
+                <option>ทุกสถานะ</option>
+                <option>รอการยืนยัน</option>
+                <option>ยืนยันแล้ว</option>
+                <option>ยกเลิก</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-custom w-100">
+            <thead>
+                <tr>
+                    <th>รหัสการจอง</th>
+                    <th>ห้องคลัง</th>
+                    <th>ช่วงเวลา</th>
+                    <th>ราคารวม</th>
+                    <th>สถานะ</th>
+                    <th>การชำระเงิน</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var b in new[] {
+                    ("BK-2026-001","BN-A01 (บางนา)","1 ม.ค. 2569 — 30 มิ.ย. 2569","฿200,000","ยืนยันแล้ว","confirmed","ชำระแล้ว","paid"),
+                    ("BK-2026-002","WN-B12 (วังน้อย)","1 ก.พ. 2569 — 31 ก.ค. 2569","฿275,000","รอการยืนยัน","pending","รอชำระ","pending"),
+                    ("BK-2025-018","LC-C05 (แหลมฉบัง)","1 ก.ค. 2568 — 31 ธ.ค. 2568","฿130,000","ยืนยันแล้ว","confirmed","ชำระแล้ว","paid"),
+                    ("BK-2025-009","BN-A01 (บางนา)","1 ม.ค. 2568 — 30 มิ.ย. 2568","฿200,000","ยกเลิก","cancelled","คืนเงินแล้ว","paid"),
+                })
+                {
+                    <tr>
+                        <td><span class="fw-semibold" style="color:#3b82f6; font-size:0.85rem;">@b.Item1</span></td>
+                        <td>
+                            <div class="fw-semibold" style="font-size:0.875rem;">@b.Item2</div>
+                        </td>
+                        <td style="font-size:0.82rem; color:#6c757d;">@b.Item3</td>
+                        <td class="fw-semibold">@b.Item4</td>
+                        <td>
+                            <span class="badge-status badge-@b.Item6">@b.Item5</span>
+                        </td>
+                        <td>
+                            <span class="badge-status badge-@b.Item8">@b.Item7</span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                @if (b.Item6 == "pending")
+                                {
+                                    <a asp-controller="Customer" asp-action="Payment" asp-route-bookingId="@b.Item1"
+                                       class="btn btn-sm btn-primary" style="font-size:0.72rem; border-radius:6px; padding:0.25rem 0.6rem;">
+                                        ชำระเงิน
+                                    </a>
+                                }
+                                <button class="btn btn-sm btn-outline-secondary" style="font-size:0.72rem; border-radius:6px; padding:0.25rem 0.6rem;">
+                                    รายละเอียด
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

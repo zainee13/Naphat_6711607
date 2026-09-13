@@ -1,0 +1,176 @@
+@{
+    ViewData["Title"] = "จัดการผู้ใช้";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><span class="material-symbols-outlined align-middle me-2" style="color:#06b6d4;">manage_accounts</span>จัดการผู้ใช้งาน</h1>
+            <p>เพิ่ม ลบ แก้ไข และกำหนดสิทธิ์ผู้ใช้ในระบบ</p>
+        </div>
+        <button class="btn btn-sm"
+                style="background:linear-gradient(135deg,#06b6d4,#0891b2); color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; font-weight:600;"
+                onclick="document.getElementById('addUserModal').classList.remove('d-none')">
+            <span class="material-symbols-outlined align-middle me-1" style="font-size:0.9rem;">person_add</span>
+            เพิ่มผู้ใช้ใหม่
+        </button>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    @foreach (var s in new[] {
+        ("people","ผู้ใช้ทั้งหมด","34","ใช้งานอยู่ 23","#06b6d4"),
+        ("person","ลูกค้า","28","Active 20","#3b82f6"),
+        ("groups","Staff","6","Online 3","#10b981"),
+        ("no_accounts","ถูกระงับ","2","—","#ef4444"),
+    })
+    {
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card" style="padding:1rem;">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="material-symbols-outlined" style="font-size:1.75rem; color:@s.Item5;">@s.Item1</span>
+                    <div>
+                        <div class="kpi-value" style="font-size:1.3rem;">@s.Item3</div>
+                        <div class="kpi-label" style="font-size:0.72rem;">@s.Item2</div>
+                        <div style="font-size:0.7rem; color:@s.Item5;">@s.Item4</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- User Table -->
+<div class="section-card">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#06b6d4;">list_alt</span> รายชื่อผู้ใช้ทั้งหมด</h2>
+        <div class="d-flex gap-2">
+            <input type="text" class="form-control form-control-sm" placeholder="🔍 ค้นหา..." style="width:180px; border-radius:8px;" />
+            <select class="form-select form-select-sm" style="width:auto; border-radius:8px;">
+                <option>Role ทั้งหมด</option>
+                <option>Customer</option><option>Accounting</option><option>Inventory</option>
+                <option>CustomerService</option><option>Manager</option><option>Admin</option>
+            </select>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom w-100">
+            <thead>
+                <tr><th>ชื่อผู้ใช้</th><th>ชื่อ-นามสกุล</th><th>Role</th><th>อีเมล</th><th>Login ล่าสุด</th><th>สถานะ</th><th>ดำเนินการ</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var u in new[] {
+                    ("customer1","นภัส นาวาหัสดินกุล","Customer","naphat@email.com","13 ก.ย. 13:37","ปกติ","available","#3b82f6"),
+                    ("accounting1","สมหญิง บัญชีดี","Accounting","somying@email.com","13 ก.ย. 12:00","ปกติ","available","#10b981"),
+                    ("inventory1","สมชาย คลังสินค้า","Inventory","somchai@email.com","13 ก.ย. 11:00","ปกติ","available","#8b5cf6"),
+                    ("cs1","วรรณิสา บริการ","CustomerService","wannisa@email.com","13 ก.ย. 13:00","ปกติ","available","#f59e0b"),
+                    ("manager1","ประยุทธ ผู้จัดการ","Manager","prayuth@email.com","13 ก.ย. 12:00","ปกติ","available","#ef4444"),
+                    ("admin","ผู้ดูแลระบบ","Admin","admin@logimanage.com","13 ก.ย. 13:37","ปกติ","available","#06b6d4"),
+                    ("customer2","บริษัท ABC จำกัด","Customer","abc@company.com","12 ก.ย. 16:30","ปกติ","available","#3b82f6"),
+                    ("customer3","ร้านค้า XYZ","Customer","xyz@shop.com","10 ก.ย. 09:00","ถูกระงับ","occupied","#ef4444"),
+                })
+                {
+                    var roleColors = new Dictionary<string,string> {
+                        {"Customer","#eff6ff|#1d4ed8"}, {"Accounting","#ecfdf5|#065f46"},
+                        {"Inventory","#f3e8ff|#7c3aed"}, {"CustomerService","#fef3c7|#92400e"},
+                        {"Manager","#fee2e2|#991b1b"}, {"Admin","#cffafe|#0e7490"}
+                    };
+                    var colorPair = roleColors.ContainsKey(u.Item3) ? roleColors[u.Item3].Split('|') : new[]{"#f3f4f6","#374151"};
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar" style="background:@u.Item8; color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0;">
+                                    @u.Item1[0]
+                                </div>
+                                <span class="fw-semibold" style="font-size:0.875rem; color:#06b6d4;">@u.Item1</span>
+                            </div>
+                        </td>
+                        <td style="font-size:0.875rem;">@u.Item2</td>
+                        <td>
+                            <span class="badge" style="background:@colorPair[0]; color:@colorPair[1]; font-size:0.72rem; border-radius:20px; padding:0.25rem 0.65rem;">
+                                @u.Item3
+                            </span>
+                        </td>
+                        <td style="font-size:0.78rem; color:#6c757d;">@u.Item4</td>
+                        <td style="font-size:0.75rem; color:#9ca3af;">@u.Item5</td>
+                        <td><span class="badge-status badge-@u.Item7">@u.Item6</span></td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm" style="background:#f0fdf4; color:#065f46; border:none; border-radius:6px; font-size:0.7rem;"
+                                        onclick="alert('แก้ไขผู้ใช้: @u.Item1')">
+                                    <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">edit</span>
+                                </button>
+                                <button class="btn btn-sm" style="background:#eff6ff; color:#1d4ed8; border:none; border-radius:6px; font-size:0.7rem;"
+                                        onclick="alert('เปลี่ยน Role: @u.Item1')">
+                                    <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">swap_horiz</span>
+                                </button>
+                                @if (u.Item7 == "available")
+                                {
+                                    <button class="btn btn-sm" style="background:#fef3c7; color:#92400e; border:none; border-radius:6px; font-size:0.7rem;"
+                                            onclick="alert('ระงับ: @u.Item1')">
+                                        <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">block</span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm" style="background:#fee2e2; color:#991b1b; border:none; border-radius:6px; font-size:0.7rem;"
+                                            onclick="alert('ยกเลิกการระงับ: @u.Item1')">
+                                        <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">lock_open</span>
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="addUserModal" class="d-none" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; display:flex!important; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:480px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="h5 fw-bold mb-0" style="color:#14213d;">เพิ่มผู้ใช้ใหม่</h3>
+            <button onclick="document.getElementById('addUserModal').classList.add('d-none')"
+                    style="background:none; border:none; font-size:1.5rem; color:#9ca3af; cursor:pointer;">&times;</button>
+        </div>
+        <div class="row g-3">
+            <div class="col-6">
+                <label class="form-label small fw-semibold">ชื่อผู้ใช้ *</label>
+                <input type="text" class="form-control form-control-sm" placeholder="username" />
+            </div>
+            <div class="col-6">
+                <label class="form-label small fw-semibold">รหัสผ่าน *</label>
+                <input type="password" class="form-control form-control-sm" placeholder="••••••••" />
+            </div>
+            <div class="col-12">
+                <label class="form-label small fw-semibold">ชื่อ-นามสกุล *</label>
+                <input type="text" class="form-control form-control-sm" placeholder="ชื่อ นามสกุล" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small fw-semibold">Role *</label>
+                <select class="form-select form-select-sm">
+                    <option>Customer</option><option>Accounting</option><option>Inventory</option>
+                    <option>CustomerService</option><option>Manager</option><option>Admin</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small fw-semibold">อีเมล</label>
+                <input type="email" class="form-control form-control-sm" placeholder="email@domain.com" />
+            </div>
+        </div>
+        <div class="d-flex gap-2 mt-4">
+            <button class="btn flex-fill" style="background:linear-gradient(135deg,#06b6d4,#0891b2); color:#fff; border:none; border-radius:10px; padding:0.65rem; font-weight:600;"
+                    onclick="alert('สร้างผู้ใช้สำเร็จ!'); document.getElementById('addUserModal').classList.add('d-none')">
+                สร้างผู้ใช้
+            </button>
+            <button class="btn btn-outline-secondary" style="border-radius:10px; padding:0.65rem 1.25rem;"
+                    onclick="document.getElementById('addUserModal').classList.add('d-none')">
+                ยกเลิก
+            </button>
+        </div>
+    </div>
+</div>

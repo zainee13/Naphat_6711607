@@ -1,0 +1,119 @@
+@{
+    ViewData["Title"] = "เพิ่ม / แก้ไขสินค้า";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <a asp-controller="Inventory" asp-action="StockList" class="btn btn-sm btn-outline-secondary mb-3" style="border-radius:8px;">
+        <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">arrow_back</span> กลับ
+    </a>
+    <h1><span class="material-symbols-outlined align-middle me-2" style="color:#8b5cf6;">add_box</span>เพิ่ม / แก้ไขสินค้าในคลัง</h1>
+    <p>บันทึกข้อมูลสินค้าที่เข้ามาในระบบ</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-12 col-lg-8">
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined" style="color:#8b5cf6;">inventory</span> ข้อมูลสินค้า</h2>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">รหัสสินค้า *</label>
+                    <input type="text" class="form-control" placeholder="PRD-XXXX" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">ชื่อสินค้า *</label>
+                    <input type="text" class="form-control" placeholder="ชื่อสินค้า" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">ประเภทสินค้า *</label>
+                    <select class="form-select">
+                        <option>อิเล็กทรอนิกส์</option><option>อาหาร</option><option>เครื่องใช้ไฟฟ้า</option>
+                        <option>ยานยนต์</option><option>อุตสาหกรรม</option><option>สินค้าทั่วไป</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">ห้องคลังที่เก็บ *</label>
+                    <select class="form-select">
+                        <option>BN-A01 (บางนา)</option><option>WN-B12 (วังน้อย)</option>
+                        <option>LC-C05 (แหลมฉบัง)</option><option>BN-A07 (บางนา)</option><option>LK-D03 (ลาดกระบัง)</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">จำนวนที่รับเข้า *</label>
+                    <input type="number" class="form-control" placeholder="0" min="1" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">หน่วย *</label>
+                    <select class="form-select">
+                        <option>ชิ้น</option><option>ลัง</option><option>กล่อง</option><option>กิโลกรัม</option><option>ตัน</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">สต็อกขั้นต่ำ (แจ้งเตือน)</label>
+                    <input type="number" class="form-control" placeholder="50" min="0" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">น้ำหนักต่อหน่วย (กก.)</label>
+                    <input type="number" step="0.01" class="form-control" placeholder="0.00" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">วันที่รับเข้า *</label>
+                    <input type="date" class="form-control" id="stockDate" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label small fw-semibold">ชื่อลูกค้า / เจ้าของสินค้า</label>
+                    <input type="text" class="form-control" placeholder="บริษัท / ชื่อลูกค้า" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label small fw-semibold">หมายเหตุ</label>
+                    <textarea class="form-control" rows="3" placeholder="ข้อมูลเพิ่มเติม เช่น สภาพสินค้า ข้อกำหนดพิเศษ..."></textarea>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-3">
+                <button class="btn btn-primary flex-fill"
+                        onclick="alert('บันทึกสินค้าเรียบร้อยแล้ว!')"
+                        style="background:linear-gradient(135deg,#8b5cf6,#7c3aed); border:none; border-radius:10px; padding:0.75rem; font-weight:600;">
+                    <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">save</span>
+                    บันทึก
+                </button>
+                <button class="btn btn-outline-secondary" style="border-radius:10px; padding:0.75rem 1.5rem;"
+                        onclick="if(confirm('ล้างข้อมูล?')) document.querySelectorAll('input,select,textarea').forEach(el => el.value='')">
+                    ล้างข้อมูล
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="section-card">
+            <div class="section-card-header">
+                <h2><span class="material-symbols-outlined" style="color:#8b5cf6;">history</span> ประวัติการบันทึกล่าสุด</h2>
+            </div>
+            @foreach (var h in new[] {
+                ("PRD-0981","Samsung TV","BN-A01","+ 120","13 ก.ย. 11:00","สมชาย"),
+                ("PRD-0974","ข้าวสาร","LC-C05","+ 500","13 ก.ย. 09:30","สมชาย"),
+                ("PRD-0963","ชิ้นส่วน","WN-B12","+ 80","12 ก.ย. 16:45","สมชาย"),
+                ("PRD-0950","ยางรถ","LK-D03","- 30","12 ก.ย. 14:00","สมชาย"),
+            })
+            {
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                    <div>
+                        <div style="font-size:0.78rem; font-weight:600; color:#8b5cf6;">@h.Item1</div>
+                        <div style="font-size:0.8rem; color:#374151;">@h.Item2 — @h.Item3</div>
+                        <div style="font-size:0.7rem; color:#9ca3af;">@h.Item6 • @h.Item5</div>
+                    </div>
+                    <span style="font-size:0.85rem; font-weight:700; color:@(h.Item4.StartsWith("+")?"#10b981":"#ef4444");">@h.Item4</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.getElementById('stockDate').valueAsDate = new Date();
+</script>
+}

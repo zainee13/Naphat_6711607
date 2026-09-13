@@ -1,0 +1,80 @@
+@{
+    ViewData["Title"] = "รายการ Ticket";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><span class="material-symbols-outlined align-middle me-2" style="color:#f59e0b;">confirmation_number</span>รายการ Ticket ทั้งหมด</h1>
+        </div>
+        <button class="btn btn-sm"
+                style="background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; font-weight:600;"
+                onclick="alert('เปิด Ticket ใหม่')">
+            <span class="material-symbols-outlined align-middle me-1" style="font-size:0.9rem;">add</span>
+            สร้าง Ticket
+        </button>
+    </div>
+</div>
+
+<!-- Filter -->
+<div class="filter-card mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="🔍 ค้นหา Ticket..." />
+        </div>
+        <div class="col-md-2">
+            <select class="form-select form-select-sm">
+                <option>สถานะทั้งหมด</option><option>รอดำเนินการ</option><option>กำลังดำเนินการ</option><option>แก้ไขแล้ว</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-select form-select-sm">
+                <option>หมวดทั้งหมด</option><option>การชำระเงิน</option><option>การจอง</option><option>คลังสินค้า</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-select form-select-sm">
+                <option>Priority ทั้งหมด</option><option>สูง</option><option>กลาง</option><option>ต่ำ</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="table-responsive">
+        <table class="table-custom w-100">
+            <thead>
+                <tr><th>Ticket</th><th>ลูกค้า</th><th>หัวข้อปัญหา</th><th>หมวด</th><th>Priority</th><th>สถานะ</th><th>ส่งต่อ</th><th>วันที่</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var t in new[] {
+                    ("TK-032","นภัส นาวาหัสดินกุล","ปัญหาการชำระเงิน ธนาคาร","การชำระเงิน","🔴 สูง","กำลังดำเนินการ","in-progress","บัญชี","13 ก.ย. 13:00"),
+                    ("TK-031","บริษัท ABC จำกัด","ขอเปลี่ยนห้องคลัง","การจอง","🟡 กลาง","รอดำเนินการ","open","Manager","13 ก.ย. 11:30"),
+                    ("TK-030","คุณสมชาย ใจดี","ขอรับใบเสร็จรับเงิน","บัญชี","🟢 ต่ำ","แก้ไขแล้ว","resolved","บัญชี","12 ก.ย. 16:00"),
+                    ("TK-029","ร้านค้า XYZ","สอบถามเรื่องคืนเงิน","การเงิน","🔴 สูง","รอดำเนินการ","open","บัญชี","12 ก.ย. 14:20"),
+                    ("TK-028","คุณวรรณิสา","ของในคลังหาย","คลังสินค้า","🔴 สูง","กำลังดำเนินการ","in-progress","คลัง","12 ก.ย. 10:00"),
+                    ("TK-027","คุณประยุทธ","ขอข้อมูลสัญญา","ทั่วไป","🟢 ต่ำ","แก้ไขแล้ว","resolved","—","11 ก.ย. 15:30"),
+                })
+                {
+                    <tr>
+                        <td><span class="fw-semibold" style="color:#f59e0b; font-size:0.78rem;">@t.Item1</span></td>
+                        <td style="font-size:0.875rem;">@t.Item2</td>
+                        <td style="font-size:0.875rem; font-weight:500; max-width:180px;">@t.Item3</td>
+                        <td><span class="badge" style="background:#fef3c7; color:#92400e; font-size:0.7rem;">@t.Item4</span></td>
+                        <td style="font-size:0.8rem;">@t.Item5</td>
+                        <td><span class="badge-status badge-@t.Item6">@t.Item7</span></td>
+                        <td style="font-size:0.8rem; color:#6c757d;">@t.Item8</td>
+                        <td style="font-size:0.72rem; color:#9ca3af;">@t.Item9</td>
+                        <td>
+                            <a asp-controller="CustomerService" asp-action="TicketDetail" asp-route-id="@t.Item1"
+                               class="btn btn-sm" style="background:#fef3c7; color:#92400e; border:none; border-radius:6px; font-size:0.72rem;">
+                                ดูรายละเอียด
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

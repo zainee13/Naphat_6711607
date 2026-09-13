@@ -1,0 +1,79 @@
+@{
+    ViewData["Title"] = "การคืนเงิน";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <h1><span class="material-symbols-outlined align-middle me-2" style="color:#10b981;">currency_exchange</span>การจัดการคืนเงิน</h1>
+    <p>ตรวจสอบและอนุมัติคำขอคืนเงินจากลูกค้า</p>
+</div>
+
+<!-- Summary -->
+<div class="row g-3 mb-4">
+    @foreach (var s in new[] {
+        ("pending","รอดำเนินการ","3","#f59e0b"),("task_alt","อนุมัติแล้ว","8","#10b981"),("cancel","ปฏิเสธ","2","#ef4444"),("payments","ยอดคืนเงินเดือนนี้","฿125,000","#3b82f6"),
+    })
+    {
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card" style="padding:1rem;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined" style="font-size:1.5rem; color:@s.Item4;">@s.Item1</span>
+                    <div>
+                        <div class="kpi-value" style="font-size:1.25rem;">@s.Item3</div>
+                        <div class="kpi-label" style="font-size:0.72rem;">@s.Item2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="section-card">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#10b981;">list_alt</span> รายการคำขอคืนเงิน</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom w-100">
+            <thead>
+                <tr>
+                    <th>รหัส</th><th>ลูกค้า</th><th>ห้อง</th><th>ยอดคืน</th><th>เหตุผล</th><th>วันที่ยื่น</th><th>สถานะ</th><th>ดำเนินการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in new[] {
+                    ("REF-001","บริษัท ABC จำกัด","BK-2025-009","฿50,000","ยกเลิกสัญญา (ล่วงหน้า 30 วัน)","5 ก.ย. 2569","รอดำเนินการ","pending"),
+                    ("REF-002","คุณสมหญิง","BK-2025-015","฿25,000","ห้องชำรุด ไม่สามารถใช้งานได้","3 ก.ย. 2569","รอดำเนินการ","pending"),
+                    ("REF-003","ร้านค้า DEF","BK-2025-018","฿50,000","ยกเลิกสัญญา","1 ก.ย. 2569","รอดำเนินการ","pending"),
+                    ("REF-004","คุณประยุทธ","BK-2025-005","฿30,000","เปลี่ยนห้องใหม่","25 ส.ค. 2569","อนุมัติแล้ว","paid"),
+                    ("REF-005","บริษัท GHI","BK-2025-002","฿80,000","ยกเลิกล่วงหน้าน้อยกว่า 14 วัน","20 ส.ค. 2569","ปฏิเสธ","cancelled"),
+                })
+                {
+                    <tr>
+                        <td><span class="fw-semibold" style="color:#10b981; font-size:0.82rem;">@r.Item1</span></td>
+                        <td style="font-size:0.875rem;">@r.Item2</td>
+                        <td style="font-size:0.8rem; color:#6c757d;">@r.Item3</td>
+                        <td class="fw-bold">@r.Item4</td>
+                        <td style="font-size:0.8rem; color:#6c757d; max-width:200px;">@r.Item5</td>
+                        <td style="font-size:0.78rem; color:#9ca3af;">@r.Item6</td>
+                        <td><span class="badge-status badge-@r.Item8">@r.Item7</span></td>
+                        <td>
+                            @if (r.Item8 == "pending")
+                            {
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm" style="background:#d1fae5; color:#065f46; border:none; border-radius:6px; font-size:0.7rem;"
+                                            onclick="alert('อนุมัติคืนเงิน @r.Item1')">✓ อนุมัติ</button>
+                                    <button class="btn btn-sm" style="background:#fee2e2; color:#991b1b; border:none; border-radius:6px; font-size:0.7rem;"
+                                            onclick="alert('ปฏิเสธ @r.Item1')">✗ ปฏิเสธ</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <span style="font-size:0.75rem; color:#9ca3af;">ดำเนินการแล้ว</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

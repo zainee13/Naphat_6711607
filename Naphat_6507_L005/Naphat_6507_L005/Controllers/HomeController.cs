@@ -11,6 +11,11 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult Search()
+    {
+        return View();
+    }
+
     public IActionResult Secirity()
     {
         return View("secirity");
@@ -23,7 +28,7 @@ public class HomeController : Controller
 
     public IActionResult Lab2()
     {
-        char A = 'a';
+        // char A = 'a';
         string Name, Lastname, Sec, Year, Code;
         Name = "Naphat";
         Lastname = "Navahasdinkull";
