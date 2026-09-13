@@ -184,9 +184,9 @@
                 <thead>
                     <tr>
                         <th>รหัสการจอง</th>
-                        <th>ห้องคลังสินค้า</th>
-                        <th>ทำเล</th>
-                        <th>ช่วงเวลาสัญญา</th>
+                        <th>ห้องคลัง</th>
+                        <th>ขนาดห้อง / โซน</th>
+                        <th>ระยะเวลาเช่า</th>
                         <th>ค่าเช่ารวม</th>
                         <th>สถานะการจอง</th>
                         <th>การชำระเงิน</th>
@@ -201,12 +201,12 @@
                             <div class="text-muted" style="font-size:0.7rem;">จองเมื่อ 10 ก.ย. 2569</div>
                         </td>
                         <td>
-                            <div class="fw-bold" style="font-size:0.9rem; color:#0f172a;">WN-B12</div>
+                            <div class="fw-bold" style="font-size:0.9rem; color:#0f172a;">Unit L-01</div>
                             <small class="text-muted">คลังสินค้าขนาดใหญ่ 500 ตร.ม.</small>
                         </td>
                         <td>
                             <span class="badge bg-light text-dark border">
-                                <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">location_on</span> วังน้อย
+                                <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">warehouse</span> โซน B1 (ไซส์ L)
                             </span>
                         </td>
                         <td style="font-size:0.85rem; color:#475569;">1 ก.พ. 2569 — 31 ก.ค. 2569 (6 เดือน)</td>
@@ -228,7 +228,7 @@
                                     <span class="material-symbols-outlined" style="font-size:0.9rem;">payments</span>
                                     ชำระเงินทันที
                                 </button>
-                                <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="WN-B12" class="btn btn-sm btn-outline-secondary" style="border-radius:6px; font-size:0.75rem;">
+                                <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="L-01" class="btn btn-sm btn-outline-secondary" style="border-radius:6px; font-size:0.75rem;">
                                     ดูห้อง
                                 </a>
                             </div>
@@ -242,12 +242,12 @@
                             <div class="text-muted" style="font-size:0.7rem;">จองเมื่อ 15 ธ.ค. 2568</div>
                         </td>
                         <td>
-                            <div class="fw-bold" style="font-size:0.9rem; color:#0f172a;">BN-A01</div>
+                            <div class="fw-bold" style="font-size:0.9rem; color:#0f172a;">Unit M-01</div>
                             <small class="text-muted">มาตรฐานสากล 150 ตร.ม.</small>
                         </td>
                         <td>
                             <span class="badge bg-light text-dark border">
-                                <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">location_on</span> บางนา กม.19
+                                <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">warehouse</span> โซน A1 (ไซส์ M)
                             </span>
                         </td>
                         <td style="font-size:0.85rem; color:#475569;">1 ม.ค. 2569 — 30 มิ.ย. 2569 (6 เดือน)</td>
@@ -263,11 +263,11 @@
                         </td>
                         <td>
                             <div class="d-flex justify-content-center gap-1">
-                                <button class="btn btn-sm btn-outline-primary" style="border-radius:6px; font-size:0.75rem;" onclick="alert('เปิดดูสัญญาเช่าห้อง BN-A01 (PDF)');">
+                                <button class="btn btn-sm btn-outline-primary" style="border-radius:6px; font-size:0.75rem;" onclick="alert('เปิดดูสัญญาเช่าห้อง Unit M-01 (PDF)');">
                                     <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">description</span>
                                     สัญญา
                                 </button>
-                                <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="BN-A01" class="btn btn-sm btn-outline-secondary" style="border-radius:6px; font-size:0.75rem;">
+                                <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="M-01" class="btn btn-sm btn-outline-secondary" style="border-radius:6px; font-size:0.75rem;">
                                     ดูห้อง
                                 </a>
                             </div>
@@ -281,12 +281,12 @@
                             <div class="text-muted" style="font-size:0.7rem;">จองเมื่อ 20 มิ.ย. 2568</div>
                         </td>
                         <td>
-                            <div class="fw-bold" style="font-size:0.9rem; color:#0f172a;">LC-C05</div>
+                            <div class="fw-bold" style="font-size:0.9rem; color:#0f172a;">Unit CR-05</div>
                             <small class="text-muted">ห้องเย็นควบคุมอุณหภูมิ 200 ตร.ม.</small>
                         </td>
                         <td>
                             <span class="badge bg-light text-dark border">
-                                <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">location_on</span> แหลมฉบัง
+                                <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">ac_unit</span> โซน Cold Storage
                             </span>
                         </td>
                         <td style="font-size:0.85rem; color:#475569;">1 ก.ค. 2568 — 31 ธ.ค. 2568 (6 เดือน)</td>
@@ -317,12 +317,12 @@
                             <div class="text-muted" style="font-size:0.7rem;">จองเมื่อ 10 ธ.ค. 2567</div>
                         </td>
                         <td>
-                            <div class="fw-bold" style="font-size:0.9rem; color:#0f172a;">BN-A01</div>
+                            <div class="fw-bold" style="font-size:0.9rem; color:#0f172a;">Unit M-01</div>
                             <small class="text-muted">150 ตร.ม.</small>
                         </td>
                         <td>
                             <span class="badge bg-light text-dark border">
-                                <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">location_on</span> บางนา
+                                <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">warehouse</span> โซน A1 (ไซส์ M)
                             </span>
                         </td>
                         <td style="font-size:0.85rem; color:#6c757d;">1 ม.ค. 2568 — 30 มิ.ย. 2568</td>
@@ -374,7 +374,7 @@
                     </div>
                     <div class="row mb-2">
                         <div class="col-6 text-secondary">ห้องคลังสินค้า:</div>
-                        <div class="col-6 fw-semibold">WN-B12 (วังน้อย อยุธยา - 500 ตร.ม.)</div>
+                        <div class="col-6 fw-semibold">Unit L-01 (ไซส์ L โซน B1 - 500 ตร.ม.)</div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-6 text-secondary">ระยะเวลาสัญญาเช่า:</div>
@@ -541,7 +541,7 @@
                             <span class="fw-bold text-dark">INV-2026-001</span>
                             <span class="badge bg-success-subtle text-success fw-bold">ชำระสำเร็จ</span>
                         </div>
-                        <div class="text-muted small mb-1">จองคลัง: BN-A01 (บางนา กม.19)</div>
+                        <div class="text-muted small mb-1">จองคลัง: Unit M-01 (ไซส์ M - 150 ตร.ม.)</div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-bold text-primary">฿200,000</span>
                             <button class="btn btn-sm btn-outline-primary py-1 px-2 d-inline-flex align-items-center gap-1" style="border-radius:6px; font-size:0.75rem;" onclick="alert('ดาวน์โหลดใบเสร็จ INV-2026-001 (PDF)');">
@@ -557,7 +557,7 @@
                             <span class="fw-bold text-dark">INV-2025-018</span>
                             <span class="badge bg-success-subtle text-success fw-bold">ชำระสำเร็จ</span>
                         </div>
-                        <div class="text-muted small mb-1">จองคลัง: LC-C05 (แหลมฉบัง)</div>
+                        <div class="text-muted small mb-1">จองคลัง: Unit CR-05 (ห้องเย็น 200 ตร.ม.)</div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-bold text-primary">฿130,000</span>
                             <button class="btn btn-sm btn-outline-primary py-1 px-2 d-inline-flex align-items-center gap-1" style="border-radius:6px; font-size:0.75rem;" onclick="alert('ดาวน์โหลดใบเสร็จ INV-2025-018 (PDF)');">
@@ -573,7 +573,7 @@
                             <span class="fw-bold text-muted">REF-2025-002</span>
                             <span class="badge bg-secondary-subtle text-secondary">คืนเงินแล้ว</span>
                         </div>
-                        <div class="text-muted small mb-1">ยกเลิกสัญญา: BN-A01</div>
+                        <div class="text-muted small mb-1">ยกเลิกสัญญา: Unit M-01 (ไซส์ M - 150 ตร.ม.)</div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-bold text-muted">฿200,000</span>
                             <span class="badge bg-light text-muted border">โอนคืนเข้าบัญชีเดิม</span>

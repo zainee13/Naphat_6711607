@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "หน้าหลัก — ศูนย์รวมโปรโมชั่น & คลังสินค้าให้เช่า";
+    ViewData["Title"] = "หน้าหลัก — คลังสินค้าให้เช่าห้องตามขนาดมาตรฐานสากล";
     Layout = "_Layout";
 }
 
@@ -10,30 +10,30 @@
         <div class="col-lg-7 p-4 p-md-5">
             <div class="d-inline-flex align-items-center gap-2 px-3 py-1 mb-3 rounded-pill"
                  style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); font-size: 0.85rem;">
-                <span class="material-symbols-outlined" style="font-size: 1.1rem; color: #fbbf24;">campaign</span>
-                <span class="fw-semibold">CAMPAIGN PROMOTION 2026</span>
+                <span class="material-symbols-outlined" style="font-size: 1.1rem; color: #fbbf24;">warehouse</span>
+                <span class="fw-semibold">LOGIMANAGE SMART WAREHOUSE (โครงการของเราเอง)</span>
             </div>
             
             <h1 class="display-5 fw-bold mb-3" style="line-height: 1.2;">
-                พื้นที่คลังสินค้าให้เช่า<br />
-                <span style="color: #fbbf24; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">โปรโมชั่นต้อนรับลูกค้าใหม่ ลด 35%</span>
+                บริการเช่าห้องคลังสินค้า<br />
+                <span style="color: #fbbf24; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">เลือกขนาดตามธุรกิจคุณ ลดสูงสุด 35%</span>
             </h1>
             
             <p class="mb-4 text-white-50" style="font-size: 1.05rem; max-width: 540px; line-height: 1.6;">
-                ยกระดับการบริหารสต็อกสินค้าของคุณด้วยคลังสินค้าทันสมัย บางนา • วังน้อย • แหลมฉบัง • ลาดกระบัง
-                จองวันนี้ รับฟรีประกันภัยสินค้า 1 ล้านบาท และสิทธิ์ใช้งานโฟล์กลิฟต์ฟรี!
+                คลังสินค้ามาตรฐานระดับสากลแห่งเดียวครบวงจร แบ่งพื้นที่ห้องเช่าเป็นสัดส่วน ปลอดภัยด้วยกล้อง AI 24 ชม.
+                เลือกขนาดได้ตั้งแต่ ไซส์ S (30 ตร.ม.) จนถึง ไซส์ XL (1,200 ตร.ม.) และห้องเย็นควบคุมอุณหภูมิ พร้อมเข้าใช้งานทันที!
             </p>
 
             <div class="d-flex flex-wrap gap-3">
                 <a asp-controller="Home" asp-action="Search" class="btn btn-warning btn-lg fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow"
                    style="border-radius: 10px; color: #0f172a; background: linear-gradient(135deg, #fde047, #eab308); border: none;">
-                    <span class="material-symbols-outlined">search</span>
-                    ค้นหาและจองคลังสินค้า
+                    <span class="material-symbols-outlined">view_cozy</span>
+                    เลือกห้องคลังตามขนาด
                 </a>
-                <a href="#promo-deals" class="btn btn-outline-light btn-lg px-4 py-2 d-inline-flex align-items-center gap-2"
+                <a href="#size-categories" class="btn btn-outline-light btn-lg px-4 py-2 d-inline-flex align-items-center gap-2"
                    style="border-radius: 10px; backdrop-filter: blur(4px);">
-                    <span class="material-symbols-outlined">sell</span>
-                    ดูโปรโมชั่นพิเศษ
+                    <span class="material-symbols-outlined">square_foot</span>
+                    ดูขนาดห้องทั้งหมด
                 </a>
             </div>
         </div>
@@ -41,12 +41,123 @@
         <div class="col-lg-5 text-center p-4 d-none d-lg-block">
             <div class="position-relative d-inline-block">
                 <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80"
-                     alt="Warehouse Deal"
+                     alt="Our Warehouse Complex"
                      class="img-fluid rounded-4 shadow-lg"
                      style="max-height: 300px; object-fit: cover; border: 4px solid rgba(255,255,255,0.25);" />
                 <div class="badge bg-danger position-absolute top-0 end-0 p-3 rounded-pill shadow-lg"
                      style="font-size: 0.95rem; transform: translate(10%, -20%); border: 3px solid #fff;">
-                    ⚡ LIMITED TIME OFFER
+                    ⚡ พื้นที่ว่างจำกัด
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section: Choose by Room Size (เลือกเช่าห้องตามขนาด) -->
+<div id="size-categories" class="mb-5">
+    <div class="text-center mb-4">
+        <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 mb-2" style="border-radius: 20px;">ROOM SIZES</span>
+        <h2 class="h3 fw-bold" style="color:#0f172a;">เลือกขนาดห้องคลังสินค้าที่เหมาะกับธุรกิจของคุณ</h2>
+        <p class="text-secondary small">คลังสินค้าของเราแบ่งขนาดห้องมาตรฐานอย่างเป็นระบบ ยืดหยุ่น คุ้มค่า จ่ายเฉพาะขนาดที่คุณต้องการใช้งานจริง</p>
+    </div>
+
+    <div class="row g-3">
+        <!-- Size S -->
+        <div class="col-12 col-md-6 col-lg">
+            <div class="card border-0 shadow-sm h-100 p-3 text-center" style="border-radius: 14px; border-top: 4px solid #3b82f6 !important; background:#ffffff;">
+                <div class="d-inline-flex align-items-center justify-content-center mx-auto mb-2 rounded-circle"
+                     style="width: 50px; height: 50px; background: #eff6ff; color: #2563eb;">
+                    <span class="material-symbols-outlined" style="font-size: 1.6rem;">inventory_2</span>
+                </div>
+                <span class="badge bg-primary-subtle text-primary fw-semibold mb-1">ไซส์ S</span>
+                <h3 class="h5 fw-bold text-dark mb-1">30 - 80 ตร.ม.</h3>
+                <p class="text-muted small mb-3">เหมาะสำหรับแม่ค้าออนไลน์ ธุรกิจ SME หรือสต็อกสินค้าขนาดย่อม</p>
+                <div class="mt-auto pt-2 border-top">
+                    <span class="text-muted small d-block">เริ่มต้น</span>
+                    <strong class="text-primary fs-6">฿9,000 / ด.</strong>
+                    <a asp-controller="Home" asp-action="Search" class="btn btn-outline-primary btn-sm w-100 mt-2" style="border-radius:8px;">
+                        ดูห้องว่างไซส์ S
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Size M -->
+        <div class="col-12 col-md-6 col-lg">
+            <div class="card border-0 shadow-sm h-100 p-3 text-center" style="border-radius: 14px; border-top: 4px solid #10b981 !important; background:#ffffff;">
+                <div class="d-inline-flex align-items-center justify-content-center mx-auto mb-2 rounded-circle"
+                     style="width: 50px; height: 50px; background: #ecfdf5; color: #059669;">
+                    <span class="material-symbols-outlined" style="font-size: 1.6rem;">shelves</span>
+                </div>
+                <span class="badge bg-success-subtle text-success fw-semibold mb-1">ไซส์ M</span>
+                <h3 class="h5 fw-bold text-dark mb-1">100 - 250 ตร.ม.</h3>
+                <p class="text-muted small mb-3">ขนาดยอดนิยม จัดเก็บพาเลท 50-120 ตัว ทางเดินโฟล์กลิฟต์สะดวก</p>
+                <div class="mt-auto pt-2 border-top">
+                    <span class="text-muted small d-block">เริ่มต้น</span>
+                    <strong class="text-success fs-6">฿22,000 / ด.</strong>
+                    <a asp-controller="Home" asp-action="Search" class="btn btn-outline-success btn-sm w-100 mt-2" style="border-radius:8px;">
+                        ดูห้องว่างไซส์ M
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Size L -->
+        <div class="col-12 col-md-6 col-lg">
+            <div class="card border-0 shadow-sm h-100 p-3 text-center" style="border-radius: 14px; border-top: 4px solid #f59e0b !important; background:#ffffff;">
+                <div class="d-inline-flex align-items-center justify-content-center mx-auto mb-2 rounded-circle"
+                     style="width: 50px; height: 50px; background: #fffbeb; color: #d97706;">
+                    <span class="material-symbols-outlined" style="font-size: 1.6rem;">forklift</span>
+                </div>
+                <span class="badge bg-warning-subtle text-warning-emphasis fw-semibold mb-1">ไซส์ L</span>
+                <h3 class="h5 fw-bold text-dark mb-1">300 - 500 ตร.ม.</h3>
+                <p class="text-muted small mb-3">รองรับธุรกิจขนาดใหญ่ มีชานชาลา Dock Leveler สำหรับรถ 10-18 ล้อ</p>
+                <div class="mt-auto pt-2 border-top">
+                    <span class="text-muted small d-block">เริ่มต้น</span>
+                    <strong class="text-warning-emphasis fs-6">฿55,000 / ด.</strong>
+                    <a asp-controller="Home" asp-action="Search" class="btn btn-outline-warning btn-sm w-100 mt-2 text-dark" style="border-radius:8px;">
+                        ดูห้องว่างไซส์ L
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Size XL -->
+        <div class="col-12 col-md-6 col-lg">
+            <div class="card border-0 shadow-sm h-100 p-3 text-center" style="border-radius: 14px; border-top: 4px solid #8b5cf6 !important; background:#ffffff;">
+                <div class="d-inline-flex align-items-center justify-content-center mx-auto mb-2 rounded-circle"
+                     style="width: 50px; height: 50px; background: #f5f3ff; color: #7c3aed;">
+                    <span class="material-symbols-outlined" style="font-size: 1.6rem;">domain</span>
+                </div>
+                <span class="badge bg-purple-subtle text-purple fw-semibold mb-1" style="background:#ede9fe; color:#6d28d9;">ไซส์ XL (เมกะ)</span>
+                <h3 class="h5 fw-bold text-dark mb-1">600 - 1,200 ตร.ม.</h3>
+                <p class="text-muted small mb-3">ศูนย์กระจายสินค้า เพดานสูง 12 ม. ออฟฟิศในตัว ระบบ WMS พร้อม</p>
+                <div class="mt-auto pt-2 border-top">
+                    <span class="text-muted small d-block">เริ่มต้น</span>
+                    <strong class="text-primary fs-6">฿120,000 / ด.</strong>
+                    <a asp-controller="Home" asp-action="Search" class="btn btn-outline-primary btn-sm w-100 mt-2" style="border-radius:8px;">
+                        ดูห้องว่างไซส์ XL
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cold Storage -->
+        <div class="col-12 col-md-6 col-lg">
+            <div class="card border-0 shadow-sm h-100 p-3 text-center" style="border-radius: 14px; border-top: 4px solid #06b6d4 !important; background:#ffffff;">
+                <div class="d-inline-flex align-items-center justify-content-center mx-auto mb-2 rounded-circle"
+                     style="width: 50px; height: 50px; background: #ecfeff; color: #0891b2;">
+                    <span class="material-symbols-outlined" style="font-size: 1.6rem;">ac_unit</span>
+                </div>
+                <span class="badge bg-info-subtle text-info-emphasis fw-semibold mb-1">ห้องควบคุมอุณหภูมิ</span>
+                <h3 class="h5 fw-bold text-dark mb-1">100 - 200 ตร.ม.</h3>
+                <p class="text-muted small mb-3">ควบคุมอุณหภูมิ -18°C ถึง +5°C สำหรับอาหาร ยา เวชภัณฑ์ และเคมีภัณฑ์</p>
+                <div class="mt-auto pt-2 border-top">
+                    <span class="text-muted small d-block">เริ่มต้น</span>
+                    <strong class="text-info fs-6">฿38,000 / ด.</strong>
+                    <a asp-controller="Home" asp-action="Search" class="btn btn-outline-info btn-sm w-100 mt-2" style="border-radius:8px;">
+                        ดูห้องควบคุมอุณหภูมิ
+                    </a>
                 </div>
             </div>
         </div>
@@ -61,7 +172,7 @@
                 <span class="material-symbols-outlined align-middle text-warning me-1">confirmation_number</span>
                 คูปองส่วนลดพิเศษประจำเดือน (Vouchers)
             </h2>
-            <p class="text-secondary small mb-0">กดคัดลอกโค้ดเพื่อนำไปใช้เป็นส่วนลดค่าเช่าคลังสินค้า</p>
+            <p class="text-secondary small mb-0">กดคัดลอกโค้ดเพื่อนำไปใช้เป็นส่วนลดค่าเช่าห้องคลังสินค้าของเรา</p>
         </div>
         <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-semibold">
             ⏰ โปรโมชั่นมีจำนวนจำกัด
@@ -78,7 +189,7 @@
                         <small class="text-muted">ลดค่าเช่าเดือนแรก</small>
                     </div>
                     <h3 class="h5 fw-bold text-dark mb-1">ส่วนลด 35%</h3>
-                    <p class="text-secondary small mb-3">เมื่อทำสัญญาเช่าคลังสินค้าขนาดใดก็ได้ 6 เดือนขึ้นไป</p>
+                    <p class="text-secondary small mb-3">เมื่อทำสัญญาเช่าห้องขนาดใดก็ได้ในคลังของเราตั้งแต่ 6 เดือนขึ้นไป</p>
                     <div class="d-flex align-items-center justify-content-between bg-white p-2 rounded-3 border">
                         <code class="fw-bold fs-6 text-primary">MEGA35START</code>
                         <button class="btn btn-sm btn-outline-primary py-1 px-2" onclick="navigator.clipboard.writeText('MEGA35START'); alert('คัดลอกโค้ด MEGA35START เรียบร้อย!');">
@@ -95,10 +206,10 @@
                 <div class="card-body p-3">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <span class="badge bg-primary" style="font-size:0.75rem;">SME BUNDLE</span>
-                        <small class="text-muted">สำหรับธุรกิจ SME</small>
+                        <small class="text-muted">ห้องไซส์ S และ M</small>
                     </div>
                     <h3 class="h5 fw-bold text-dark mb-1">ลดทันที 5,000 บาท</h3>
-                    <p class="text-secondary small mb-3">ฟรีค่าตรวจนับสต็อก และฟรีพื้นที่จอดรถขนถ่าย 1 คัน</p>
+                    <p class="text-secondary small mb-3">ฟรีค่าบริการตรวจนับสต็อก และสิทธิ์ใช้โฟล์กลิฟต์ฟรีในคลัง</p>
                     <div class="d-flex align-items-center justify-content-between bg-white p-2 rounded-3 border">
                         <code class="fw-bold fs-6 text-primary">SMEPRO5K</code>
                         <button class="btn btn-sm btn-outline-primary py-1 px-2" onclick="navigator.clipboard.writeText('SMEPRO5K'); alert('คัดลอกโค้ด SMEPRO5K เรียบร้อย!');">
@@ -115,7 +226,7 @@
                 <div class="card-body p-3">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <span class="badge bg-success" style="font-size:0.75rem;">YEARLY PASS</span>
-                        <small class="text-muted">สัญญา 1 ปี</small>
+                        <small class="text-muted">สัญญา 1 ปี ทุกขนาดห้อง</small>
                     </div>
                     <h3 class="h5 fw-bold text-dark mb-1">ฟรีค่าเช่า 1 เดือนเต็ม</h3>
                     <p class="text-secondary small mb-3">เช่าครบ 11 เดือน อยู่ฟรีเดือนที่ 12 ไม่มีเงื่อนไขแอบแฝง</p>
@@ -131,43 +242,43 @@
     </div>
 </div>
 
-<!-- Highlighted Warehouse Units (โฆษณายูนิตราคาพิเศษ) -->
+<!-- Highlighted Warehouse Units (โฆษณาห้องขนาดต่างๆ ราคาพิเศษ) -->
 <div class="mb-5">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
         <div>
             <h2 class="h4 fw-bold mb-1" style="color: #0f172a;">
                 <span class="material-symbols-outlined align-middle text-danger me-1">local_fire_department</span>
-                คลังสินค้าไฮไลท์ราคาพิเศษ (Flash Sale Units)
+                ห้องคลังสินค้าไฮไลท์ตามขนาด (Flash Sale Units)
             </h2>
-            <p class="text-secondary small mb-0">คลังสินค้าทำเลทองลดราคาพิเศษช่วงโปรโมชั่น จองได้ทันทีก่อนหมด</p>
+            <p class="text-secondary small mb-0">ห้องคลังว่างพร้อมเข้าใช้ในโครงการของเรา แบ่งตามระดับขนาดพื้นที่</p>
         </div>
         <a asp-controller="Home" asp-action="Search" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1" style="border-radius:8px;">
-            <span>ดูรายการคลังสินค้าทั้งหมด</span>
+            <span>ดูรายการห้องทั้งหมด</span>
             <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_forward</span>
         </a>
     </div>
 
     <div class="row g-4">
-        <!-- Unit 1 -->
+        <!-- Unit 1: Size M -->
         <div class="col-12 col-md-4">
             <div class="card border-0 shadow-sm h-100 overflow-hidden" style="border-radius:14px;">
                 <div class="position-relative" style="height: 180px;">
                     <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80"
-                         alt="BN-A01" style="width: 100%; height: 100%; object-fit: cover;" />
+                         alt="Unit M-01" style="width: 100%; height: 100%; object-fit: cover;" />
                     <span class="badge bg-danger shadow-sm position-absolute top-0 start-0 m-2 px-2 py-1" style="border-radius:6px; font-weight:700;">
                         🏷️ ลด 14% FLASH SALE
                     </span>
-                    <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 start-0 m-2 px-2 py-1" style="border-radius:6px; font-size:0.75rem;">
-                        <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">location_on</span> บางนา กม.19
+                    <span class="badge bg-primary position-absolute bottom-0 start-0 m-2 px-2 py-1" style="border-radius:6px; font-size:0.75rem;">
+                        <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">square_foot</span> ไซส์ M (150 ตร.ม.)
                     </span>
                 </div>
                 <div class="card-body p-3 d-flex flex-column">
-                    <h3 class="h6 fw-bold mb-1" style="color: #0f172a;">BN-A01 (บางนา มาตรฐานสากล)</h3>
-                    <p class="text-secondary small mb-3">พื้นอีพ็อกซี่ รองรับน้ำหนัก 3 ตัน/ตร.ม. ทางเข้าออกกว้างขวาง</p>
+                    <h3 class="h6 fw-bold mb-1" style="color: #0f172a;">Unit M-01 (ห้องมาตรฐาน โซน A)</h3>
+                    <p class="text-secondary small mb-3">พื้นอีพ็อกซี่ รับน้ำหนัก 3 ตัน/ตร.ม. ประตูกว้าง โฟล์กลิฟต์เข้า-ออกสะดวก</p>
                     <div class="mt-auto border-top pt-2 mb-3">
                         <div class="d-flex justify-content-between align-items-baseline">
                             <div>
-                                <span class="text-muted small d-block">ขนาด 150 ตร.ม.</span>
+                                <span class="text-muted small d-block">ขนาด 150 ตร.ม. (โซน A)</span>
                                 <small class="text-muted text-decoration-line-through">฿29,000</small>
                             </div>
                             <div class="text-end">
@@ -178,7 +289,7 @@
                     </div>
                     <div class="d-flex gap-2">
                         <a asp-controller="Home" asp-action="Secirity" class="btn btn-primary flex-fill btn-sm fw-semibold" style="border-radius:8px;">
-                            จองพร้อมโปรนี้
+                            จองห้องนี้
                         </a>
                         <a asp-controller="Home" asp-action="Search" class="btn btn-outline-secondary btn-sm" style="border-radius:8px;">
                             ดูรายละเอียด
@@ -188,26 +299,26 @@
             </div>
         </div>
 
-        <!-- Unit 2 -->
+        <!-- Unit 2: Cold Storage -->
         <div class="col-12 col-md-4">
             <div class="card border-0 shadow-sm h-100 overflow-hidden" style="border-radius:14px;">
                 <div class="position-relative" style="height: 180px;">
                     <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&q=80"
-                         alt="LC-C05" style="width: 100%; height: 100%; object-fit: cover;" />
+                         alt="Unit CR-05" style="width: 100%; height: 100%; object-fit: cover;" />
                     <span class="badge bg-info text-dark shadow-sm position-absolute top-0 start-0 m-2 px-2 py-1" style="border-radius:6px; font-weight:700;">
                         ❄️ ห้องเย็น HOT DEAL
                     </span>
-                    <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 start-0 m-2 px-2 py-1" style="border-radius:6px; font-size:0.75rem;">
-                        <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">location_on</span> แหลมฉบัง (ชลบุรี)
+                    <span class="badge bg-info text-dark position-absolute bottom-0 start-0 m-2 px-2 py-1" style="border-radius:6px; font-size:0.75rem;">
+                        <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">ac_unit</span> ห้องเย็น (200 ตร.ม.)
                     </span>
                 </div>
                 <div class="card-body p-3 d-flex flex-column">
-                    <h3 class="h6 fw-bold mb-1" style="color: #0f172a;">LC-C05 (ห้องเย็นมาตรฐานส่งออก)</h3>
-                    <p class="text-secondary small mb-3">ควบคุมอุณหภูมิ -18°C ถึง +5°C ติดท่าเรือแหลมฉบัง ขนส่งสะดวกรวดเร็ว</p>
+                    <h3 class="h6 fw-bold mb-1" style="color: #0f172a;">Unit CR-05 (ห้องเย็น โซน C)</h3>
+                    <p class="text-secondary small mb-3">ควบคุมอุณหภูมิ -18°C ถึง +5°C ระบบไฟฟ้าสำรองคู่ พร้อมเซ็นเซอร์ IoT</p>
                     <div class="mt-auto border-top pt-2 mb-3">
                         <div class="d-flex justify-content-between align-items-baseline">
                             <div>
-                                <span class="text-muted small d-block">ขนาด 200 ตร.ม.</span>
+                                <span class="text-muted small d-block">ขนาด 200 ตร.ม. (โซน C)</span>
                                 <small class="text-muted text-decoration-line-through">฿48,000</small>
                             </div>
                             <div class="text-end">
@@ -218,7 +329,7 @@
                     </div>
                     <div class="d-flex gap-2">
                         <a asp-controller="Home" asp-action="Secirity" class="btn btn-primary flex-fill btn-sm fw-semibold" style="border-radius:8px;">
-                            จองพร้อมโปรนี้
+                            จองห้องนี้
                         </a>
                         <a asp-controller="Home" asp-action="Search" class="btn btn-outline-secondary btn-sm" style="border-radius:8px;">
                             ดูรายละเอียด
@@ -228,26 +339,26 @@
             </div>
         </div>
 
-        <!-- Unit 3 -->
+        <!-- Unit 3: Size L -->
         <div class="col-12 col-md-4">
             <div class="card border-0 shadow-sm h-100 overflow-hidden" style="border-radius:14px;">
                 <div class="position-relative" style="height: 180px;">
                     <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80"
-                         alt="WN-B12" style="width: 100%; height: 100%; object-fit: cover;" />
+                         alt="Unit L-01" style="width: 100%; height: 100%; object-fit: cover;" />
                     <span class="badge bg-warning text-dark shadow-sm position-absolute top-0 start-0 m-2 px-2 py-1" style="border-radius:6px; font-weight:700;">
-                        🚚 BIG WAREHOUSE PROMO
+                        🚚 LARGE WAREHOUSE PROMO
                     </span>
-                    <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 start-0 m-2 px-2 py-1" style="border-radius:6px; font-size:0.75rem;">
-                        <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">location_on</span> วังน้อย (อยุธยา)
+                    <span class="badge bg-warning text-dark position-absolute bottom-0 start-0 m-2 px-2 py-1" style="border-radius:6px; font-size:0.75rem;">
+                        <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">square_foot</span> ไซส์ L (500 ตร.ม.)
                     </span>
                 </div>
                 <div class="card-body p-3 d-flex flex-column">
-                    <h3 class="h6 fw-bold mb-1" style="color: #0f172a;">WN-B12 (คลังสินค้าเมกะ 500 ตร.ม.)</h3>
-                    <p class="text-secondary small mb-3">รองรับรถเทรลเลอร์ 18 ล้อ มีชานชาลา Dock Leveler โหลดสินค้าได้รวดเร็ว</p>
+                    <h3 class="h6 fw-bold mb-1" style="color: #0f172a;">Unit L-01 (คลังขนาดใหญ่ โซน B)</h3>
+                    <p class="text-secondary small mb-3">รองรับรถเทรลเลอร์ มีชานชาลา Dock Leveler โหลดตู้สินค้าได้รวดเร็วทันใจ</p>
                     <div class="mt-auto border-top pt-2 mb-3">
                         <div class="d-flex justify-content-between align-items-baseline">
                             <div>
-                                <span class="text-muted small d-block">ขนาด 500 ตร.ม.</span>
+                                <span class="text-muted small d-block">ขนาด 500 ตร.ม. (โซน B)</span>
                                 <small class="text-muted text-decoration-line-through">฿85,000</small>
                             </div>
                             <div class="text-end">
@@ -258,7 +369,7 @@
                     </div>
                     <div class="d-flex gap-2">
                         <a asp-controller="Home" asp-action="Secirity" class="btn btn-primary flex-fill btn-sm fw-semibold" style="border-radius:8px;">
-                            จองพร้อมโปรนี้
+                            จองห้องนี้
                         </a>
                         <a asp-controller="Home" asp-action="Search" class="btn btn-outline-secondary btn-sm" style="border-radius:8px;">
                             ดูรายละเอียด
@@ -270,12 +381,12 @@
     </div>
 </div>
 
-<!-- Features & Service Standards Advertising -->
+<!-- Features & Service Standards -->
 <div class="card border-0 shadow-sm p-4 p-md-5 mb-5" style="border-radius: 18px; background: #ffffff;">
     <div class="text-center mb-5">
         <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 mb-2" style="border-radius: 20px;">ADVANCED FACILITIES</span>
-        <h2 class="h3 fw-bold" style="color:#0f172a;">บริการและสิ่งอำนวยความสะดวกมาตรฐานสากล</h2>
-        <p class="text-secondary small">ออกแบบมาเพื่อช่วยให้การจัดการสินค้าคงคลังของคุณมีประสิทธิภาพสูงสุด ปลอดภัย และลดต้นทุน</p>
+        <h2 class="h3 fw-bold" style="color:#0f172a;">บริการและสิ่งอำนวยความสะดวกในคลังสินค้าของเรา</h2>
+        <p class="text-secondary small">ออกแบบมาเพื่อช่วยให้การจัดการสินค้าของคุณมีประสิทธิภาพสูงสุด ปลอดภัย และยืดหยุ่นตามการเติบโต</p>
     </div>
 
     <div class="row g-4">
@@ -317,30 +428,18 @@
     </div>
 </div>
 
-<!-- Trusted Partners Section -->
-<div class="card border-0 shadow-sm p-4 mb-5 text-center" style="border-radius: 16px; background: #f8fafc;">
-    <div class="text-muted small fw-semibold mb-3">ได้รับความไว้วางใจจากบริษัทชั้นนำทั่วประเทศ</div>
-    <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 text-secondary" style="font-size: 1.1rem; font-weight: 700; opacity: 0.75;">
-        <span>📦 Kerry Logistics</span>
-        <span>🚚 Flash Express</span>
-        <span>🛒 Lazada Logistics</span>
-        <span>🏬 Central Retail</span>
-        <span>⚡ SCG Logistics</span>
-    </div>
-</div>
-
 <!-- Call-to-Action Advertising Banner -->
 <div class="p-4 p-md-5 rounded-4 shadow-sm text-center text-white"
      style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
-    <h2 class="h3 fw-bold mb-2">เริ่มต้นเช่าคลังสินค้าออนไลน์ได้ง่ายๆ วันนี้</h2>
+    <h2 class="h3 fw-bold mb-2">เลือกเช่าห้องคลังสินค้าที่เหมาะกับขนาดธุรกิจของคุณ</h2>
     <p class="text-white-50 mb-4" style="max-width:600px; margin: 0 auto;">
-        ค้นหาห้องคลังสินค้าที่เหมาะกับขนาดธุรกิจของคุณ จองง่าย ทำสัญญาออนไลน์ พร้อมเข้าใช้งานได้ทันที
+        ระบบเช่าคลังสินค้าออนไลน์ จองง่าย ทำสัญญาออนไลน์ เลือกล็อคห้องตามขนาด S, M, L, XL พร้อมเข้าใช้งานได้ทันที
     </p>
     <div class="d-flex justify-content-center gap-3">
         <a asp-controller="Home" asp-action="Search" class="btn btn-primary btn-lg px-4 py-2 fw-semibold"
            style="border-radius: 10px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none;">
             <span class="material-symbols-outlined align-middle me-1">search</span>
-            ค้นหาคลังสินค้าทั้งหมด
+            เลือกดูห้องตามขนาด
         </a>
         <a asp-controller="Home" asp-action="Secirity" class="btn btn-outline-light btn-lg px-4 py-2 fw-semibold"
            style="border-radius: 10px;">

@@ -1,6 +1,30 @@
 @{
-    var roomId = ViewBag.RoomId as string ?? "BN-A01";
-    ViewData["Title"] = $"รายละเอียด {roomId}";
+    var roomId = ViewBag.RoomId as string ?? "M-01";
+    if (roomId == "BN-A01") roomId = "M-01";
+    if (roomId == "WN-B12") roomId = "L-01";
+    if (roomId == "LC-C05") roomId = "CR-05";
+    if (roomId == "LK-D03") roomId = "L-02";
+    if (roomId == "BN-A07") roomId = "S-02";
+    if (roomId == "WN-E01") roomId = "XL-01";
+
+    var roomDict = new Dictionary<string, (string Name, string Size, string Height, string Zone, string Vehicle, string Temp, string Img, string Price, int PriceNum, string Desc)>
+    {
+        ["S-01"] = ("Unit S-01 (ไซส์ S - 60 ตร.ม.)", "60 ตร.ม.", "6 เมตร", "โซน A1 (ชั้น 1)", "กระบะ / 4 ล้อ", "ปกติ", "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80", "฿12,000", 12000, "ห้องไซส์เล็ก ชั้น 1 เข้าถึงง่าย เหมาะกับเก็บเอกสารและสต็อกสินค้าพร้อมส่ง"),
+        ["S-02"] = ("Unit S-02 (ไซส์ S - 80 ตร.ม.)", "80 ตร.ม.", "6 เมตร", "โซน A2 (SME)", "4 ล้อ / 6 ล้อ", "ปกติ", "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80", "฿15,000", 15000, "ห้องขนาดกะทัดรัด ประตูม้วนไฟฟ้า สะดวกต่อการโหลดสินค้า เหมาะกับ SME และออนไลน์"),
+        ["M-01"] = ("Unit M-01 (ไซส์ M - 150 ตร.ม.)", "150 ตร.ม.", "8 เมตร", "โซน B1 (มาตรฐาน)", "6 ล้อ / 10 ล้อ", "ปกติ", "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80", "฿25,000", 25000, "โกดังมาตรฐาน พื้นอีพ็อกซี่ รองรับน้ำหนัก 3 ตัน/ตร.ม. โฟล์กลิฟต์เข้าสะดวก เหมาะสำหรับวางพาเลทสินค้า"),
+        ["M-02"] = ("Unit M-02 (ไซส์ M - 250 ตร.ม.)", "250 ตร.ม.", "8 เมตร", "โซน B2 (พาเลท)", "10 ล้อ", "ปกติ", "https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&q=80", "฿38,000", 38000, "ห้องขนาดกลาง เพดาน 8 เมตร ติดตั้ง Racking ได้ 3 ชั้น รองรับพาเลท 120 ตัว"),
+        ["L-01"] = ("Unit L-01 (ไซส์ L - 500 ตร.ม.)", "500 ตร.ม.", "10 เมตร", "โซน C1 (มี Dock)", "รถพ่วง 18 ล้อ / คอนเทนเนอร์", "ปกติ", "https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&q=80", "฿75,000", 75000, "คลังสินค้าขนาดใหญ่ รองรับรถพ่วง 18 ล้อ พร้อม Dock Leveler เทียบตู้คอนเทนเนอร์ โหลดสินค้าได้รวดเร็ว"),
+        ["L-02"] = ("Unit L-02 (ไซส์ L - 350 ตร.ม.)", "350 ตร.ม.", "10 เมตร", "โซน C2 (สินค้าปลอดภัย)", "10 ล้อ / เทรลเลอร์", "ปกติ", "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=900&q=80", "฿55,000", 55000, "เพดานสูง 10 เมตร พื้นที่จัดเก็บสินค้าปลอดภัยสูง พร้อมระบบ CCTV แยกห้อง"),
+        ["XL-01"] = ("Unit XL-01 (ไซส์ XL - 1,200 ตร.ม.)", "1,200 ตร.ม.", "12 เมตร", "โซน D1 (เมกะ)", "คอนเทนเนอร์ทุกขนาด", "ปกติ", "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=900&q=80", "฿180,000", 180000, "คลังขนาดใหญ่พิเศษ เพดานสูง 12 ม. ระบบ WMS & Cloud Monitoring พร้อมออฟฟิศในตัว"),
+        ["CR-05"] = ("Unit CR-05 (ห้องเย็น 200 ตร.ม.)", "200 ตร.ม.", "7 เมตร", "โซน Cold Storage", "10 ล้อตู้เย็น", "-18°C ถึง +5°C", "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=900&q=80", "฿40,000", 40000, "ห้องเย็นควบคุมอุณหภูมิ -18 ถึง +5°C ระบบไฟสำรองคู่ พร้อมเซ็นเซอร์ IoT Real-Time"),
+    };
+
+    if (!roomDict.ContainsKey(roomId))
+    {
+        roomId = "M-01";
+    }
+    var info = roomDict[roomId];
+    ViewData["Title"] = $"รายละเอียด {info.Name}";
     Layout = "_Layout";
 }
 
@@ -8,9 +32,9 @@
     <a asp-controller="Customer" asp-action="Search"
        class="btn btn-sm btn-outline-secondary mb-3" style="border-radius:8px;">
         <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">arrow_back</span>
-        กลับไปยังหน้าค้นหาคลังสินค้า
+        กลับไปยังหน้าค้นหาห้องคลังสินค้า
     </a>
-    <h1>รายละเอียดห้องคลัง — @roomId</h1>
+    <h1>รายละเอียดห้องคลัง — @info.Name</h1>
 </div>
 
 <div class="row g-4">
@@ -18,23 +42,23 @@
     <!-- Image & Quick Info -->
     <div class="col-12 col-lg-7">
         <div class="section-card p-0 overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80"
-                 alt="@roomId" style="width:100%; height:320px; object-fit:cover;" />
+            <img src="@info.Img"
+                 alt="@info.Name" style="width:100%; height:320px; object-fit:cover;" />
             <div class="p-4">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h2 class="h4 fw-bold" style="color:#14213d;">BN-A01 (บางนา)</h2>
-                    <span class="badge-status badge-available">ว่าง</span>
+                    <h2 class="h4 fw-bold" style="color:#14213d;">@info.Name</h2>
+                    <span class="badge-status badge-available">ว่างพร้อมใช้</span>
                 </div>
-                <p class="text-secondary">โกดังมาตรฐาน พื้นอีพ็อกซี่ ใกล้ทางด่วนพิเศษ บุรีรัมย์ เหมาะสำหรับสินค้าทั่วไปและสินค้าอุตสาหกรรม ระบบรักษาความปลอดภัย 24 ชั่วโมง กล้อง CCTV ครบทุกมุม</p>
+                <p class="text-secondary">@info.Desc มีระบบรักษาความปลอดภัย AI 24 ชั่วโมง กล้อง CCTV ครบทุกมุม ระบบระบายอากาศมาตรฐาน และทีมช่างประจำโครงการ</p>
 
                 <div class="row g-3 mt-2">
                     @foreach (var spec in new[] {
-                        ("square_foot","ขนาด","150 ตร.ม."),
-                        ("height","ความสูง","8 เมตร"),
-                        ("location_on","ที่ตั้ง","บางนา กม.12"),
-                        ("local_shipping","รถที่รองรับ","10 ล้อ"),
-                        ("thermostat","อุณหภูมิ","ปกติ"),
-                        ("electrical_services","ไฟฟ้า","380V, 3 เฟส"),
+                        ("square_foot","ขนาดพื้นที่", info.Size),
+                        ("height","ความสูงเพดาน", info.Height),
+                        ("warehouse","โซนในคลัง", info.Zone),
+                        ("local_shipping","รถที่รองรับ", info.Vehicle),
+                        ("thermostat","อุณหภูมิ", info.Temp),
+                        ("electrical_services","ระบบไฟฟ้า","380V, 3 เฟส"),
                     })
                     {
                         <div class="col-6 col-md-4">
@@ -48,10 +72,10 @@
                 </div>
 
                 <!-- Amenities -->
-                <div class="mt-3">
-                    <h3 class="h6 fw-semibold mb-2">สิ่งอำนวยความสะดวก</h3>
+                <div class="mt-4">
+                    <h3 class="h6 fw-semibold mb-2">สิ่งอำนวยความสะดวกในโครงการคลังสินค้าของเรา</h3>
                     <div class="d-flex flex-wrap gap-2">
-                        @foreach (var amenity in new[] { "🚿 ห้องน้ำ", "🅿️ ลานจอดรถ", "🔒 CCTV 24 ชม.", "🔥 ระบบดับเพลิง", "📶 WiFi", "☀️ Solar roof" })
+                        @foreach (var amenity in new[] { "🚿 ห้องน้ำสะอาด", "🅿️ ลานจอดรถ & ถอยตู้", "🔒 กล้อง AI 24 ชม.", "🔥 สปริงเกอร์ดับเพลิง", "📶 WiFi ฟรี", "☀️ โซลาร์รูฟพลังงานสะอาด", "🚜 มีรถโฟล์กลิฟต์บริการ" })
                         {
                             <span class="badge" style="background:#eff6ff; color:#1d4ed8; font-size:0.78rem; padding:0.35rem 0.7rem; border-radius:20px;">@amenity</span>
                         }
@@ -71,9 +95,9 @@
                 </div>
             </div>
             @foreach (var rev in new[] {
-                ("บริษัท ABC จำกัด","5","ห้องสะอาด ปลอดภัย พนักงานดูแลดีมาก แนะนำเลยครับ"),
-                ("คุณสมชาย ใจดี","4","ทำเลดี ใกล้ทางด่วน ราคาสมเหตุสมผล"),
-                ("ร้านค้า XYZ","5","ใช้บริการมาหลายปีแล้ว ไม่เคยผิดหวัง"),
+                ("บริษัท สยาม โลจิสติกส์ จำกัด","5","ห้องสะอาด ปลอดภัย มีระบบ AI ตรวจจับดีมาก ชานชาลาโหลดของสะดวกมากครับ"),
+                ("คุณสมชาย นำเจริญ","5","เช่าห้องไซส์นี้ตอบโจทย์ธุรกิจนำเข้าสินค้าเลยครับ พื้นรับน้ำหนักได้เยอะ"),
+                ("ร้านค้าออนไลน์ SuperShop","5","ระบบรักษาความปลอดภัยดีมาก ทีมงานหน้าคลังช่วยเหลือยกของดี แนะนำเลยครับ"),
             })
             {
                 <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
@@ -95,47 +119,63 @@
     <!-- Booking Panel -->
     <div class="col-12 col-lg-5">
         <div class="section-card" style="position:sticky; top:80px;">
-            <h3 class="h5 fw-bold mb-1" style="color:#14213d;">ราคาและการจอง</h3>
+            <h3 class="h5 fw-bold mb-1" style="color:#14213d;">ราคาและการจองห้อง</h3>
             <div class="mb-3">
-                <span style="font-size:1.75rem; font-weight:700; color:#fca311;">฿25,000</span>
+                <span style="font-size:1.75rem; font-weight:700; color:#fca311;">@info.Price</span>
                 <span style="color:#6c757d; font-size:0.85rem;"> / เดือน</span>
             </div>
             <hr />
             <div class="mb-3">
                 <label class="form-label small fw-semibold">วันที่เริ่มเช่า</label>
-                <input type="date" class="form-control form-control-sm" id="startDate" />
+                <input type="date" class="form-control form-control-sm" id="detailStartDate" />
             </div>
             <div class="mb-3">
                 <label class="form-label small fw-semibold">ระยะเวลาเช่า</label>
-                <select class="form-select form-select-sm" id="duration">
-                    <option>1 เดือน</option>
-                    <option>3 เดือน</option>
-                    <option selected>6 เดือน</option>
-                    <option>12 เดือน</option>
+                <select class="form-select form-select-sm" id="detailDuration" onchange="updateCalc()">
+                    <option value="1">1 เดือน</option>
+                    <option value="3">3 เดือน</option>
+                    <option value="6" selected>6 เดือน</option>
+                    <option value="12">12 เดือน (ฟรีเดือนที่ 12)</option>
                 </select>
             </div>
             <div class="p-3 mb-3" style="background:#f8f9fa; border-radius:10px;">
                 <div class="d-flex justify-content-between mb-1">
-                    <span style="font-size:0.85rem; color:#6c757d;">ค่าเช่า 6 เดือน</span>
-                    <span style="font-size:0.85rem;">฿150,000</span>
+                    <span style="font-size:0.85rem; color:#6c757d;" id="calcRentLabel">ค่าเช่า 6 เดือน</span>
+                    <span style="font-size:0.85rem;" id="calcRentVal">฿@((info.PriceNum * 6).ToString("N0"))</span>
                 </div>
                 <div class="d-flex justify-content-between mb-1">
-                    <span style="font-size:0.85rem; color:#6c757d;">ค่ามัดจำ</span>
-                    <span style="font-size:0.85rem;">฿50,000</span>
+                    <span style="font-size:0.85rem; color:#6c757d;">เงินประกันความเสียหาย</span>
+                    <span style="font-size:0.85rem;" id="calcDepositVal">฿@((info.PriceNum * 2).ToString("N0"))</span>
                 </div>
                 <hr class="my-2" />
                 <div class="d-flex justify-content-between">
-                    <span style="font-weight:600;">รวมทั้งสิ้น</span>
-                    <span style="font-weight:700; color:#fca311; font-size:1rem;">฿200,000</span>
+                    <span style="font-weight:600;">ยอดรวมประมาณการ</span>
+                    <span style="font-weight:700; color:#fca311; font-size:1rem;" id="calcTotalVal">฿@((info.PriceNum * 6 + info.PriceNum * 2).ToString("N0"))</span>
                 </div>
             </div>
             <a asp-controller="Customer" asp-action="BookRoom" asp-route-id="@roomId"
                class="btn btn-primary w-100 mb-2" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8); border:none; border-radius:10px; padding:0.75rem;">
                 <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">bookmark_add</span>
-                จองห้องนี้
+                จองห้องนี้ทันที
             </a>
-            <p style="font-size:0.72rem; color:#9ca3af; text-align:center;">ฟรี — ไม่มีค่าใช้จ่ายจนกว่าจะได้รับการยืนยัน</p>
+            <p style="font-size:0.72rem; color:#9ca3af; text-align:center;">ฟรี — สัญญาออนไลน์ สะดวกรวดเร็ว ตรวจสอบได้</p>
         </div>
     </div>
 
 </div>
+
+@section Scripts {
+<script>
+const priceRate = @info.PriceNum;
+function updateCalc() {
+    const dur = parseInt(document.getElementById('detailDuration').value);
+    const rent = priceRate * dur;
+    const deposit = priceRate * 2;
+    const total = rent + deposit;
+    document.getElementById('calcRentLabel').textContent = 'ค่าเช่า ' + dur + ' เดือน';
+    document.getElementById('calcRentVal').textContent = '฿' + rent.toLocaleString();
+    document.getElementById('calcTotalVal').textContent = '฿' + total.toLocaleString();
+}
+document.getElementById('detailStartDate').valueAsDate = new Date();
+</script>
+}

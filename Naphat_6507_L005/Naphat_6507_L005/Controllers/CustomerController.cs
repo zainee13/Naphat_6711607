@@ -22,14 +22,14 @@ public class CustomerController : Controller
         return View();
     }
 
-    public IActionResult RoomDetail(string id = "BN-A01")
+    public IActionResult RoomDetail(string id = "M-01")
     {
         SetUserBag();
         ViewBag.RoomId = id;
         return View();
     }
 
-    public IActionResult BookRoom(string id = "BN-A01")
+    public IActionResult BookRoom(string id = "M-01")
     {
         SetUserBag();
         ViewBag.RoomId = id;
