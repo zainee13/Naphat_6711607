@@ -42,15 +42,35 @@
     </div>
 
     {{!-- User Info --}}
-    <div class="sidebar-user">
-        <div class="avatar" style="background: @avatarColor; color:#fff;">
-            @initial
+    @if (role == "Customer")
+    {
+        <a asp-controller="Customer" asp-action="Profile" style="text-decoration:none; color:inherit;" title="ไปยังหน้าโปรไฟล์ของฉัน">
+            <div class="sidebar-user" style="cursor:pointer;">
+                <div class="avatar" style="background: @avatarColor; color:#fff;">
+                    @initial
+                </div>
+                <div>
+                    <div class="user-name">@fullName</div>
+                    <div class="user-role d-flex align-items-center gap-1">
+                        <span>@roleLabel</span>
+                        <span class="material-symbols-outlined" style="font-size:0.8rem; opacity:0.7;">arrow_forward</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    }
+    else
+    {
+        <div class="sidebar-user">
+            <div class="avatar" style="background: @avatarColor; color:#fff;">
+                @initial
+            </div>
+            <div>
+                <div class="user-name">@fullName</div>
+                <div class="user-role">@roleLabel</div>
+            </div>
         </div>
-        <div>
-            <div class="user-name">@fullName</div>
-            <div class="user-role">@roleLabel</div>
-        </div>
-    </div>
+    }
 
     {{!-- Navigation by Role --}}
     <div class="sidebar-nav">
@@ -60,28 +80,18 @@
             <div class="nav-section-label">เมนูหลัก</div>
             <a asp-controller="Customer" asp-action="Dashboard"
                class="nav-item-link @(IsActive("Customer","Dashboard") ? "active" : "")">
-                <span class="material-symbols-outlined">campaign</span>
-                <span>หน้าหลัก (โปรโมชั่น)</span>
+                <span class="material-symbols-outlined">home</span>
+                <span>หน้าหลัก</span>
             </a>
             <a asp-controller="Customer" asp-action="Search"
                class="nav-item-link @(IsActive("Customer","Search") ? "active" : "")">
                 <span class="material-symbols-outlined">search</span>
-                <span>ค้นหาคลังสินค้า</span>
+                <span>ค้นหาสินค้า</span>
             </a>
-            <a asp-controller="Customer" asp-action="MyBookings"
-               class="nav-item-link @(IsActive("Customer","MyBookings") ? "active" : "")">
-                <span class="material-symbols-outlined">book_online</span>
-                <span>การจองของฉัน</span>
-            </a>
-            <a asp-controller="Customer" asp-action="Payment"
-               class="nav-item-link @(IsActive("Customer","Payment") ? "active" : "")">
-                <span class="material-symbols-outlined">payments</span>
-                <span>ชำระเงิน</span>
-            </a>
-            <a asp-controller="Customer" asp-action="Reviews"
-               class="nav-item-link @(IsActive("Customer","Reviews") ? "active" : "")">
-                <span class="material-symbols-outlined">rate_review</span>
-                <span>รีวิวและคะแนน</span>
+            <a asp-controller="Customer" asp-action="Profile"
+               class="nav-item-link @(IsActive("Customer","Profile") ? "active" : "")">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span>โปรไฟล์ (การจอง & ชำระเงิน)</span>
             </a>
         }
 

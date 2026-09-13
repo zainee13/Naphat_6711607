@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "หน้าหลัก — สิทธิพิเศษ & โปรโมชั่น";
+    ViewData["Title"] = "หน้าหลัก — ค้นหาและเช่าคลังสินค้า";
     Layout = "_Layout";
 }
 
@@ -25,12 +25,12 @@
                 <a asp-controller="Customer" asp-action="Search" class="btn btn-warning btn-lg fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow"
                    style="border-radius: 10px; color: #1e293b; background: linear-gradient(135deg, #fde047, #eab308); border: none;">
                     <span class="material-symbols-outlined">search</span>
-                    ค้นหาคลังสินค้าที่ร่วมรายการ
+                    ค้นหาสินค้าและคลังสินค้า
                 </a>
-                <a href="#coupon-section" class="btn btn-outline-light btn-lg px-4 py-2 d-inline-flex align-items-center gap-2"
+                <a asp-controller="Customer" asp-action="Profile" class="btn btn-outline-light btn-lg px-4 py-2 d-inline-flex align-items-center gap-2"
                    style="border-radius: 10px; backdrop-filter: blur(4px);">
-                    <span class="material-symbols-outlined">confirmation_number</span>
-                    เก็บโค้ดส่วนลด
+                    <span class="material-symbols-outlined">account_circle</span>
+                    โปรไฟล์ (การจอง & ชำระเงิน)
                 </a>
             </div>
         </div>
@@ -47,6 +47,92 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- Quick Search Card (ค้นหาสินค้า & คลังสินค้า) -->
+<div class="card border-0 shadow-sm mb-4" style="border-radius:16px; background:#ffffff;">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="material-symbols-outlined text-primary" style="font-size:1.5rem;">search</span>
+            <h2 class="h5 fw-bold mb-0" style="color:#0f172a;">ค้นหาสินค้าและห้องคลังสินค้า (Search Warehouses)</h2>
+        </div>
+        <form asp-controller="Customer" asp-action="Search" method="get">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-4">
+                    <label class="form-label small fw-semibold text-secondary mb-1">
+                        <span class="material-symbols-outlined align-middle" style="font-size:0.95rem;">location_on</span>
+                        ทำเลที่ตั้งคลังสินค้า
+                    </label>
+                    <select class="form-select" name="location" style="border-radius:8px;">
+                        <option value="">ทุกทำเล (บางนา, วังน้อย, แหลมฉบัง, ลาดกระบัง)</option>
+                        <option value="บางนา">บางนา กม.19 (กรุงเทพฯ - สมุทรปราการ)</option>
+                        <option value="วังน้อย">วังน้อย (อยุธยา - สู่ภาคเหนือ/อีสาน)</option>
+                        <option value="แหลมฉบัง">แหลมฉบัง (ชลบุรี - ท่าเรือส่งออก)</option>
+                        <option value="ลาดกระบัง">ลาดกระบัง (สุวรรณภูมิ & ICD)</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold text-secondary mb-1">
+                        <span class="material-symbols-outlined align-middle" style="font-size:0.95rem;">square_foot</span>
+                        ขนาดพื้นที่จัดเก็บ
+                    </label>
+                    <select class="form-select" name="size" style="border-radius:8px;">
+                        <option value="">ทุกขนาดพื้นที่</option>
+                        <option value="s">50 - 100 ตร.ม. (SME)</option>
+                        <option value="m">101 - 300 ตร.ม. (ขนาดยอดนิยม)</option>
+                        <option value="l">301 - 500 ตร.ม. (ธุรกิจขนาดใหญ่)</option>
+                        <option value="xl">500+ ตร.ม. (ศูนย์กระจายสินค้า)</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold text-secondary mb-1">
+                        <span class="material-symbols-outlined align-middle" style="font-size:0.95rem;">payments</span>
+                        งบประมาณ / เดือน
+                    </label>
+                    <select class="form-select" name="price" style="border-radius:8px;">
+                        <option value="">ทุกช่วงราคา</option>
+                        <option value="under20k">ต่ำกว่า 20,000 บาท</option>
+                        <option value="20k-50k">20,000 - 50,000 บาท</option>
+                        <option value="50k-100k">50,000 - 100,000 บาท</option>
+                        <option value="over100k">100,000 บาทขึ้นไป</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold d-flex align-items-center justify-content-center gap-1 shadow-sm"
+                            style="border-radius:8px; height:38px; background:linear-gradient(135deg, #2563eb, #1d4ed8); border:none;">
+                        <span class="material-symbols-outlined" style="font-size:1.1rem;">search</span>
+                        ค้นหา
+                    </button>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-3 pt-2 border-top">
+                <span class="text-secondary small fw-semibold">คำค้นยอดนิยม:</span>
+                <a asp-controller="Customer" asp-action="Search" class="badge bg-light text-dark border text-decoration-none py-1 px-2" style="border-radius:20px;">❄️ ห้องเย็นแหลมฉบัง</a>
+                <a asp-controller="Customer" asp-action="Search" class="badge bg-light text-dark border text-decoration-none py-1 px-2" style="border-radius:20px;">🚚 วังน้อย 500 ตร.ม.</a>
+                <a asp-controller="Customer" asp-action="Search" class="badge bg-light text-dark border text-decoration-none py-1 px-2" style="border-radius:20px;">📦 บางนา มาตรฐานสากล</a>
+                <a asp-controller="Customer" asp-action="Search" class="badge bg-light text-dark border text-decoration-none py-1 px-2" style="border-radius:20px;">🏷️ ยูนิตลดราคา Flash Sale</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Profile Quick Access Card -->
+<div class="alert border-0 shadow-sm d-flex flex-wrap align-items-center justify-content-between p-3 mb-4"
+     style="background: #ffffff; border-left: 5px solid #2563eb !important; border-radius: 12px;">
+    <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center justify-content-center rounded-circle shadow-sm"
+             style="width: 44px; height: 44px; background: #eff6ff; color: #2563eb;">
+            <span class="material-symbols-outlined" style="font-size:1.4rem;">account_circle</span>
+        </div>
+        <div>
+            <div class="fw-bold text-dark">จัดการการจองของฉัน และ การชำระเงิน ได้ในหน้าโปรไฟล์</div>
+            <div class="text-secondary small">ตรวจสอบสถานะสัญญาจองคลังสินค้า, ชำระเงินผ่าน QR หรือสลิปธนาคาร, และดาวน์โหลดใบเสร็จรับเงิน</div>
+        </div>
+    </div>
+    <a asp-controller="Customer" asp-action="Profile" class="btn btn-sm btn-outline-primary fw-bold px-3 py-2 d-inline-flex align-items-center gap-1" style="border-radius: 8px;">
+        <span>ไปยังหน้าโปรไฟล์</span>
+        <span class="material-symbols-outlined" style="font-size: 1rem;">arrow_forward</span>
+    </a>
 </div>
 
 <!-- Coupons & Special Offers Section -->

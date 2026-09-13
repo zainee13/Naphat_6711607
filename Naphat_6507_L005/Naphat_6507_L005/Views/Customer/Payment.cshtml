@@ -9,6 +9,14 @@
     <p>การจอง: <strong>@bookingId</strong></p>
 </div>
 
+<div class="alert alert-info border-0 shadow-sm d-flex align-items-center justify-content-between mb-4" style="border-radius:10px;">
+    <div class="d-flex align-items-center gap-2">
+        <span class="material-symbols-outlined">info</span>
+        <span>ระบบชำระเงินและการจัดการการจองถูกย้ายไปรวมไว้ใน <strong>หน้าโปรไฟล์</strong> เรียบร้อยแล้ว</span>
+    </div>
+    <a asp-controller="Customer" asp-action="Profile" asp-route-tab="payment" asp-route-bookingId="@bookingId" class="btn btn-sm btn-primary">ไปที่หน้าโปรไฟล์ (ชำระเงิน)</a>
+</div>
+
 <div class="row g-4">
 
     <!-- Payment Method -->

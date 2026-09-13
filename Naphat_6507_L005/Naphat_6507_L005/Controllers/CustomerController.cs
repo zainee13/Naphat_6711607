@@ -36,17 +36,22 @@ public class CustomerController : Controller
         return View();
     }
 
-    public IActionResult MyBookings()
+    public IActionResult Profile(string tab = "bookings", string bookingId = "BK-2026-002")
     {
         SetUserBag();
+        ViewBag.ActiveTab = tab;
+        ViewBag.BookingId = bookingId;
         return View();
     }
 
-    public IActionResult Payment(string bookingId = "BK-2026-001")
+    public IActionResult MyBookings()
     {
-        SetUserBag();
-        ViewBag.BookingId = bookingId;
-        return View();
+        return RedirectToAction("Profile", new { tab = "bookings" });
+    }
+
+    public IActionResult Payment(string bookingId = "BK-2026-002")
+    {
+        return RedirectToAction("Profile", new { tab = "payment", bookingId });
     }
 
     public IActionResult Reviews()

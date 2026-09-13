@@ -8,6 +8,14 @@
     <p>ประวัติและสถานะการจองห้องคลังสินค้าทั้งหมด</p>
 </div>
 
+<div class="alert alert-info border-0 shadow-sm d-flex align-items-center justify-content-between mb-4" style="border-radius:10px;">
+    <div class="d-flex align-items-center gap-2">
+        <span class="material-symbols-outlined">info</span>
+        <span>การจองของฉันและการชำระเงินถูกย้ายไปรวมไว้ใน <strong>หน้าโปรไฟล์</strong> เพื่อความสะดวกในการจัดการ</span>
+    </div>
+    <a asp-controller="Customer" asp-action="Profile" asp-route-tab="bookings" class="btn btn-sm btn-primary">ไปที่หน้าโปรไฟล์</a>
+</div>
+
 <!-- Status Summary -->
 <div class="row g-3 mb-4">
     @foreach (var s in new[] {

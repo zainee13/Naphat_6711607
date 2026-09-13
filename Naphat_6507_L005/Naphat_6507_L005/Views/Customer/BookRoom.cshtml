@@ -139,7 +139,7 @@
             </div>
 
             <button class="btn btn-primary w-100 mt-3"
-                    onclick="alert('ส่งคำขอจองเรียบร้อยแล้ว! สถานะ: รอการยืนยัน')"
+                    onclick="submitBooking()"
                     style="background:linear-gradient(135deg,#3b82f6,#1d4ed8); border:none; border-radius:10px; padding:0.75rem; font-weight:600;">
                 <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">send</span>
                 ยืนยันการจอง
@@ -170,5 +170,10 @@ document.getElementById('bookStart').addEventListener('change', calcPrice);
 // Set default start date to today
 document.getElementById('bookStart').valueAsDate = new Date();
 calcPrice();
+
+function submitBooking() {
+    alert('ส่งคำขอจองห้อง @roomId เรียบร้อยแล้ว!\nระบบได้นำท่านไปยังหน้าโปรไฟล์เพื่อตรวจสอบข้อมูลการจองและชำระเงิน');
+    window.location.href = '@Url.Action("Profile", "Customer", new { tab = "payment", bookingId = "BK-2026-002" })';
+}
 </script>
 }

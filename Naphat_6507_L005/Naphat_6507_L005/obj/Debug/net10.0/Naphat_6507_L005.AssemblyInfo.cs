@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Naphat_6507_L005")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+21ee37d76d3693e4b311adaa6c0927d4e66e1e6f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a2b9a19c1ad259db01630cfda5cec1224462fdac")]
 [assembly: System.Reflection.AssemblyProductAttribute("Naphat_6507_L005")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Naphat_6507_L005")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
