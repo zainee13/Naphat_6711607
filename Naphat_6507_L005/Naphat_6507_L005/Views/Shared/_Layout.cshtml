@@ -61,7 +61,7 @@
             (string.IsNullOrEmpty(act) || currentAction.Equals(act, StringComparison.OrdinalIgnoreCase));
     }
 
-    <nav class="sidebar">
+    <nav class="sidebar @(role == "Customer" ? "customer-sidebar" : "")">
 
         <div class="sidebar-logo">
             <div class="brand">Logi<span>Manage</span></div>
@@ -223,9 +223,9 @@
 
 
     @* ====== Main Content ====== *@
-    <div class="main-content">
+    <div class="main-content @(role == "Customer" ? "customer-shell" : "")">
 
-        <header class="topbar">
+        <header class="topbar @(role == "Customer" ? "customer-topbar" : "")">
             <div class="topbar-title">@(ViewData["Title"] ?? "LogiManage")</div>
             <div class="topbar-right">
                 <span class="badge rounded-pill px-3 py-2"
