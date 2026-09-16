@@ -40,7 +40,7 @@ public class AccountController : Controller
     public IActionResult Logout()
     {
         HttpContext.Session.Clear();
-        return RedirectToAction("Login");
+        return RedirectToAction("Dashboard", "Customer");
     }
 
     private IActionResult RedirectByRole(string role) => role switch

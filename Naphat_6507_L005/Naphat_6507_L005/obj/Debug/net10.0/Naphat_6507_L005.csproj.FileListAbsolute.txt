@@ -192,4 +192,4 @@ C:\Users\Napha\OneDrive - Sripatum University\Desktop\Workshop6\Naphat_6711607\N
 C:\Users\Napha\OneDrive - Sripatum University\Desktop\Workshop6\Naphat_6711607\Naphat_6507_L005\Naphat_6507_L005\obj\Debug\net10.0\Naphat_6507_L005.pdb
 C:\Users\Napha\OneDrive - Sripatum University\Desktop\Workshop6\Naphat_6711607\Naphat_6507_L005\Naphat_6507_L005\obj\Debug\net10.0\Naphat_6507_L005.genruntimeconfig.cache
 C:\Users\Napha\OneDrive - Sripatum University\Desktop\Workshop6\Naphat_6711607\Naphat_6507_L005\Naphat_6507_L005\obj\Debug\net10.0\ref\Naphat_6507_L005.dll
-C:\Users\Napha\OneDrive - Sripatum University\Desktop\Workshop6\Naphat_6711607\Naphat_6507_L005\Naphat_6507_L005\obj\Debug\net10.0\compressed\5sl0tr2wjv-{0}-2n6hu9m4gf-2n6hu9m4gf.gz
+C:\Users\Napha\OneDrive - Sripatum University\Desktop\Workshop6\Naphat_6711607\Naphat_6507_L005\Naphat_6507_L005\obj\Debug\net10.0\compressed\5sl0tr2wjv-{0}-i0r5jigltq-i0r5jigltq.gz

@@ -28,7 +28,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}")
+    pattern: "{controller=Customer}/{action=Dashboard}/{id?}")
     .WithStaticAssets();
 
 app.Run();

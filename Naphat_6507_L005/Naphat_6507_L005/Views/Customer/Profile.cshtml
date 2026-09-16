@@ -808,11 +808,14 @@ function filterBookings() {
     });
 }
 
-// Initial tab check from URL hash
+// Initial tab check from URL query or hash
 document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
     const hash = window.location.hash.replace('#', '');
-    if (hash && ['bookings', 'payment', 'info'].includes(hash)) {
-        switchProfileTab(hash);
+    const active = tabParam || hash || '@activeTab';
+    if (active && ['bookings', 'payment', 'info'].includes(active)) {
+        switchProfileTab(active);
     }
 });
 </script>

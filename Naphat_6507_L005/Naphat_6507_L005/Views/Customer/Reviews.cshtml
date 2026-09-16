@@ -1,141 +1,226 @@
 @{
-    ViewData["Title"] = "รีวิวและคะแนน";
+    ViewData["Title"] = "รีวิวและประเมินบริการ";
     Layout = "_Layout";
 }
 
-<div class="page-header">
-    <h1><span class="material-symbols-outlined align-middle me-2 text-orange">rate_review</span>รีวิวและให้คะแนน</h1>
-    <p>แชร์ประสบการณ์การใช้บริการคลังสินค้าของคุณ</p>
+<!-- Breadcrumbs & Header -->
+<div class="page-header mb-4">
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0 small" style="--bs-breadcrumb-divider: '›';">
+            <li class="breadcrumb-item"><a asp-controller="Customer" asp-action="Dashboard" class="text-decoration-none text-muted">หน้าหลัก</a></li>
+            <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">รีวิวและประเมินบริการ</li>
+        </ol>
+    </nav>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2" style="color:#0f172a;">
+                <span class="material-symbols-outlined text-primary" style="font-size:2rem;">rate_review</span>
+                รีวิวและประเมินความพึงพอใจ
+            </h1>
+            <p class="text-secondary mb-0" style="font-size:0.92rem;">
+                แชร์ประสบการณ์การใช้พื้นที่คลังสินค้า และข้อเสนอแนะเพื่อพัฒนาบริการให้ดียิ่งขึ้น
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold">
+                <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">verified</span>
+                รีวิวจากผู้เช่าจริง 100%
+            </span>
+        </div>
+    </div>
 </div>
 
 <div class="row g-4">
 
-    <!-- Write Review -->
+    <!-- Left Column: Write Review -->
     <div class="col-12 col-lg-5">
         <div class="section-card">
             <div class="section-card-header">
-                <h2><span class="material-symbols-outlined text-orange">edit</span> เขียนรีวิว</h2>
+                <h2><span class="material-symbols-outlined">edit_note</span> เขียนรีวิวการใช้งานคลังสินค้า</h2>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label small fw-semibold">เลือกการจองที่ต้องการรีวิว</label>
-                <select class="form-select form-select-sm">
-                    <option>BK-2026-001 — Unit M-01 (ไซส์ M - 150 ตร.ม.)</option>
-                    <option>BK-2025-018 — Unit CR-05 (ห้องเย็น - 200 ตร.ม.)</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label small fw-semibold">คะแนนความพึงพอใจ</label>
-                <div class="d-flex gap-2" id="starContainer">
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        <span class="material-symbols-outlined"
-                              id="star_@i"
-                              onclick="setStar(@i)"
-                              style="font-size:2rem; cursor:pointer; color:#d1d5db; transition:color 0.1s;">
-                            star
-                        </span>
-                    }
+            <form id="reviewForm" onsubmit="submitReview(event)">
+                <div class="mb-3">
+                    <label class="form-label">เลือกสัญญาการจองที่ต้องการประเมิน *</label>
+                    <select class="form-select" id="reviewBookingSelect" required>
+                        <option value="BK-2026-001">BK-2026-001 — Unit M-01 (ไซส์ M โซน B1 - 150 ตร.ม.)</option>
+                        <option value="BK-2025-018">BK-2025-018 — Unit CR-05 (ห้องเย็น โซน Cold - 200 ตร.ม.)</option>
+                    </select>
                 </div>
-                <div id="starLabel" style="font-size:0.78rem; color:#6c757d; margin-top:0.25rem;">คลิกเพื่อให้คะแนน</div>
-            </div>
 
-            <div class="row g-3 mb-3">
-                @foreach (var cat in new[] { "ความสะอาด", "ความปลอดภัย", "การบริการ", "ความคุ้มค่า" })
-                {
+                <div class="mb-3">
+                    <label class="form-label">ระดับความพึงพอใจโดยรวม *</label>
+                    <div class="d-flex align-items-center gap-2 p-2 rounded-3" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                        <div class="d-flex gap-1" id="starContainer">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <span class="material-symbols-outlined"
+                                      id="star_@i"
+                                      onclick="setStar(@i)"
+                                      style="font-size:2.2rem; cursor:pointer; color:#cbd5e1; transition:all 0.15s ease;">
+                                    star
+                                </span>
+                            }
+                        </div>
+                        <div id="starLabel" class="small fw-bold text-muted ms-2">คลิกเพื่อให้คะแนน</div>
+                    </div>
+                </div>
+
+                <!-- Detailed Criteria -->
+                <div class="row g-2 mb-3">
                     <div class="col-6">
-                        <label class="form-label small fw-semibold" style="font-size:0.78rem;">@cat</label>
+                        <label class="form-label small fw-semibold text-secondary mb-1">ความสะอาดของพื้นที่</label>
                         <select class="form-select form-select-sm">
-                            <option>5 ★</option>
-                            <option>4 ★</option>
-                            <option selected>3 ★</option>
-                            <option>2 ★</option>
-                            <option>1 ★</option>
+                            <option>5 ★ ยอดเยี่ยม</option>
+                            <option selected>4 ★ ดีมาก</option>
+                            <option>3 ★ พอใช้</option>
+                            <option>2 ★ ควรปรับปรุง</option>
+                            <option>1 ★ แย่</option>
                         </select>
                     </div>
-                }
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label small fw-semibold">ความคิดเห็น</label>
-                <textarea class="form-control" rows="4"
-                          placeholder="บอกเล่าประสบการณ์ของคุณ เช่น ความสะอาด การบริการ ความปลอดภัย..."></textarea>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label small fw-semibold">รูปภาพประกอบ (ไม่บังคับ)</label>
-                <div class="p-3 text-center" style="border:2px dashed #d1d5db; border-radius:10px; cursor:pointer; background:#f9fafb;"
-                     onclick="document.getElementById('reviewImg').click()">
-                    <span class="material-symbols-outlined" style="font-size:1.75rem; color:#9ca3af;">add_photo_alternate</span>
-                    <div style="font-size:0.75rem; color:#9ca3af; margin-top:0.2rem;">คลิกเพื่อเพิ่มรูป</div>
-                    <input type="file" id="reviewImg" class="d-none" accept="image/*" multiple />
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold text-secondary mb-1">ระบบความปลอดภัย &amp; CCTV</label>
+                        <select class="form-select form-select-sm">
+                            <option selected>5 ★ ยอดเยี่ยม</option>
+                            <option>4 ★ ดีมาก</option>
+                            <option>3 ★ พอใช้</option>
+                            <option>2 ★ ควรปรับปรุง</option>
+                            <option>1 ★ แย่</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold text-secondary mb-1">ความสะดวกในการโหลดของ</label>
+                        <select class="form-select form-select-sm">
+                            <option selected>5 ★ ยอดเยี่ยม</option>
+                            <option>4 ★ ดีมาก</option>
+                            <option>3 ★ พอใช้</option>
+                            <option>2 ★ ควรปรับปรุง</option>
+                            <option>1 ★ แย่</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold text-secondary mb-1">การบริการของเจ้าหน้าที่</label>
+                        <select class="form-select form-select-sm">
+                            <option selected>5 ★ ยอดเยี่ยม</option>
+                            <option>4 ★ ดีมาก</option>
+                            <option>3 ★ พอใช้</option>
+                            <option>2 ★ ควรปรับปรุง</option>
+                            <option>1 ★ แย่</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            <button class="btn btn-primary w-100"
-                    onclick="alert('ขอบคุณสำหรับรีวิวของคุณ!')"
-                    style="background:linear-gradient(135deg,#3b82f6,#1d4ed8); border:none; border-radius:10px; padding:0.75rem; font-weight:600;">
-                <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">send</span>
-                ส่งรีวิว
-            </button>
+                <div class="mb-3">
+                    <label class="form-label">รายละเอียดความคิดเห็นและข้อเสนอแนะ *</label>
+                    <textarea class="form-control" rows="4" id="reviewComment"
+                              placeholder="บอกเล่าประสบการณ์การใช้งาน เช่น สภาพพื้นผิวคลัง ความปลอดภัย การบริการของทีมช่าง หรือการเทียบรถบรรทุก..." required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">แนบรูปภาพประกอบ (ถ้ามี)</label>
+                    <div class="p-3 text-center rounded-3" style="border:2px dashed #cbd5e1; cursor:pointer; background:#f8fafc;"
+                         onclick="document.getElementById('reviewImg').click()">
+                        <span class="material-symbols-outlined text-muted" style="font-size:1.8rem;">add_photo_alternate</span>
+                        <div class="text-muted small mt-1">คลิกเพื่ออัปโหลดภาพถ่ายพื้นที่ หรือสเตจสินค้า</div>
+                        <input type="file" id="reviewImg" class="d-none" accept="image/*" multiple onchange="onImgSelected(event)" />
+                    </div>
+                    <div id="imgPreviewText" class="small text-success fw-semibold mt-1" style="display:none;">
+                        ✓ เลือกไฟล์รูปภาพเรียบร้อยแล้ว
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2" style="border-radius:10px; height:42px;">
+                    <span class="material-symbols-outlined" style="font-size:1.1rem;">send</span>
+                    <span>ส่งความคิดเห็นและรีวิว</span>
+                </button>
+            </form>
         </div>
     </div>
 
-    <!-- All Reviews -->
+    <!-- Right Column: Summary Ratings & Verified Reviews -->
     <div class="col-12 col-lg-7">
         <div class="section-card">
             <div class="section-card-header">
-                <h2><span class="material-symbols-outlined text-orange">forum</span> รีวิวทั้งหมด</h2>
-                <div>
-                    <span style="font-size:1.5rem; font-weight:700; color:#14213d;">4.7</span>
-                    <span class="star-rating ms-1">★★★★★</span>
-                    <span style="font-size:0.75rem; color:#6c757d;">(47 รีวิว)</span>
+                <h2><span class="material-symbols-outlined">forum</span> ภาพรวมคะแนนจากลูกค้าทั้งหมด</h2>
+                <span class="badge bg-light text-dark border px-3 py-1 rounded-pill small">
+                    อัปเดตแบบ Real-Time
+                </span>
+            </div>
+
+            <!-- Score Summary Card -->
+            <div class="p-4 rounded-3 mb-4" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                <div class="row align-items-center g-4">
+                    <div class="col-12 col-sm-4 text-center border-sm-end">
+                        <div class="display-4 fw-bold text-dark mb-0">4.8</div>
+                        <div class="text-warning fs-5 my-1">★★★★★</div>
+                        <div class="text-muted small">จากผู้เช่าองค์กร 47 ราย</div>
+                        <div class="badge bg-success-subtle text-success fw-semibold mt-2 px-2 py-1">
+                            98% ผู้เช่าแนะนำต่อ
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-8">
+                        @foreach (var bar in new[] { ("5 ดาว", 82), ("4 ดาว", 14), ("3 ดาว", 4), ("2 ดาว", 0), ("1 ดาว", 0) })
+                        {
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="text-muted small" style="width:45px;">@bar.Item1</span>
+                                <div class="progress flex-grow-1" style="height:8px; border-radius:4px; background:#e2e8f0;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: @bar.Item2%;" aria-valuenow="@bar.Item2" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <span class="text-muted small text-end" style="width:36px;">@bar.Item2%</span>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
 
-            <!-- Rating Bar -->
-            @foreach (var bar in new[] { ("5",80), ("4",60), ("3",30), ("2",10), ("1",5) })
-            {
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <span style="width:20px; font-size:0.78rem; text-align:right; color:#6c757d;">@bar.Item1</span>
-                    <span class="material-symbols-outlined" style="font-size:0.85rem; color:#f59e0b;">star</span>
-                    <div style="flex:1; height:6px; background:#f3f4f6; border-radius:3px; overflow:hidden;">
-                        <div style="width:@(bar.Item2)%; height:100%; background:#f59e0b; border-radius:3px;"></div>
-                    </div>
-                    <span style="width:28px; font-size:0.75rem; color:#6c757d;">@(bar.Item2)%</span>
-                </div>
-            }
-            <hr />
+            <!-- List of Verified Reviews -->
+            <h3 class="h6 fw-bold text-dark mb-3">ความคิดเห็นล่าสุดจากผู้เช่าคลังสินค้า</h3>
 
-            <!-- Review Cards -->
-            @foreach (var rev in new[] {
-                ("บริษัท สยาม โลจิสติกส์ จำกัด","Unit M-01 (ไซส์ M - 150 ตร.ม.)","5","ห้องสะอาด ปลอดภัยมาก พนักงานดูแลดี แนะนำเลยครับ ใช้บริการมา 2 ปีแล้วไม่เคยผิดหวัง","ส","#3b82f6","12 ก.ย. 2569","5"),
-                ("คุณสมชาย ใจดี","Unit CR-05 (ห้องเย็น - 200 ตร.ม.)","4","ระบบควบคุมอุณหภูมินิ่งมาก เก็บของสดได้มาตรฐาน ทีมงานดูแลดี","ส","#10b981","8 ก.ย. 2569","4"),
-                ("ร้าน XYZ Trading","Unit L-01 (ไซส์ L - 500 ตร.ม.)","5","คลังใหญ่มาก รองรับสินค้าได้เยอะ มีชานชาลาโหลดของสะดวกมาก","ร","#8b5cf6","5 ก.ย. 2569","5"),
-                ("คุณวรรณิสา","Unit S-02 (ไซส์ S - 80 ตร.ม.)","4","ห้องไซส์กะทัดรัด เหมาะกับสต็อกแม่ค้าออนไลน์ ประตูม้วนไฟฟ้าง่ายต่อการใช้งาน","ว","#f59e0b","1 ก.ย. 2569","4"),
-            })
-            {
-                <div class="d-flex gap-3 mb-4 pb-3 border-bottom">
-                    <div class="avatar" style="background:@rev.Item6; color:#fff; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; font-size:0.9rem;">
-                        @rev.Item5
-                    </div>
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <div class="fw-semibold" style="font-size:0.875rem;">@rev.Item1</div>
-                                <div style="font-size:0.72rem; color:#6c757d;">@rev.Item2</div>
+            <div class="vstack gap-3" id="reviewsList">
+                @foreach (var rev in new[] {
+                    ("บริษัท สยาม โลจิสติกส์ โซลูชั่นส์ จำกัด", "Unit M-01 (ไซส์ M - 150 ตร.ม.)", 5, "ห้องสะอาด โครงสร้างแข็งแรงมาก พื้นคอนกรีตอีพ็อกซี่เรียบเนียน โฟล์กลิฟต์วิ่งคล่องตัว ระบบชานชาลาสะดวกต่อการกระจายสินค้า มีรปภ. AI ดูแล 24 ชม. มั่นใจมากครับ", "ส", "#1e40af", "12 ก.ย. 2569", 8),
+                    ("คุณสมชาย นำเจริญ (บจก. นำเจริญ ซัพพลาย)", "Unit CR-05 (ห้องเย็น - 200 ตร.ม.)", 5, "ระบบคุมอุณหภูมินิ่งมาก -18°C ตลอดเวลา มีไฟสำรองฉุกเฉินทำให้สินค้าอาหารแช่แข็งไม่เสียหาย เจ้าหน้าที่โครงการให้คำแนะนำดีมากครับ", "ส", "#059669", "8 ก.ย. 2569", 5),
+                    ("ร้านค้าออนไลน์ SuperShop Thailand", "Unit S-02 (ไซส์ S - 80 ตร.ม.)", 4, "ขนาดกะทัดรัด ประตูม้วนไฟฟ้ารวดเร็ว เหมาะกับธุรกิจ E-Commerce สต็อกของพร้อมแพ็คส่ง รถกระบะถอยเข้าเทียบง่ายมากครับ", "S", "#d97706", "5 ก.ย. 2569", 3),
+                    ("บริษัท ไทยโกลบอล ซัพพลายเชน จำกัด", "Unit L-01 (ไซส์ L - 500 ตร.ม.)", 5, "คลังสินค้าขนาดใหญ่ มี Dock Leveler อัตโนมัติ รถพ่วง 18 ล้อเทียบตู้คอนเทนเนอร์ 40 ฟุตได้สบาย ประหยัดเวลาโหลดสินค้าไปได้มาก", "ท", "#7c3aed", "1 ก.ย. 2569", 11)
+                })
+                {
+                    <div class="p-3 rounded-3" style="background:#ffffff; border:1px solid #e2e8f0;">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar rounded-circle text-white d-flex align-items-center justify-content-center fw-bold"
+                                     style="background:@rev.Item6; width:38px; height:38px; font-size:0.9rem;">
+                                    @rev.Item5
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark" style="font-size:0.9rem;">@rev.Item1</div>
+                                    <div class="text-muted small" style="font-size:0.75rem;">@rev.Item2</div>
+                                </div>
                             </div>
-                            <span style="font-size:0.72rem; color:#9ca3af;">@rev.Item7</span>
+                            <span class="text-muted small" style="font-size:0.75rem;">@rev.Item7</span>
                         </div>
-                        <div class="star-rating my-1" style="font-size:0.85rem;">
-                            @for (int i = 0; i < int.Parse(rev.Item8); i++) { <text>★</text> }
-                            @for (int i = int.Parse(rev.Item8); i < 5; i++) { <span style="color:#d1d5db;">★</span> }
+
+                        <div class="text-warning small mb-2">
+                            @for (int i = 0; i < rev.Item3; i++) { <text>★</text> }
+                            @for (int i = rev.Item3; i < 5; i++) { <span class="text-secondary opacity-25">★</span> }
+                            <span class="text-dark fw-bold ms-1" style="font-size:0.8rem;">(@rev.Item3.0 / 5.0)</span>
                         </div>
-                        <p style="font-size:0.83rem; color:#4b5563; margin:0;">@rev.Item4</p>
+
+                        <p class="text-secondary small mb-2" style="line-height:1.55;">@rev.Item4</p>
+
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="badge bg-light text-muted border small">
+                                <span class="material-symbols-outlined align-middle me-1" style="font-size:0.85rem; color:#059669;">verified</span>
+                                ผู้เช่าที่ผ่านการตรวจสอบสัญญา
+                            </span>
+                            <button class="btn btn-sm btn-link text-decoration-none text-muted p-0 small d-inline-flex align-items-center gap-1"
+                                    onclick="likeReview(this, @rev.Item8)">
+                                <span class="material-symbols-outlined" style="font-size:1rem;">thumb_up</span>
+                                <span>มีประโยชน์ (<span class="like-num">@rev.Item8</span>)</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
         </div>
     </div>
 
@@ -143,17 +228,21 @@
 
 @section Scripts {
 <script>
-let currentStar = 0;
-const labels = ['','แย่มาก','แย่','พอใช้','ดี','ดีมาก'];
-const colors = ['','#ef4444','#f97316','#f59e0b','#3b82f6','#10b981'];
+let currentStar = 5;
+const labels = ['','1 ดาว — ควรปรับปรุง','2 ดาว — พอใช้','3 ดาว — ปานกลาง','4 ดาว — ดีมาก','5 ดาว — ยอดเยี่ยม'];
+const colors = ['','#ef4444','#f97316','#f59e0b','#2563eb','#059669'];
 
 function setStar(n) {
     currentStar = n;
     for (let i = 1; i <= 5; i++) {
         const el = document.getElementById('star_' + i);
-        el.style.color = i <= n ? colors[n] : '#d1d5db';
+        if (i <= n) {
+            el.style.color = colors[n];
+        } else {
+            el.style.color = '#cbd5e1';
+        }
     }
-    document.getElementById('starLabel').textContent = n + ' ดาว — ' + labels[n];
+    document.getElementById('starLabel').textContent = labels[n];
     document.getElementById('starLabel').style.color = colors[n];
 }
 
@@ -162,10 +251,38 @@ for (let i = 1; i <= 5; i++) {
     const el = document.getElementById('star_' + i);
     el.addEventListener('mouseenter', () => {
         for (let j = 1; j <= 5; j++) {
-            document.getElementById('star_' + j).style.color = j <= i ? '#f59e0b' : '#d1d5db';
+            document.getElementById('star_' + j).style.color = j <= i ? '#f59e0b' : '#cbd5e1';
         }
     });
     el.addEventListener('mouseleave', () => setStar(currentStar));
+}
+
+setStar(5);
+
+function onImgSelected(e) {
+    if (e.target.files.length > 0) {
+        document.getElementById('imgPreviewText').style.display = 'block';
+    }
+}
+
+function submitReview(e) {
+    e.preventDefault();
+    const comment = document.getElementById('reviewComment').value;
+    if (!comment) return;
+
+    alert('ขอบคุณสำหรับความคิดเห็นและการประเมินบริการ!\nรีวิวของคุณได้รับการบันทึกและแสดงในระบบเรียบร้อยแล้ว');
+    document.getElementById('reviewComment').value = '';
+    document.getElementById('imgPreviewText').style.display = 'none';
+}
+
+function likeReview(btn, count) {
+    const numSpan = btn.querySelector('.like-num');
+    if (!btn.classList.contains('liked')) {
+        btn.classList.add('liked');
+        btn.classList.remove('text-muted');
+        btn.classList.add('text-primary');
+        numSpan.textContent = count + 1;
+    }
 }
 </script>
 }

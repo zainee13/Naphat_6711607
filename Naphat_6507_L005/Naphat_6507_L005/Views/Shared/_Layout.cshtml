@@ -29,11 +29,17 @@
 
     @* ====== Sidebar ====== *@
     @{
-        var role     = (string)(ViewBag.Role ?? "Customer");
-        var fullName = (string)(ViewBag.FullName ?? "ผู้ใช้งาน");
+        var sessionUser = Context.Session.GetString("Username");
+        var sessionRole = Context.Session.GetString("Role");
+        var sessionName = Context.Session.GetString("FullName");
+        bool isLoggedIn = !string.IsNullOrEmpty(sessionUser);
+
+        var role     = sessionRole ?? (string)(ViewBag.Role ?? (isLoggedIn ? "Customer" : "Guest"));
+        var fullName = sessionName ?? (string)(ViewBag.FullName ?? (isLoggedIn ? "ลูกค้า" : "ผู้เยี่ยมชม"));
         var initial  = fullName.Length > 0 ? fullName[0].ToString() : "U";
 
         var roleLabel = role switch {
+            "Guest"           => "ผู้เยี่ยมชม",
             "Customer"        => "ลูกค้า",
             "Accounting"      => "พนักงานบัญชี",
             "Inventory"       => "พนักงานคลัง",
@@ -44,7 +50,8 @@
         };
 
         var avatarColor = role switch {
-            "Customer"        => "#3b82f6",
+            "Guest"           => "#64748b",
+            "Customer"        => "#2563eb",
             "Accounting"      => "#10b981",
             "Inventory"       => "#8b5cf6",
             "CustomerService" => "#f59e0b",
@@ -61,14 +68,32 @@
             (string.IsNullOrEmpty(act) || currentAction.Equals(act, StringComparison.OrdinalIgnoreCase));
     }
 
-    <nav class="sidebar @(role == "Customer" ? "customer-sidebar" : "")">
+    <nav class="sidebar @(role == "Customer" || role == "Guest" ? "customer-sidebar" : "")">
 
         <div class="sidebar-logo">
             <div class="brand">Logi<span>Manage</span></div>
             <div class="sub">Warehouse Management</div>
         </div>
 
-        @if (role == "Customer")
+        @if (!isLoggedIn)
+        {
+            <div class="sidebar-user" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.85rem; margin-bottom: 1rem;">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="avatar" style="background:#475569; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem;">
+                        <span class="material-symbols-outlined" style="font-size:1.1rem;">person_outline</span>
+                    </div>
+                    <div style="overflow:hidden;">
+                        <div class="user-name" style="font-size:0.85rem; color:#fff;">ผู้เยี่ยมชม</div>
+                        <div class="user-role" style="font-size:0.72rem; color:#94a3b8;">ยังไม่ได้เข้าสู่ระบบ</div>
+                    </div>
+                </div>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-sm w-100 py-1 d-flex align-items-center justify-content-center gap-1" style="font-size:0.8rem; border-radius:8px;">
+                    <span class="material-symbols-outlined" style="font-size:1rem;">login</span>
+                    <span>เข้าสู่ระบบ</span>
+                </a>
+            </div>
+        }
+        else if (role == "Customer")
         {
             <a asp-controller="Customer" asp-action="Profile" style="text-decoration:none; color:inherit;" title="ไปยังหน้าโปรไฟล์ของฉัน">
                 <div class="sidebar-user" style="transition:background 0.2s; cursor:pointer;">
@@ -100,23 +125,61 @@
 
         <div class="sidebar-nav">
 
-            @if (role == "Customer")
+            @if (!isLoggedIn)
             {
                 <div class="nav-section-label">เมนูหลัก</div>
                 <a asp-controller="Customer" asp-action="Dashboard"
                    class="nav-item-link @(isActive("Customer","Dashboard") ? "active" : "")">
-                    <span class="material-symbols-outlined">home</span>
+                    <span class="material-symbols-outlined">space_dashboard</span>
+                    <span>หน้าหลัก</span>
+                </a>
+
+                <div class="p-3 rounded-3 mt-4 text-center" style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); margin: 0 0.5rem;">
+                    <span class="material-symbols-outlined text-warning mb-1" style="font-size:1.5rem;">lock</span>
+                    <div style="font-size:0.75rem; color:#cbd5e1; margin-bottom:0.6rem; line-height:1.4;">
+                        เข้าสู่ระบบเพื่อดูรายละเอียดห้อง สัญญาการจอง และชำระเงิน
+                    </div>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-sm w-100 py-1" style="font-size:0.75rem; border-radius:6px;">
+                        เข้าสู่ระบบทันที
+                    </a>
+                </div>
+            }
+            else if (role == "Customer")
+            {
+                var queryTab = Context.Request.Query["tab"].ToString();
+                bool isDashboard = isActive("Customer", "Dashboard");
+                bool isSearch = isActive("Customer", "Search") || isActive("Customer", "RoomDetail") || isActive("Customer", "BookRoom");
+                bool isBookings = isActive("Customer", "MyBookings") || (isActive("Customer", "Profile") && queryTab == "bookings");
+                bool isPayment = isActive("Customer", "Payment") || (isActive("Customer", "Profile") && queryTab == "payment");
+                bool isProfile = isActive("Customer", "Profile") && (queryTab == "info" || string.IsNullOrEmpty(queryTab));
+
+                <div class="nav-section-label">บริการลูกค้า</div>
+                <a asp-controller="Customer" asp-action="Dashboard"
+                   class="nav-item-link @(isDashboard ? "active" : "")">
+                    <span class="material-symbols-outlined">space_dashboard</span>
                     <span>หน้าหลัก</span>
                 </a>
                 <a asp-controller="Customer" asp-action="Search"
-                   class="nav-item-link @(isActive("Customer","Search") ? "active" : "")">
-                    <span class="material-symbols-outlined">view_cozy</span>
-                    <span>เลือกห้องตามขนาด</span>
+                   class="nav-item-link @(isSearch ? "active" : "")">
+                    <span class="material-symbols-outlined">warehouse</span>
+                    <span>ค้นหา &amp; จองห้องคลัง</span>
                 </a>
-                <a asp-controller="Customer" asp-action="Profile"
-                   class="nav-item-link @(isActive("Customer","Profile") ? "active" : "")">
-                    <span class="material-symbols-outlined">account_circle</span>
-                    <span>โปรไฟล์ (การจอง & ชำระเงิน)</span>
+                
+                <div class="nav-section-label mt-2">จัดการการเช่า</div>
+                <a asp-controller="Customer" asp-action="Profile" asp-route-tab="bookings"
+                   class="nav-item-link @(isBookings ? "active" : "")">
+                    <span class="material-symbols-outlined">assignment</span>
+                    <span>การจองของฉัน (ประวัติ)</span>
+                </a>
+                <a asp-controller="Customer" asp-action="Profile" asp-route-tab="payment"
+                   class="nav-item-link @(isPayment ? "active" : "")">
+                    <span class="material-symbols-outlined">account_balance_wallet</span>
+                    <span>ชำระเงิน &amp; ใบแจ้งหนี้</span>
+                </a>
+                <a asp-controller="Customer" asp-action="Profile" asp-route-tab="info"
+                   class="nav-item-link @(isProfile ? "active" : "")">
+                    <span class="material-symbols-outlined">domain</span>
+                    <span>ข้อมูลธุรกิจ &amp; โปรไฟล์</span>
                 </a>
             }
 
@@ -212,39 +275,56 @@
 
         </div>
 
-        <div class="sidebar-bottom">
-            <a asp-controller="Account" asp-action="Logout" class="nav-item-link" style="padding:0.5rem 0; border:none;">
-                <span class="material-symbols-outlined" style="color:#ef4444;">logout</span>
-                <span style="color:rgba(255,255,255,0.6);">ออกจากระบบ</span>
-            </a>
-        </div>
+        @if (isLoggedIn)
+        {
+            <div class="sidebar-bottom">
+                <a asp-controller="Account" asp-action="Logout" class="nav-item-link" style="padding:0.5rem 0; border:none;">
+                    <span class="material-symbols-outlined" style="color:#ef4444;">logout</span>
+                    <span style="color:rgba(255,255,255,0.6);">ออกจากระบบ</span>
+                </a>
+            </div>
+        }
 
     </nav>
 
 
     @* ====== Main Content ====== *@
-    <div class="main-content @(role == "Customer" ? "customer-shell" : "")">
+    <div class="main-content @(role == "Customer" || role == "Guest" ? "customer-shell" : "")">
 
-        <header class="topbar @(role == "Customer" ? "customer-topbar" : "")">
+        <header class="topbar @(role == "Customer" || role == "Guest" ? "customer-topbar" : "")">
             <div class="topbar-title">@(ViewData["Title"] ?? "LogiManage")</div>
             <div class="topbar-right">
-                <span class="badge rounded-pill px-3 py-2"
-                      style="background: @avatarColor; color:#fff; font-size:0.75rem;">
-                    @roleLabel
-                </span>
-                @if (role == "Customer")
+                @if (!isLoggedIn)
                 {
-                    <a asp-controller="Customer" asp-action="Profile" title="ดูโปรไฟล์" style="text-decoration:none;">
-                        <div class="avatar" style="background:@avatarColor; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem; cursor:pointer;" title="โปรไฟล์ของฉัน">
-                            @initial
-                        </div>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-sm px-3 py-1 d-inline-flex align-items-center gap-1" style="border-radius:8px; font-weight:600;">
+                        <span class="material-symbols-outlined" style="font-size:1rem;">login</span>
+                        <span>เข้าสู่ระบบ</span>
                     </a>
                 }
                 else
                 {
-                    <div class="avatar" style="background:@avatarColor; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem;">
-                        @initial
-                    </div>
+                    <span class="badge rounded-pill px-3 py-2"
+                          style="background: @avatarColor; color:#fff; font-size:0.75rem;">
+                        @roleLabel
+                    </span>
+                    @if (role == "Customer")
+                    {
+                        <a asp-controller="Customer" asp-action="Profile" title="ดูโปรไฟล์" style="text-decoration:none;">
+                            <div class="avatar" style="background:@avatarColor; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem; cursor:pointer;" title="โปรไฟล์ของฉัน">
+                                @initial
+                            </div>
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="avatar" style="background:@avatarColor; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem;">
+                            @initial
+                        </div>
+                    }
+                    <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-secondary ms-2 d-none d-md-inline-flex align-items-center gap-1" style="border-radius:8px; font-size:0.78rem;" title="ออกจากระบบ">
+                        <span class="material-symbols-outlined" style="font-size:1rem;">logout</span>
+                        <span>ออกจากระบบ</span>
+                    </a>
                 }
             </div>
         </header>

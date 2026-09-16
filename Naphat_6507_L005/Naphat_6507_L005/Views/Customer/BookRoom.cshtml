@@ -7,16 +7,16 @@
     if (roomId == "BN-A07") roomId = "S-02";
     if (roomId == "WN-E01") roomId = "XL-01";
 
-    var roomDict = new Dictionary<string, (string Name, string Size, string Zone, int MonthlyRate, string Img)>
+    var roomDict = new Dictionary<string, (string Name, string Size, string Zone, int MonthlyRate, string Img, string SizeLabel)>
     {
-        ["S-01"] = ("Unit S-01 (ไซส์ S)", "60 ตร.ม.", "โซน A1 (ชั้น 1)", 12000, "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=300&q=80"),
-        ["S-02"] = ("Unit S-02 (ไซส์ S)", "80 ตร.ม.", "โซน A2 (SME)", 15000, "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=300&q=80"),
-        ["M-01"] = ("Unit M-01 (ไซส์ M)", "150 ตร.ม.", "โซน B1 (มาตรฐาน)", 25000, "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=300&q=80"),
-        ["M-02"] = ("Unit M-02 (ไซส์ M)", "250 ตร.ม.", "โซน B2 (พาเลท)", 38000, "https://images.unsplash.com/photo-1553413077-190dd305871c?w=300&q=80"),
-        ["L-01"] = ("Unit L-01 (ไซส์ L)", "500 ตร.ม.", "โซน C1 (มี Dock)", 75000, "https://images.unsplash.com/photo-1553413077-190dd305871c?w=300&q=80"),
-        ["L-02"] = ("Unit L-02 (ไซส์ L)", "350 ตร.ม.", "โซน C2 (สินค้าปลอดภัย)", 55000, "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=300&q=80"),
-        ["XL-01"] = ("Unit XL-01 (ไซส์ XL)", "1,200 ตร.ม.", "โซน D1 (เมกะ)", 180000, "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=300&q=80"),
-        ["CR-05"] = ("Unit CR-05 (ห้องเย็น)", "200 ตร.ม.", "โซน Cold Storage", 40000, "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&q=80")
+        ["S-01"] = ("Unit S-01 (ไซส์ S - 60 ตร.ม.)", "60 ตร.ม.", "โซน A1 (ชั้น 1)", 12000, "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=80", "ไซส์ S"),
+        ["S-02"] = ("Unit S-02 (ไซส์ S - 80 ตร.ม.)", "80 ตร.ม.", "โซน A2 (SME)", 15000, "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80", "ไซส์ S"),
+        ["M-01"] = ("Unit M-01 (ไซส์ M - 150 ตร.ม.)", "150 ตร.ม.", "โซน B1 (มาตรฐาน)", 25000, "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80", "ไซส์ M"),
+        ["M-02"] = ("Unit M-02 (ไซส์ M - 250 ตร.ม.)", "250 ตร.ม.", "โซน B2 (พาเลท)", 38000, "https://images.unsplash.com/photo-1553413077-190dd305871c?w=400&q=80", "ไซส์ M"),
+        ["L-01"] = ("Unit L-01 (ไซส์ L - 500 ตร.ม.)", "500 ตร.ม.", "โซน C1 (มี Dock)", 75000, "https://images.unsplash.com/photo-1553413077-190dd305871c?w=400&q=80", "ไซส์ L"),
+        ["L-02"] = ("Unit L-02 (ไซส์ L - 350 ตร.ม.)", "350 ตร.ม.", "โซน C2 (สินค้าปลอดภัย)", 55000, "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&q=80", "ไซส์ L"),
+        ["XL-01"] = ("Unit XL-01 (ไซส์ XL - 1,200 ตร.ม.)", "1,200 ตร.ม.", "โซน D1 (เมกะ)", 180000, "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=400&q=80", "ไซส์ XL"),
+        ["CR-05"] = ("Unit CR-05 (ห้องเย็น - 200 ตร.ม.)", "200 ตร.ม.", "โซน Cold Storage", 40000, "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=400&q=80", "ห้องเย็น")
     };
 
     if (!roomDict.ContainsKey(roomId))
@@ -25,150 +25,252 @@
     }
     var room = roomDict[roomId];
 
-    ViewData["Title"] = $"จองห้อง {room.Name}";
+    ViewData["Title"] = $"ทำสัญญาจองห้อง {room.Name}";
     Layout = "_Layout";
 }
 
-<div class="page-header">
-    <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="@roomId"
-       class="btn btn-sm btn-outline-secondary mb-3" style="border-radius:8px;">
-        <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">arrow_back</span>
-        กลับ
-    </a>
-    <h1><span class="material-symbols-outlined align-middle me-2 text-orange">bookmark_add</span>จองห้องคลัง — @room.Name</h1>
-    <p>กรอกข้อมูลผู้เช่าและกำหนดระยะเวลาสัญญาเช่าในคลังสินค้าของเรา</p>
+<!-- Breadcrumb & Header -->
+<div class="page-header mb-4">
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0 small" style="--bs-breadcrumb-divider: '›';">
+            <li class="breadcrumb-item"><a asp-controller="Customer" asp-action="Dashboard" class="text-decoration-none text-muted">หน้าหลัก</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Customer" asp-action="Search" class="text-decoration-none text-muted">ค้นหาคลังสินค้า</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="@roomId" class="text-decoration-none text-muted">@room.Name</a></li>
+            <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">ทำสัญญาจองห้อง</li>
+        </ol>
+    </nav>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2" style="color:#0f172a;">
+                <span class="material-symbols-outlined text-primary" style="font-size:2rem;">bookmark_add</span>
+                ทำสัญญาจองห้องคลังสินค้า — @room.Name
+            </h1>
+            <p class="text-secondary mb-0" style="font-size:0.92rem;">
+                กรอกข้อมูลผู้เช่า กำหนดระยะเวลาสัญญา และตรวจสอบเงื่อนไขการส่งมอบพื้นที่
+            </p>
+        </div>
+        <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="@roomId" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1" style="border-radius:8px;">
+            <span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>
+            <span>กลับไปรายละเอียดห้อง</span>
+        </a>
+    </div>
+</div>
+
+<!-- 3-Step Wizard Indicator -->
+<div class="row g-2 mb-4">
+    <div class="col-12 col-md-4">
+        <div class="booking-wizard-step completed">
+            <div class="step-num">✓</div>
+            <div>
+                <div class="small fw-bold">ขั้นตอนที่ 1</div>
+                <div style="font-size:0.78rem;">เลือกห้องคลังสินค้า (@room.SizeLabel)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="booking-wizard-step active">
+            <div class="step-num">2</div>
+            <div>
+                <div class="small fw-bold">ขั้นตอนที่ 2</div>
+                <div style="font-size:0.78rem;">ข้อมูลผู้เช่า &amp; รายละเอียดสัญญา</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="booking-wizard-step">
+            <div class="step-num">3</div>
+            <div>
+                <div class="small fw-bold">ขั้นตอนที่ 3</div>
+                <div style="font-size:0.78rem;">ชำระเงิน &amp; รับมอบกุญแจห้อง</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row g-4">
 
-    <!-- Booking Form -->
+    <!-- Form Section -->
     <div class="col-12 col-lg-8">
-        <div class="section-card">
+        <!-- Section 1: Tenant Information -->
+        <div class="section-card mb-4">
             <div class="section-card-header">
-                <h2><span class="material-symbols-outlined text-orange">person</span> ข้อมูลผู้เช่า</h2>
+                <h2><span class="material-symbols-outlined">corporate_fare</span> ข้อมูลผู้ทำสัญญา / องค์กร</h2>
+                <div class="btn-group btn-group-sm" role="group">
+                    <input type="radio" class="btn-check" name="customerType" id="typeCorporate" autocomplete="off" checked onclick="toggleCustomerType('corp')">
+                    <label class="btn btn-outline-primary px-3 fw-semibold" for="typeCorporate">นิติบุคคล / บริษัท</label>
+
+                    <input type="radio" class="btn-check" name="customerType" id="typeIndividual" autocomplete="off" onclick="toggleCustomerType('indiv')">
+                    <label class="btn btn-outline-primary px-3 fw-semibold" for="typeIndividual">บุคคลธรรมดา / SME</label>
+                </div>
             </div>
 
-            <form>
+            <form id="bookingForm" onsubmit="return false;">
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label small fw-semibold">ชื่อ - นามสกุล *</label>
-                        <input type="text" class="form-control" value="@ViewBag.FullName" />
+                    <div class="col-md-6" id="fieldCompanyName">
+                        <label class="form-label">ชื่อนิติบุคคล / บริษัท *</label>
+                        <input type="text" class="form-control" id="inputCompany" value="บริษัท สยาม โลจิสติกส์ โซลูชั่นส์ จำกัด" placeholder="เช่น บจก. นำเข้าส่งออกไทย" required />
+                    </div>
+                    <div class="col-md-6" id="fieldTaxId">
+                        <label class="form-label">เลขประจำตัวผู้เสียภาษี 13 หลัก *</label>
+                        <input type="text" class="form-control" id="inputTaxId" value="0105567012345" placeholder="0-XXXX-XXXXX-XX-X" required />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label small fw-semibold">บริษัท / องค์กร</label>
-                        <input type="text" class="form-control" placeholder="ระบุชื่อบริษัท (ถ้ามี)" />
+                        <label class="form-label">ชื่อผู้ติดต่อ / ผู้มีอำนาจลงนาม *</label>
+                        <input type="text" class="form-control" id="inputContactName" value="@ViewBag.FullName" placeholder="ระบุชื่อ - นามสกุล" required />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label small fw-semibold">เบอร์โทรศัพท์ *</label>
-                        <input type="tel" class="form-control" placeholder="0812345678" />
+                        <label class="form-label">ตำแหน่งในองค์กร</label>
+                        <input type="text" class="form-control" id="inputPosition" value="ผู้อำนวยการฝ่ายจัดซื้อและคลังสินค้า" placeholder="เช่น ผู้จัดการฝ่ายคลังสินค้า" />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label small fw-semibold">อีเมล *</label>
-                        <input type="email" class="form-control" placeholder="example@email.com" />
+                        <label class="form-label">เบอร์โทรศัพท์มือถือติดต่อ *</label>
+                        <input type="tel" class="form-control" id="inputPhone" value="089-765-4321" placeholder="08XXXXXXXX" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">อีเมลสำหรับส่งสัญญาและใบแจ้งหนี้ *</label>
+                        <input type="email" class="form-control" id="inputEmail" value="naphat.w@siamlogistics.co.th" placeholder="account@company.com" required />
                     </div>
                     <div class="col-12">
-                        <label class="form-label small fw-semibold">เลขบัตรประชาชน / เลขทะเบียนนิติบุคคล *</label>
-                        <input type="text" class="form-control" placeholder="X-XXXX-XXXXX-XX-X" />
+                        <label class="form-label">ที่อยู่สำหรับออกใบเสร็จรับเงิน / ใบกำกับภาษี *</label>
+                        <textarea class="form-control" rows="2" placeholder="เลขที่ตั้งสำนักงานใหญ่ หรือ ที่อยู่ตามทะเบียนราษฎร์">เลขที่ 99/45 อาคารสยามทาวเวอร์ ชั้น 18 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110</textarea>
                     </div>
                 </div>
             </form>
         </div>
 
-        <div class="section-card">
+        <!-- Section 2: Lease Period & Requirements -->
+        <div class="section-card mb-4">
             <div class="section-card-header">
-                <h2><span class="material-symbols-outlined text-orange">calendar_month</span> ช่วงเวลาเช่า</h2>
+                <h2><span class="material-symbols-outlined">calendar_month</span> กำหนดระยะเวลาสัญญาและประเภทสินค้า</h2>
             </div>
 
             <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label small fw-semibold">วันที่เริ่มเช่า *</label>
-                    <input type="date" class="form-control" id="bookStart" />
+                <div class="col-12 col-md-4">
+                    <label class="form-label">วันที่เริ่มสัญญาเช่า *</label>
+                    <input type="date" class="form-control" id="bookStart" required />
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label small fw-semibold">ระยะเวลาสัญญา *</label>
+                <div class="col-12 col-md-4">
+                    <label class="form-label">ระยะเวลาสัญญาเช่า *</label>
                     <select class="form-select" id="bookDuration" onchange="calcPrice()">
-                        <option value="1">1 เดือน</option>
-                        <option value="3">3 เดือน</option>
-                        <option value="6" selected>6 เดือน</option>
-                        <option value="12">12 เดือน (ฟรีเดือนที่ 12)</option>
+                        <option value="1">1 เดือน (ทดลองใช้งาน)</option>
+                        <option value="3">3 เดือน (รายไตรมาส)</option>
+                        <option value="6" selected>6 เดือน (สัญญายอดนิยม)</option>
+                        <option value="12">12 เดือน (ฟรีค่าเช่าเดือนที่ 12)</option>
                     </select>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label small fw-semibold">วันสิ้นสุด (คำนวณอัตโนมัติ)</label>
-                    <input type="date" class="form-control" id="bookEnd" readonly style="background:#f9fafb;" />
+                <div class="col-12 col-md-4">
+                    <label class="form-label">วันสิ้นสุดสัญญา (อัตโนมัติ)</label>
+                    <input type="date" class="form-control bg-light" id="bookEnd" readonly />
                 </div>
-                <div class="col-12">
-                    <label class="form-label small fw-semibold">ประเภทสินค้าที่จะจัดเก็บ</label>
-                    <select class="form-select">
-                        <option>สินค้าอุปโภคบริโภคทั่วไป</option>
-                        <option>สินค้าอาหารและเครื่องดื่ม</option>
-                        <option>สินค้าอุตสาหกรรม / อะไหล่</option>
-                        <option>สินค้าอิเล็กทรอนิกส์และไอที</option>
-                        <option>เวชภัณฑ์และเคมีภัณฑ์ทั่วไป</option>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label">ประเภทสินค้าหลักที่ต้องการจัดเก็บ *</label>
+                    <select class="form-select" id="goodsCategory">
+                        <option>สินค้าอุปโภคบริโภคทั่วไป (FMCG)</option>
+                        <option>สินค้าอาหารและเครื่องดื่ม (Food &amp; Beverage)</option>
+                        <option>ชิ้นส่วนอุตสาหกรรม / อะไหล่ยานยนต์ (Industrial Parts)</option>
+                        <option>สินค้าอิเล็กทรอนิกส์และอุปกรณ์ไอที (Electronics &amp; IT)</option>
+                        <option>สินค้าแฟชั่น เครื่องนุ่งห่ม (Apparel &amp; Fashion)</option>
+                        <option>เวชภัณฑ์และอุปกรณ์การแพทย์ (Medical Supplies)</option>
                     </select>
                 </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label">บริการเสริมที่ต้องการในวันย้ายเข้า</label>
+                    <select class="form-select" id="additionalService">
+                        <option>บริการรถโฟล์กลิฟต์ยกพาเลท (ฟรีวันย้ายเข้า)</option>
+                        <option>ขอเชื่อมต่ออินเทอร์เน็ต WiFi ความเร็วสูง</option>
+                        <option>ขอติดตั้งแร็คจัดเก็บสินค้า (Racking) เพิ่มเติม</option>
+                        <option>ไม่ต้องการบริการเสริม</option>
+                    </select>
+                </div>
+
                 <div class="col-12">
-                    <label class="form-label small fw-semibold">ความต้องการเพิ่มเติม</label>
-                    <textarea class="form-control" rows="3"
-                              placeholder="เช่น ขอใช้บริการรถโฟล์กลิฟต์ในวันย้ายเข้า, ขอติดตั้งระบบเซ็นเซอร์อุณหภูมิเพิ่มเติม ฯลฯ"></textarea>
+                    <label class="form-label">ความประสงค์เพิ่มเติม หรือ หมายเหตุพิเศษ</label>
+                    <textarea class="form-control" rows="3" placeholder="ระบุความต้องการเพิ่มเติม เช่น ขนาดของรถขนส่งที่จะเข้าเทียบ, วันที่ขนของเข้าคลังครั้งแรก หรือคำขอเฉพาะทาง"></textarea>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Summary Panel -->
+    <!-- Right Column: Sticky Summary & Checkout -->
     <div class="col-12 col-lg-4">
-        <div class="section-card" style="position:sticky; top:80px;">
-            <h3 class="h6 fw-bold mb-3" style="color:#14213d;">
-                <span class="material-symbols-outlined align-middle text-orange" style="font-size:1rem;">receipt</span>
-                สรุปการจองห้อง
-            </h3>
+        <div class="section-card sticky-top" style="top:90px;">
+            <div class="section-card-header pb-2 mb-3">
+                <h2 class="h6 fw-bold mb-0">
+                    <span class="material-symbols-outlined">receipt</span>
+                    สรุปใบเสนอราคาและสัญญา
+                </h2>
+            </div>
 
-            <div style="background:#f8f9fa; border-radius:10px; padding:1rem; margin-bottom:1rem;">
-                <div class="d-flex gap-3 mb-2">
-                    <img src="@room.Img"
-                         style="width:60px; height:50px; object-fit:cover; border-radius:8px; flex-shrink:0;" alt="@room.Name" />
-                    <div>
-                        <div class="fw-semibold" style="font-size:0.875rem; color:#14213d;">@room.Name</div>
-                        <div style="font-size:0.78rem; color:#6c757d;">@room.Zone • @room.Size</div>
-                        <span class="badge-status badge-available" style="font-size:0.7rem;">ว่างพร้อมทำสัญญา</span>
-                    </div>
+            <!-- Room Brief Item -->
+            <div class="p-3 rounded-3 mb-3 d-flex gap-3 align-items-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                <img src="@room.Img" alt="@room.Name" style="width:72px; height:60px; object-fit:cover; border-radius:8px; flex-shrink:0;" />
+                <div style="overflow:hidden;">
+                    <div class="fw-bold text-dark text-truncate" style="font-size:0.9rem;">@room.Name</div>
+                    <div class="text-muted small" style="font-size:0.75rem;">@room.Zone • @room.Size</div>
+                    <span class="badge bg-success-subtle text-success mt-1" style="font-size:0.7rem;">● ว่างพร้อมเข้าใช้</span>
                 </div>
             </div>
 
-            <div class="mb-1 d-flex justify-content-between" style="font-size:0.85rem;">
-                <span class="text-secondary">ค่าเช่า / เดือน</span>
-                <span>฿@room.MonthlyRate.ToString("N0")</span>
-            </div>
-            <div class="mb-1 d-flex justify-content-between" style="font-size:0.85rem;">
-                <span class="text-secondary">ระยะเวลา</span>
-                <span id="summaryDuration">6 เดือน</span>
-            </div>
-            <div class="mb-1 d-flex justify-content-between" style="font-size:0.85rem;">
-                <span class="text-secondary">ค่าเช่ารวม</span>
-                <span id="summaryRent">฿@((room.MonthlyRate * 6).ToString("N0"))</span>
-            </div>
-            <div class="mb-1 d-flex justify-content-between" style="font-size:0.85rem;">
-                <span class="text-secondary">เงินประกัน (2 เดือน)</span>
-                <span id="summaryDeposit">฿@((room.MonthlyRate * 2).ToString("N0"))</span>
-            </div>
-            <hr />
-            <div class="d-flex justify-content-between fw-bold">
-                <span>ยอดรวมทั้งหมด</span>
-                <span class="text-orange" id="summaryTotal">฿@((room.MonthlyRate * 8).ToString("N0"))</span>
+            <!-- Itemized Calculation -->
+            <div class="vstack gap-2 mb-3 small">
+                <div class="d-flex justify-content-between text-secondary">
+                    <span>อัตราค่าเช่าต่อเดือน</span>
+                    <strong class="text-dark">฿@room.MonthlyRate.ToString("N0")</strong>
+                </div>
+                <div class="d-flex justify-content-between text-secondary">
+                    <span>ระยะเวลาสัญญา</span>
+                    <strong class="text-dark" id="summaryDuration">6 เดือน</strong>
+                </div>
+                <div class="d-flex justify-content-between text-secondary">
+                    <span>ค่าเช่ารวม (<span id="summaryDurationMonth">6</span> เดือน)</span>
+                    <strong class="text-dark" id="summaryRent">฿@((room.MonthlyRate * 6).ToString("N0"))</strong>
+                </div>
+                <div class="d-flex justify-content-between text-secondary">
+                    <span>เงินมัดจำความเสียหาย (2 เดือน)</span>
+                    <strong class="text-dark" id="summaryDeposit">฿@((room.MonthlyRate * 2).ToString("N0"))</strong>
+                </div>
+                <div class="d-flex justify-content-between text-secondary">
+                    <span>ภาษีมูลค่าเพิ่ม (VAT 7%)</span>
+                    <strong class="text-dark" id="summaryVat">฿@(((room.MonthlyRate * 6) * 0.07).ToString("N0"))</strong>
+                </div>
+                <div class="d-flex justify-content-between text-success" id="discountRow" style="display:none !important;">
+                    <span>ส่วนลดสัญญา 12 เดือน (ฟรี 1 เดือน)</span>
+                    <strong id="summaryDiscount">-฿@room.MonthlyRate.ToString("N0")</strong>
+                </div>
             </div>
 
-            <div class="mt-3 p-2" style="background:#eff6ff; border-radius:8px; font-size:0.75rem; color:#1d4ed8;">
-                <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">verified</span>
-                คลังสินค้าของเรามีระบบสัญญาออนไลน์ พร้อมเข้าใช้พื้นที่ได้ทันทีเมื่อชำระเงิน
+            <hr class="my-3 text-muted opacity-25" />
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <strong class="text-dark fs-6 d-block">ยอดรวมงวดแรกทั้งสิ้น</strong>
+                    <small class="text-muted" style="font-size:0.72rem;">(รวมค่าเช่า + มัดจำ + VAT)</small>
+                </div>
+                <strong class="text-primary fs-4 fw-bold" id="summaryTotal">
+                    ฿@((room.MonthlyRate * 6 + room.MonthlyRate * 2 + ((room.MonthlyRate * 6) * 0.07)).ToString("N0"))
+                </strong>
             </div>
 
-            <button class="btn btn-primary w-100 mt-3"
-                    onclick="submitBooking()"
-                    style="background:linear-gradient(135deg,#3b82f6,#1d4ed8); border:none; border-radius:10px; padding:0.75rem; font-weight:600;">
-                <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">send</span>
-                ยืนยันการจองห้อง
+            <!-- Terms agreement -->
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="agreeTerms" checked />
+                <label class="form-check-label small text-secondary" for="agreeTerms">
+                    ข้าพเจ้าได้อ่านและยอมรับข้อกำหนด <a href="javascript:void(0)" class="text-primary text-decoration-underline">สัญญาเช่าคลังสินค้า</a> และนโยบายรักษาความปลอดภัยเรียบร้อยแล้ว
+                </label>
+            </div>
+
+            <button type="button" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 mb-2"
+                    id="btnSubmitBooking" onclick="submitBooking()" style="height:44px; border-radius:10px;">
+                <span class="material-symbols-outlined" style="font-size:1.2rem;">task_alt</span>
+                <span>ยืนยันการจองและดำเนินการต่อ</span>
             </button>
+
+            <div class="text-center text-muted small" style="font-size:0.75rem;">
+                <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">verified</span>
+                ระบบจะส่งต่อคุณไปยังขั้นตอนชำระเงินและออกใบแจ้งหนี้อัตโนมัติ
+            </div>
         </div>
     </div>
 
@@ -177,15 +279,47 @@
 @section Scripts {
 <script>
 const monthlyRate = @room.MonthlyRate;
+
+function toggleCustomerType(type) {
+    const compField = document.getElementById('fieldCompanyName');
+    const taxField = document.getElementById('fieldTaxId');
+    if (type === 'indiv') {
+        if (compField) compField.style.display = 'none';
+        if (taxField) {
+            taxField.querySelector('label').textContent = 'เลขประจำตัวประชาชน 13 หลัก *';
+        }
+    } else {
+        if (compField) compField.style.display = '';
+        if (taxField) {
+            taxField.querySelector('label').textContent = 'เลขประจำตัวผู้เสียภาษี 13 หลัก *';
+        }
+    }
+}
+
 function calcPrice() {
-    const dur = parseInt(document.getElementById('bookDuration').value);
-    const rent = monthlyRate * dur;
+    const dur = parseInt(document.getElementById('bookDuration').value) || 1;
+    let rent = monthlyRate * dur;
+    let discount = 0;
+
+    if (dur === 12) {
+        discount = monthlyRate;
+        rent = rent - discount;
+        document.getElementById('discountRow').style.display = 'flex';
+    } else {
+        document.getElementById('discountRow').style.display = 'none';
+    }
+
     const deposit = monthlyRate * 2;
-    const total = rent + deposit;
+    const vat = rent * 0.07;
+    const total = rent + deposit + vat;
+
     document.getElementById('summaryDuration').textContent = dur + ' เดือน';
-    document.getElementById('summaryRent').textContent = '฿' + rent.toLocaleString();
+    document.getElementById('summaryDurationMonth').textContent = dur;
+    document.getElementById('summaryRent').textContent = '฿' + (monthlyRate * dur).toLocaleString();
     document.getElementById('summaryDeposit').textContent = '฿' + deposit.toLocaleString();
-    document.getElementById('summaryTotal').textContent = '฿' + total.toLocaleString();
+    document.getElementById('summaryVat').textContent = '฿' + Math.round(vat).toLocaleString();
+    document.getElementById('summaryTotal').textContent = '฿' + Math.round(total).toLocaleString();
+
     const start = document.getElementById('bookStart').value;
     if (start) {
         const end = new Date(start);
@@ -193,13 +327,26 @@ function calcPrice() {
         document.getElementById('bookEnd').value = end.toISOString().split('T')[0];
     }
 }
+
 document.getElementById('bookStart').addEventListener('change', calcPrice);
 document.getElementById('bookStart').valueAsDate = new Date();
 calcPrice();
 
 function submitBooking() {
-    alert('ส่งคำขอจองห้อง @room.Name เรียบร้อยแล้ว!\nระบบได้นำท่านไปยังหน้าโปรไฟล์เพื่อตรวจสอบข้อมูลการจองและชำระเงิน');
-    window.location.href = '@Url.Action("Profile", "Customer", new { tab = "payment", bookingId = "BK-2026-002" })';
+    const agree = document.getElementById('agreeTerms').checked;
+    if (!agree) {
+        alert('กรุณากดยอมรับข้อกำหนดสัญญาเช่าคลังสินค้าก่อนดำเนินการต่อ');
+        return;
+    }
+
+    const btn = document.getElementById('btnSubmitBooking');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>กำลังสร้างสัญญาและใบแจ้งหนี้...';
+
+    setTimeout(() => {
+        alert('สร้างคำขอจองห้อง @room.Name เรียบร้อยแล้ว!\nระบบได้นำท่านไปยังหน้าโปรไฟล์เพื่อตรวจสอบข้อมูลการจองและชำระเงิน');
+        window.location.href = '@Url.Action("Profile", "Customer", new { tab = "payment", bookingId = "BK-2026-002" })';
+    }, 800);
 }
 </script>
 }
