@@ -31,11 +31,19 @@
             </div>
         }
 
+        <!-- Success Alert -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#6ee7b7; border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.85rem;">
+                <span class="material-symbols-outlined align-middle" style="font-size:1rem;">check_circle</span>
+                @TempData["Success"]
+            </div>
+        }
+
         <!-- Login Form -->
         <form asp-controller="Account" asp-action="Login" method="post">
             <div class="mb-3">
                 <label class="form-label">
-                    <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">person</span>
                     ชื่อผู้ใช้งาน
                 </label>
                 <input type="text" name="username" class="form-control"
@@ -57,40 +65,13 @@
             </button>
         </form>
 
-        <!-- Demo Accounts -->
-        <div class="mt-4" style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
-            <p style="color:rgba(255,255,255,0.4); font-size:0.72rem; text-align:center; margin-bottom:0.75rem; letter-spacing:0.5px; text-transform:uppercase;">
-                Demo Accounts (รหัสผ่าน: 1234)
-            </p>
-            <div class="row g-2">
-                @foreach (var account in new[] {
-                    ("customer1",   "👤 ลูกค้า",              "#3b82f6"),
-                    ("accounting1", "💰 พนักงานบัญชี",        "#10b981"),
-                    ("inventory1",  "📦 พนักงานคลัง",         "#8b5cf6"),
-                    ("cs1",         "🎧 บริการลูกค้า",        "#f59e0b"),
-                    ("manager1",    "📊 ผู้จัดการ",            "#ef4444"),
-                    ("admin",       "⚙️ แอดมิน",              "#06b6d4"),
-                })
-                {
-                    <div class="col-6">
-                        <button type="button"
-                                onclick="fillLogin('@account.Item1')"
-                                style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:0.4rem 0.6rem; color:rgba(255,255,255,0.75); font-size:0.72rem; cursor:pointer; transition:all 0.15s; text-align:left;">
-                            <span style="color:@account.Item3;">●</span> @account.Item2
-                        </button>
-                    </div>
-                }
-            </div>
+        <!-- Register Link -->
+        <div class="text-center mt-3">
+            <span style="color:rgba(255,255,255,0.6); font-size:0.85rem;">ยังไม่มีบัญชีผู้ใช้?</span>
+            <a asp-controller="Account" asp-action="Register" style="color:var(--orange); text-decoration:none; font-weight:600; font-size:0.85rem; margin-left:4px;">
+                Register
+            </a>
         </div>
 
     </div>
 </div>
-
-@section Scripts {
-<script>
-function fillLogin(username) {
-    document.querySelector('input[name="username"]').value = username;
-    document.querySelector('input[name="password"]').value = '1234';
-}
-</script>
-}

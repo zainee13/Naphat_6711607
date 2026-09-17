@@ -75,25 +75,7 @@
             <div class="sub">Warehouse Management</div>
         </div>
 
-        @if (!isLoggedIn)
-        {
-            <div class="sidebar-user" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.85rem; margin-bottom: 1rem;">
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <div class="avatar" style="background:#475569; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem;">
-                        <span class="material-symbols-outlined" style="font-size:1.1rem;">person_outline</span>
-                    </div>
-                    <div style="overflow:hidden;">
-                        <div class="user-name" style="font-size:0.85rem; color:#fff;">ผู้เยี่ยมชม</div>
-                        <div class="user-role" style="font-size:0.72rem; color:#94a3b8;">ยังไม่ได้เข้าสู่ระบบ</div>
-                    </div>
-                </div>
-                <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-sm w-100 py-1 d-flex align-items-center justify-content-center gap-1" style="font-size:0.8rem; border-radius:8px;">
-                    <span class="material-symbols-outlined" style="font-size:1rem;">login</span>
-                    <span>เข้าสู่ระบบ</span>
-                </a>
-            </div>
-        }
-        else if (role == "Customer")
+        @if (isLoggedIn && role == "Customer")
         {
             <a asp-controller="Customer" asp-action="Profile" style="text-decoration:none; color:inherit;" title="ไปยังหน้าโปรไฟล์ของฉัน">
                 <div class="sidebar-user" style="transition:background 0.2s; cursor:pointer;">
@@ -110,7 +92,7 @@
                 </div>
             </a>
         }
-        else
+        else if (isLoggedIn)
         {
             <div class="sidebar-user">
                 <div class="avatar" style="background: @avatarColor; color:#fff;">
@@ -133,16 +115,6 @@
                     <span class="material-symbols-outlined">space_dashboard</span>
                     <span>หน้าหลัก</span>
                 </a>
-
-                <div class="p-3 rounded-3 mt-4 text-center" style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); margin: 0 0.5rem;">
-                    <span class="material-symbols-outlined text-warning mb-1" style="font-size:1.5rem;">lock</span>
-                    <div style="font-size:0.75rem; color:#cbd5e1; margin-bottom:0.6rem; line-height:1.4;">
-                        เข้าสู่ระบบเพื่อดูรายละเอียดห้อง สัญญาการจอง และชำระเงิน
-                    </div>
-                    <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-sm w-100 py-1" style="font-size:0.75rem; border-radius:6px;">
-                        เข้าสู่ระบบทันที
-                    </a>
-                </div>
             }
             else if (role == "Customer")
             {
@@ -275,16 +247,6 @@
 
         </div>
 
-        @if (isLoggedIn)
-        {
-            <div class="sidebar-bottom">
-                <a asp-controller="Account" asp-action="Logout" class="nav-item-link" style="padding:0.5rem 0; border:none;">
-                    <span class="material-symbols-outlined" style="color:#ef4444;">logout</span>
-                    <span style="color:rgba(255,255,255,0.6);">ออกจากระบบ</span>
-                </a>
-            </div>
-        }
-
     </nav>
 
 
@@ -321,7 +283,7 @@
                             @initial
                         </div>
                     }
-                    <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-secondary ms-2 d-none d-md-inline-flex align-items-center gap-1" style="border-radius:8px; font-size:0.78rem;" title="ออกจากระบบ">
+                    <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-danger ms-2 d-inline-flex align-items-center gap-1" style="border-radius:8px; font-size:0.78rem;" title="ออกจากระบบ">
                         <span class="material-symbols-outlined" style="font-size:1rem;">logout</span>
                         <span>ออกจากระบบ</span>
                     </a>

@@ -37,6 +37,38 @@ public class AccountController : Controller
         return View();
     }
 
+    [HttpGet]
+    public IActionResult Register()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult Register(string username, string password, string confirmPassword, string? fullname, string? phone)
+    {
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        {
+            ViewBag.Error = "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน";
+            return View();
+        }
+
+        if (password != confirmPassword)
+        {
+            ViewBag.Error = "รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน";
+            return View();
+        }
+
+        if (_users.ContainsKey(username.ToLower()))
+        {
+            ViewBag.Error = "ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว";
+            return View();
+        }
+
+        _users[username.ToLower()] = (password, "Customer", string.IsNullOrWhiteSpace(fullname) ? username : fullname);
+        TempData["Success"] = "สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบด้วยบัญชีของคุณ";
+        return RedirectToAction("Login");
+    }
+
     public IActionResult Logout()
     {
         HttpContext.Session.Clear();

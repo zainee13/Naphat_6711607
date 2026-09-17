@@ -16,7 +16,7 @@
                     ระบบเช่าและบริหารคลังสินค้า<br />มาตรฐานสากล สำหรับธุรกิจยุคใหม่
                 </h1>
                 <p class="customer-hero-subtitle">
-                    พื้นที่คลังสินค้าพร้อมใช้งานทันที ทำเลยุทธศาสตร์ รองรับรถบรรทุกทุกขนาด พร้อมระบบ AI CCTV 24 ชม. และสัญญาเช่ายืดหยุ่นสำหรับ SME และองค์กรธุรกิจ
+                    พื้นที่คลังสินค้าพร้อมใช้งานทันที ทำเลยุทธศาสตร์ รองรับรถบรรทุกทุกขนาด พร้อมระบบ CCTV 24 ชม. และสัญญาเช่ายืดหยุ่นสำหรับ SME และองค์กรธุรกิจ
                 </p>
 
                 <!-- Quick Search Bar inside Hero -->
@@ -332,7 +332,7 @@
                     <span class="material-symbols-outlined" style="font-size:1.9rem;">security</span>
                 </div>
                 <strong class="text-dark small d-block mb-1">ความปลอดภัย 24/7</strong>
-                <span class="text-muted" style="font-size:0.75rem;">AI CCTV แยกห้อง + รปภ.</span>
+                <span class="text-muted" style="font-size:0.75rem;">CCTV แยกห้อง + รปภ.</span>
             </div>
         </div>
 
@@ -349,7 +349,7 @@
     </div>
 </div>
 
-<!-- Section: แก้ปัญหาอะไรให้ธุรกิจ (Pain Points Solved) + Member/Guest Card -->
+<!-- Section: แก้ปัญหาอะไรให้ธุรกิจ (Pain Points Solved) -->
 <div class="row g-4 mb-4">
     <div class="col-12 col-lg-8">
         <div class="section-card h-100 mb-0">
@@ -415,7 +415,7 @@
                         </div>
                         <div class="d-flex align-items-center gap-2 text-success fw-bold">
                             <span class="material-symbols-outlined" style="font-size:1.25rem;">check_circle</span>
-                            <span>AI CCTV 24 ชม. แยกห้อง + คีย์การ์ด</span>
+                            <span>CCTV 24 ชม. แยกห้อง </span>
                         </div>
                     </div>
                 </div>
@@ -423,83 +423,40 @@
         </div>
     </div>
 
-    <!-- Quick Action / Member or Guest Card -->
+    <!-- Special Promotion Card -->
     <div class="col-12 col-lg-4">
-        @if (!(bool)(ViewBag.IsLoggedIn ?? false))
-        {
-            <div class="section-card h-100 mb-0 d-flex flex-column justify-content-between" style="background: linear-gradient(145deg, #1e3a8a 0%, #0f172a 100%); color:#ffffff; border:none !important;">
-                <div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge bg-primary text-white fw-bold px-3 py-1 rounded-pill">
-                            <span class="material-symbols-outlined align-middle me-1" style="font-size:0.9rem;">lock_open</span>
-                            เข้าสู่ระบบสมาชิก
-                        </span>
-                        <span class="text-light opacity-75 small">LogiManage Portal</span>
-                    </div>
-                    <h3 class="h5 fw-bold text-white mb-2">เข้าสู่ระบบเพื่อดูห้อง &amp; ประวัติ</h3>
-                    <p class="text-light opacity-75 small mb-3">
-                        เข้าสู่ระบบเพื่อเข้าถึงรายละเอียดห้องคลังสินค้า สเปกทางวิศวกรรม การจองออนไลน์ และประวัติสัญญาเช่าของคุณ
-                    </p>
-                    <div class="p-3 rounded-3 mb-3" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);">
-                        <div class="small text-light mb-1 fw-bold">
-                            <span class="material-symbols-outlined align-middle me-1 text-warning" style="font-size:1.1rem;">verified</span>
-                            สิทธิ์การใช้งานหลังเข้าสู่ระบบ:
-                        </div>
-                        <ul class="list-unstyled mb-0 small text-light opacity-90 ps-1" style="line-height:1.8;">
-                            <li>✓ ดูรายละเอียดและสเปกห้องคลังสินค้าทุกยูนิต</li>
-                            <li>✓ ตรวจสอบประวัติสัญญาการจองของฉัน</li>
-                            <li>✓ ชำระเงินออนไลน์และจัดการใบแจ้งหนี้</li>
-                        </ul>
-                    </div>
+        <div class="section-card h-100 mb-0 d-flex flex-column justify-content-between" style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); color:#ffffff; border: 1px solid rgba(249,115,22,0.3) !important; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge bg-danger text-white fw-bold px-3 py-1 rounded-pill">
+                        <span class="material-symbols-outlined align-middle me-1" style="font-size:0.9rem;">local_fire_department</span>
+                        โปรโมชั่นพิเศษ
+                    </span>
+                    <span class="text-warning small fw-bold">⏰ มีจำนวนจำกัด</span>
                 </div>
-
-                <div class="d-grid gap-2">
-                    <a asp-controller="Account" asp-action="Login" class="btn btn-warning text-dark fw-bold d-flex align-items-center justify-content-center gap-1 py-2" style="border-radius:8px;">
-                        <span class="material-symbols-outlined" style="font-size:1.1rem;">login</span>
-                        <span>เข้าสู่ระบบทันที</span>
-                    </a>
+                <h3 class="h5 fw-bold text-white mb-2">โปรโมชั่นลดค่าเช่าเดือนแรก</h3>
+                <p class="text-light opacity-75 small mb-3">
+                    ทำสัญญาเช่าคลังสินค้าห้องขนาดใดก็ได้ตั้งแต่ 6 เดือนขึ้นไป รับส่วนลดค่าเช่าทันที
+                </p>
+                <div class="p-3 rounded-3 mb-3" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);">
+                    <div class="d-flex justify-content-between align-items-center mb-2 small text-light">
+                        <span>ส่วนลดค่าเช่า</span>
+                        <strong class="text-warning fs-5 fw-bold">ลดทันที 35%</strong>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded-2" style="background:rgba(0,0,0,0.3); border:1px dashed rgba(255,255,255,0.25);">
+                        <code class="text-warning fw-bold" style="font-size:0.95rem;">MEGA35START</code>
+                        <span class="badge bg-secondary" style="font-size:0.68rem;">สัญญา 6 ด.+</span>
+                    </div>
                 </div>
             </div>
-        }
-        else
-        {
-            <div class="section-card h-100 mb-0 d-flex flex-column justify-content-between" style="background: linear-gradient(145deg, #1e3a8a 0%, #0f172a 100%); color:#ffffff; border:none !important;">
-                <div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge bg-warning text-dark fw-bold px-3 py-1 rounded-pill">
-                            <span class="material-symbols-outlined align-middle me-1" style="font-size:0.9rem;">workspace_premium</span>
-                            Gold Corporate Member
-                        </span>
-                        <span class="text-light opacity-75 small">LogiManage Club</span>
-                    </div>
-                    <h3 class="h5 fw-bold text-white mb-2">สิทธิประโยชน์สมาชิกธุรกิจ</h3>
-                    <p class="text-light opacity-75 small mb-3">
-                        เข้าถึงระบบออกใบกำกับภาษีออนไลน์ จองห้องล่วงหน้า และบริการตรวจนับสต็อกสินค้าประจำเดือน
-                    </p>
-                    <div class="p-3 rounded-3 mb-3" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);">
-                        <div class="d-flex justify-content-between align-items-center mb-1 small text-light">
-                            <span>แต้มสะสมปัจจุบัน</span>
-                            <strong class="text-warning fs-6">1,250 คะแนน</strong>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center small text-light">
-                            <span>สถานะบัญชี</span>
-                            <strong class="text-success"><span class="badge bg-success">ยืนยันตัวตนแล้ว</span></strong>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="d-grid gap-2">
-                    <a asp-controller="Customer" asp-action="Profile" asp-route-tab="bookings" class="btn btn-warning text-dark fw-bold d-flex align-items-center justify-content-center gap-1" style="border-radius:8px;">
-                        <span class="material-symbols-outlined" style="font-size:1.1rem;">receipt_long</span>
-                        <span>จัดการการจองของฉัน (ประวัติ)</span>
-                    </a>
-                    <a asp-controller="Customer" asp-action="Search" class="btn btn-outline-light d-flex align-items-center justify-content-center gap-1" style="border-radius:8px;">
-                        <span class="material-symbols-outlined" style="font-size:1.1rem;">warehouse</span>
-                        <span>ค้นหาและดูรายละเอียดห้อง</span>
-                    </a>
-                </div>
+            <div class="d-grid gap-2">
+                <a asp-controller="Customer" asp-action="Search" class="btn btn-warning text-dark fw-bold d-flex align-items-center justify-content-center gap-1 py-2" style="border-radius:8px;">
+                    <span class="material-symbols-outlined" style="font-size:1.1rem;">warehouse</span>
+                    <span>ดูห้องว่าง &amp; ใช้โปรโมชั่น</span>
+                </a>
             </div>
-        }
+        </div>
     </div>
 </div>
 

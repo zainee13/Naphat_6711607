@@ -1,0 +1,90 @@
+@{
+    ViewData["Title"] = "สมัครสมาชิก";
+    Layout = "_LayoutLogin";
+}
+
+<div class="login-page">
+    <div class="login-card" style="max-width:460px;">
+
+        <!-- Back to Login -->
+        <div class="mb-3 text-start">
+            <a asp-controller="Account" asp-action="Login" style="color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px;">
+                <span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>
+                <span>กลับสู่หน้าเข้าสู่ระบบ</span>
+            </a>
+        </div>
+
+        <!-- Logo & Header -->
+        <div class="text-center mb-4">
+            <div class="logo-text">Logi<span>Manage</span></div>
+            <h5 style="color:var(--white); font-weight:600; font-size:1.1rem; margin-top:0.4rem; margin-bottom:0.15rem;">
+                สมัครสมาชิกใหม่
+            </h5>
+            <p style="color:rgba(255,255,255,0.5); font-size:0.82rem; margin-bottom:0;">
+                กรอกข้อมูลด้านล่างเพื่อลงทะเบียนเข้าใช้งานระบบ
+            </p>
+        </div>
+
+        <!-- Error Alert -->
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.85rem;">
+                <span class="material-symbols-outlined align-middle" style="font-size:1rem;">error</span>
+                @ViewBag.Error
+            </div>
+        }
+
+        <!-- Register Form -->
+        <form asp-controller="Account" asp-action="Register" method="post">
+            <div class="mb-3">
+                <label class="form-label">ชื่อผู้ใช้งาน</label>
+                <input type="text" name="username" class="form-control"
+                       placeholder="กรอกชื่อผู้ใช้สำหรับเข้าสู่ระบบ" autocomplete="username" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">ชื่อ - นามสกุล</label>
+                <input type="text" name="fullname" class="form-control"
+                       placeholder="กรอกชื่อและนามสกุลจริง" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">เบอร์โทรศัพท์</label>
+                <input type="tel" name="phone" class="form-control"
+                       placeholder="08x-xxx-xxxx" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">lock</span>
+                    รหัสผ่าน
+                </label>
+                <input type="password" name="password" class="form-control"
+                       placeholder="กำหนดรหัสผ่าน" autocomplete="new-password" required />
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">
+                    <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">lock</span>
+                    ยืนยันรหัสผ่าน
+                </label>
+                <input type="password" name="confirmPassword" class="form-control"
+                       placeholder="กรอกรหัสผ่านอีกครั้ง" autocomplete="new-password" required />
+            </div>
+
+            <button type="submit" class="btn-login">
+                <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">how_to_reg</span>
+                ลงทะเบียน
+            </button>
+        </form>
+
+        <!-- Back to Login Link -->
+        <div class="text-center mt-3" style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
+            <span style="color:rgba(255,255,255,0.6); font-size:0.85rem;">มีบัญชีผู้ใช้งานอยู่แล้ว?</span>
+            <a asp-controller="Account" asp-action="Login" style="color:var(--orange); text-decoration:none; font-weight:600; font-size:0.85rem; margin-left:4px;">
+                เข้าสู่ระบบ
+            </a>
+        </div>
+
+    </div>
+</div>
