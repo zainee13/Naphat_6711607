@@ -11,7 +11,7 @@
         </div>
         <button class="btn btn-sm"
                 style="background:linear-gradient(135deg,#06b6d4,#0891b2); color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; font-weight:600;"
-                onclick="document.getElementById('addUserModal').classList.remove('d-none')">
+                onclick="document.getElementById('addUserModal').style.display='flex'">
             <span class="material-symbols-outlined align-middle me-1" style="font-size:0.9rem;">person_add</span>
             เพิ่มผู้ใช้ใหม่
         </button>
@@ -130,11 +130,11 @@
 </div>
 
 <!-- Add User Modal -->
-<div id="addUserModal" class="d-none" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; display:flex!important; align-items:center; justify-content:center;">
+<div id="addUserModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;" onclick="if(event.target===this) this.style.display='none'">
     <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:480px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="h5 fw-bold mb-0" style="color:#14213d;">เพิ่มผู้ใช้ใหม่</h3>
-            <button onclick="document.getElementById('addUserModal').classList.add('d-none')"
+            <button type="button" onclick="document.getElementById('addUserModal').style.display='none'"
                     style="background:none; border:none; font-size:1.5rem; color:#9ca3af; cursor:pointer;">&times;</button>
         </div>
         <div class="row g-3">
@@ -163,12 +163,12 @@
             </div>
         </div>
         <div class="d-flex gap-2 mt-4">
-            <button class="btn flex-fill" style="background:linear-gradient(135deg,#06b6d4,#0891b2); color:#fff; border:none; border-radius:10px; padding:0.65rem; font-weight:600;"
-                    onclick="alert('สร้างผู้ใช้สำเร็จ!'); document.getElementById('addUserModal').classList.add('d-none')">
+            <button type="button" class="btn flex-fill" style="background:linear-gradient(135deg,#06b6d4,#0891b2); color:#fff; border:none; border-radius:10px; padding:0.65rem; font-weight:600;"
+                    onclick="alert('สร้างผู้ใช้สำเร็จ!'); document.getElementById('addUserModal').style.display='none'">
                 สร้างผู้ใช้
             </button>
-            <button class="btn btn-outline-secondary" style="border-radius:10px; padding:0.65rem 1.25rem;"
-                    onclick="document.getElementById('addUserModal').classList.add('d-none')">
+            <button type="button" class="btn btn-outline-secondary" style="border-radius:10px; padding:0.65rem 1.25rem;"
+                    onclick="document.getElementById('addUserModal').style.display='none'">
                 ยกเลิก
             </button>
         </div>

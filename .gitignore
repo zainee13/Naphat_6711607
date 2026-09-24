@@ -1,0 +1,54 @@
+## ==========================================
+## .NET / Visual Studio / ASP.NET Core
+## ==========================================
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio files
+.vs/
+*.user
+*.userprefs
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# User-specific & local settings
+*.local.json
+appsettings*.local.json
+secrets.json
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# Publish / Package output
+publish/
+*.publishproj
+*.nupkg
+*.snupkg
+
+# Temporary & cache files
+*.tmp
+*.temp
+*.swp
+*~
+*.bak
+
+# Windows / OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
