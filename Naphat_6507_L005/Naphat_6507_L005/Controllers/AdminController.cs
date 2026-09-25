@@ -19,6 +19,6 @@ public class AdminController : Controller
     public IActionResult Users()
     {
         SetUserBag();
-        return View();
+        return View(AccountController._users);
     }
 }

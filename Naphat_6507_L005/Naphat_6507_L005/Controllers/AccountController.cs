@@ -6,7 +6,7 @@ namespace Naphat_6507_L005.Controllers;
 public class AccountController : Controller
 {
     // Demo accounts for frontend simulation
-    private static readonly Dictionary<string, (string password, string role, string name)> _users = new()
+    public static readonly Dictionary<string, (string password, string role, string name)> _users = new()
     {
         { "customer1",    ("1234", "Customer",        "นภัส นาวาหัสดินกุล") },
         { "accounting1",  ("1234", "Accounting",      "สมหญิง บัญชีดี") },
