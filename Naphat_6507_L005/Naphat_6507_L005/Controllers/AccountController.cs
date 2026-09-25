@@ -9,10 +9,10 @@ public class AccountController : Controller
     public static readonly Dictionary<string, (string password, string role, string name)> _users = new()
     {
         { "customer1",    ("1234", "Customer",        "นภัส นาวาหัสดินกุล") },
-        { "accounting1",  ("1234", "Accounting",      "สมหญิง บัญชีดี") },
-        { "inventory1",   ("1234", "Inventory",       "สมชาย คลังสินค้า") },
-        { "cs1",          ("1234", "CustomerService", "วรรณิสา บริการ") },
-        { "manager1",     ("1234", "Manager",         "ประยุทธ ผู้จัดการ") },
+        { "accounting1",  ("1234", "Accounting",      "บัญชีดี") },
+        { "inventory1",   ("1234", "Inventory",       "คลังสินค้า") },
+        { "cs1",          ("1234", "CustomerService", "บริการ") },
+        { "manager1",     ("1234", "Manager",         "ผู้จัดการ") },
         { "admin",        ("1234", "Admin",           "ผู้ดูแลระบบ") },
     };
 
