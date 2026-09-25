@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Naphat_6507_L005.ViewModels;
 
 namespace Naphat_6507_L005.Controllers;
 
@@ -24,17 +25,17 @@ public class AccountController : Controller
     }
 
     [HttpPost]
-    public IActionResult Login(string username, string password)
+    public IActionResult Login(LoginViewModel data)
     {
-        if (_users.TryGetValue(username.ToLower(), out var info) && info.password == password)
+        if (_users.TryGetValue(data.Username.ToLower(), out var info) && info.password == data.Password)
         {
-            HttpContext.Session.SetString("Username", username);
+            HttpContext.Session.SetString("Username", data.Username);
             HttpContext.Session.SetString("Role", info.role);
             HttpContext.Session.SetString("FullName", info.name);
             return RedirectByRole(info.role);
         }
         ViewBag.Error = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
-        return View();
+        return View(data);
     }
 
     [HttpGet]
@@ -44,27 +45,27 @@ public class AccountController : Controller
     }
 
     [HttpPost]
-    public IActionResult Register(string username, string password, string confirmPassword, string? fullname, string? phone)
+    public IActionResult Register(RegisterViewModel data)
     {
-        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        if (string.IsNullOrWhiteSpace(data.Username) || string.IsNullOrWhiteSpace(data.Password))
         {
             ViewBag.Error = "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน";
-            return View();
+            return View(data);
         }
 
-        if (password != confirmPassword)
+        if (data.Password != data.ConfirmPassword)
         {
             ViewBag.Error = "รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน";
-            return View();
+            return View(data);
         }
 
-        if (_users.ContainsKey(username.ToLower()))
+        if (_users.ContainsKey(data.Username.ToLower()))
         {
             ViewBag.Error = "ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว";
-            return View();
+            return View(data);
         }
 
-        _users[username.ToLower()] = (password, "Customer", string.IsNullOrWhiteSpace(fullname) ? username : fullname);
+        _users[data.Username.ToLower()] = (data.Password, "Customer", string.IsNullOrWhiteSpace(data.Fullname) ? data.Username : data.Fullname);
         TempData["Success"] = "สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบด้วยบัญชีของคุณ";
         return RedirectToAction("Login");
     }

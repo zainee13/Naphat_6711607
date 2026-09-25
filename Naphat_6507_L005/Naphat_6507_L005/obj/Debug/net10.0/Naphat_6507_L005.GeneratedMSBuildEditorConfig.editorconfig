@@ -23,22 +23,6 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Accounting/DailySummary.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudGluZ1xEYWlseVN1bW1hcnkuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Accounting/Dashboard.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudGluZ1xEYXNoYm9hcmQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Accounting/Invoices.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudGluZ1xJbnZvaWNlcy5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Accounting/Refunds.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudGluZ1xSZWZ1bmRzLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
 [C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -53,18 +37,6 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Admin/Users.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVXNlcnMuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/CustomerService/Dashboard.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJTZXJ2aWNlXERhc2hib2FyZC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/CustomerService/TicketDetail.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJTZXJ2aWNlXFRpY2tldERldGFpbC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/CustomerService/Tickets.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJTZXJ2aWNlXFRpY2tldHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Customer/BookRoom.cshtml]
@@ -103,40 +75,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Home/Lab2.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWIyLmNzaHRtbA==
+[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Home/Lab5.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI1LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Home/Privacy.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Home/Lab5_2.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI1XzIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Home/Search.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTZWFyY2guY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Home/secirity.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxzZWNpcml0eS5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Inventory/AddStock.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW52ZW50b3J5XEFkZFN0b2NrLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Inventory/Alerts.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW52ZW50b3J5XEFsZXJ0cy5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Inventory/Dashboard.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW52ZW50b3J5XERhc2hib2FyZC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Inventory/StockList.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW52ZW50b3J5XFN0b2NrTGlzdC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Manager/Dashboard.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFuYWdlclxEYXNoYm9hcmQuY3NodG1s
+[C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Home/Lab5_3.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI1XzMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Napha/OneDrive - Sripatum University/Desktop/Workshop6/Naphat_6711607/Naphat_6507_L005/Naphat_6507_L005/Views/Shared/Error.cshtml]

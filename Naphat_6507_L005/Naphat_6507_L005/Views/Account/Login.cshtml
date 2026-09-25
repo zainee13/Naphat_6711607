@@ -1,3 +1,4 @@
+@model Naphat_6507_L005.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "เข้าสู่ระบบ";
     Layout = "_LayoutLogin";
@@ -46,7 +47,7 @@
                 <label class="form-label">
                     ชื่อผู้ใช้งาน
                 </label>
-                <input type="text" name="username" class="form-control"
+                <input type="text" asp-for="Username" class="form-control"
                        placeholder="กรอกชื่อผู้ใช้" autocomplete="username" required />
             </div>
 
@@ -55,7 +56,7 @@
                     <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">lock</span>
                     รหัสผ่าน
                 </label>
-                <input type="password" name="password" class="form-control"
+                <input type="password" asp-for="Password" class="form-control"
                        placeholder="กรอกรหัสผ่าน" autocomplete="current-password" required />
             </div>
 
