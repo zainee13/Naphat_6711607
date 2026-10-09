@@ -1,7 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using Naphat_6507_L005.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<Csi402dbContext>(
+    options =>  options.UseMySql(
+builder.Configuration.GetConnectionString("DefaultConnection"),
+   ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+    )
+);
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromHours(2);
