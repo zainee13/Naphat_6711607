@@ -1,4 +1,4 @@
-@model Dictionary<string, (string password, string role, string name)>
+@model List<Naphat_6507_L005.Models.User>
 @{
     ViewData["Title"] = "จัดการผู้ใช้";
     Layout = "_Layout";
@@ -62,62 +62,55 @@
                 <tr><th>ชื่อผู้ใช้</th><th>ชื่อ-นามสกุล</th><th>Role</th><th>อีเมล</th><th>Login ล่าสุด</th><th>สถานะ</th><th>ดำเนินการ</th></tr>
             </thead>
             <tbody>
-                @if (Model != null)
+                @if (Model != null && Model.Count > 0)
                 {
                     foreach (var user in Model)
                     {
-                        var username = user.Key;
-                        var name = user.Value.name;
-                        var role = user.Value.role;
-                        var email = username + "@email.com";
-                        var lastLogin = "13 ก.ย. 13:37";
-                        var statusText = "ปกติ";
-                        var statusBadge = "available";
                         var avatarColor = "#06b6d4";
-
                         var roleColors = new Dictionary<string,string> {
                             {"Customer","#eff6ff|#1d4ed8"}, {"Accounting","#ecfdf5|#065f46"},
                             {"Inventory","#f3e8ff|#7c3aed"}, {"CustomerService","#fef3c7|#92400e"},
                             {"Manager","#fee2e2|#991b1b"}, {"Admin","#cffafe|#0e7490"}
                         };
-                        var colorPair = roleColors.ContainsKey(role) ? roleColors[role].Split('|') : new[]{"#f3f4f6","#374151"};
+                        var colorPair = roleColors.ContainsKey(user.Role) ? roleColors[user.Role].Split('|') : new[]{"#f3f4f6","#374151"};
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="avatar" style="background:@avatarColor; color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0;">
-                                        @(username.Length > 0 ? username.Substring(0, 1).ToUpper() : "U")
+                                        @(user.Username.Length > 0 ? user.Username.Substring(0, 1).ToUpper() : "U")
                                     </div>
-                                    <span class="fw-semibold" style="font-size:0.875rem; color:#06b6d4;">@username</span>
+                                    <span class="fw-semibold" style="font-size:0.875rem; color:#06b6d4;">@user.Username</span>
                                 </div>
                             </td>
-                            <td style="font-size:0.875rem;">@name</td>
+                            <td style="font-size:0.875rem;">@user.Fullname</td>
                             <td>
                                 <span class="badge" style="background:@colorPair[0]; color:@colorPair[1]; font-size:0.72rem; border-radius:20px; padding:0.25rem 0.65rem;">
-                                    @role
+                                    @user.Role
                                 </span>
                             </td>
-                            <td style="font-size:0.78rem; color:#6c757d;">@email</td>
-                            <td style="font-size:0.75rem; color:#9ca3af;">@lastLogin</td>
-                            <td><span class="badge-status badge-@statusBadge">@statusText</span></td>
+                            <td style="font-size:0.78rem; color:#6c757d;">@(user.Email ?? "-")</td>
+                            <td style="font-size:0.75rem; color:#9ca3af;">@user.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td><span class="badge-status badge-available">@(user.IsActive == true ? "ปกติ" : "ระงับ")</span></td>
                             <td>
                                 <div class="d-flex gap-1">
                                     <button class="btn btn-sm" style="background:#f0fdf4; color:#065f46; border:none; border-radius:6px; font-size:0.7rem;"
-                                            onclick="alert('แก้ไขผู้ใช้: @username')">
+                                            onclick="alert('แก้ไขผู้ใช้: @user.Username')">
                                         <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">edit</span>
                                     </button>
-                                    <button class="btn btn-sm" style="background:#eff6ff; color:#1d4ed8; border:none; border-radius:6px; font-size:0.7rem;"
-                                            onclick="alert('เปลี่ยน Role: @username')">
-                                        <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">swap_horiz</span>
-                                    </button>
-                                    <button class="btn btn-sm" style="background:#fef3c7; color:#92400e; border:none; border-radius:6px; font-size:0.7rem;"
-                                            onclick="alert('ระงับ: @username')">
-                                        <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">block</span>
+                                    <button class="btn btn-sm" style="background:#fee2e2; color:#991b1b; border:none; border-radius:6px; font-size:0.7rem;"
+                                            onclick="alert('ลบผู้ใช้: @user.Username')">
+                                        <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">delete</span>
                                     </button>
                                 </div>
                             </td>
                         </tr>
                     }
-                }            </tbody>
+                }
+                else
+                {
+                    <tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:2rem;">ยังไม่มีข้อมูลผู้ใช้</td></tr>
+                }
+            </tbody>
         </table>
     </div>
 </div>

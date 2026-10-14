@@ -1,20 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
+using Naphat_6507_L005.Models;
 using Naphat_6507_L005.ViewModels;
 
 namespace Naphat_6507_L005.Controllers;
 
 public class AccountController : Controller
 {
-    // Demo accounts for frontend simulation
+    private readonly Csi402dbContext _db;
+
+    // Demo accounts for frontend simulation (staff accounts)
     public static readonly Dictionary<string, (string password, string role, string name)> _users = new()
     {
-        { "customer1",    ("1234", "Customer",        "นภัส นาวาหัสดินกุล") },
         { "accounting1",  ("1234", "Accounting",      "บัญชีดี") },
         { "inventory1",   ("1234", "Inventory",       "คลังสินค้า") },
         { "cs1",          ("1234", "CustomerService", "บริการ") },
         { "manager1",     ("1234", "Manager",         "ผู้จัดการ") },
         { "admin",        ("1234", "Admin",           "ผู้ดูแลระบบ") },
     };
+
+    public AccountController(Csi402dbContext db)
+    {
+        _db = db;
+    }
 
     [HttpGet]
     public IActionResult Login()
@@ -27,6 +34,7 @@ public class AccountController : Controller
     [HttpPost]
     public IActionResult Login(LoginViewModel data)
     {
+        // ตรวจสอบ staff accounts ก่อน
         if (_users.TryGetValue(data.Username.ToLower(), out var info) && info.password == data.Password)
         {
             HttpContext.Session.SetString("Username", data.Username);
@@ -34,6 +42,19 @@ public class AccountController : Controller
             HttpContext.Session.SetString("FullName", info.name);
             return RedirectByRole(info.role);
         }
+
+        // ตรวจสอบจาก DB (users ที่ Register)
+        var dbUser = (from u in _db.Users
+                      where u.Username == data.Username && u.PasswordHash == data.Password
+                      select u).FirstOrDefault();
+        if (dbUser != null)
+        {
+            HttpContext.Session.SetString("Username", dbUser.Username);
+            HttpContext.Session.SetString("Role", dbUser.Role);
+            HttpContext.Session.SetString("FullName", dbUser.Fullname);
+            return RedirectByRole(dbUser.Role);
+        }
+
         ViewBag.Error = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
         return View(data);
     }
@@ -59,13 +80,26 @@ public class AccountController : Controller
             return View(data);
         }
 
-        if (_users.ContainsKey(data.Username.ToLower()))
+        // ตรวจสอบซ้ำใน DB
+        var exists = (from u in _db.Users where u.Username == data.Username select u).FirstOrDefault();
+        if (exists != null || _users.ContainsKey(data.Username.ToLower()))
         {
             ViewBag.Error = "ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว";
             return View(data);
         }
 
-        _users[data.Username.ToLower()] = (data.Password, "Customer", string.IsNullOrWhiteSpace(data.Fullname) ? data.Username : data.Fullname);
+        // บันทึกลง DB table: user
+        User newUser = new();
+        newUser.Username = data.Username;
+        newUser.PasswordHash = data.Password;
+        newUser.Fullname = string.IsNullOrWhiteSpace(data.Fullname) ? data.Username : data.Fullname;
+        newUser.Phone = data.Phone;
+        newUser.Role = "Customer";
+        newUser.IsActive = true;
+        newUser.CreatedAt = DateTime.Now;
+        _db.Users.Add(newUser);
+        _db.SaveChanges();
+
         TempData["Success"] = "สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบด้วยบัญชีของคุณ";
         return RedirectToAction("Login");
     }
