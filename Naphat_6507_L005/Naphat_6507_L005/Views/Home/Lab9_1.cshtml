@@ -1,0 +1,24 @@
+@model IEnumerable<Naphat_6507_L005.Models.Labstudent>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>StdCode</th>
+            <th>Password</th>
+            <th>Name</th>
+            <th>LastName</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.StdId</td>
+                <td>@item.StdPassword</td>
+                <td>@item.StdName</td>
+                <td>@item.StdLastname</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<p>@ViewBag.Stutas</p>
