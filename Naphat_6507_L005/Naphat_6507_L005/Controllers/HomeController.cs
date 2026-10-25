@@ -55,6 +55,37 @@ public class HomeController : Controller
             return View(data);
         }
     }
+
+    public IActionResult Lab10(string? StdId)
+    {
+        var Student = (from s in _db.Labstudents where s.StdId == StdId select s).FirstOrDefault();
+        return View(Student);
+    }
+
+    [HttpPost]
+    public IActionResult Lab10(Labstudent data)
+    {
+        var Student = (from s in _db.Labstudents where s.StdId == data.StdId select s).FirstOrDefault();
+        if (Student != null)
+        {
+            Student.StdPassword = data.StdPassword;
+            Student.StdName = data.StdName;
+            Student.StdLastname = data.StdLastname;
+            _db.SaveChanges();
+        }
+        return RedirectToAction("Lab9_1");
+    }
+
+    public IActionResult Lab10_1(string? StdId)
+    {
+        var Student = (from s in _db.Labstudents where s.StdId == StdId select s).FirstOrDefault();
+        if (Student != null)
+        {
+            _db.Labstudents.Remove(Student);
+            _db.SaveChanges();
+        }
+        return RedirectToAction("Lab9_1");
+    }
     
     public IActionResult Lab9_1()
     {

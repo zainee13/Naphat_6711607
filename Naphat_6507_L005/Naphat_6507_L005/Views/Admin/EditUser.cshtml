@@ -1,0 +1,84 @@
+@model Naphat_6507_L005.Models.User
+@{
+    ViewData["Title"] = "แก้ไขข้อมูลผู้ใช้";
+    Layout = "_Layout";
+}
+
+<div class="page-header mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <a asp-action="Users" asp-controller="Admin" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
+            <span class="material-symbols-outlined align-middle" style="font-size:1rem;">arrow_back</span> ย้อนกลับ
+        </a>
+        <h1 class="h3 mb-0">
+            <span class="material-symbols-outlined align-middle me-2" style="color:#06b6d4;">edit_note</span>
+            แก้ไขข้อมูลผู้ใช้ (@Model?.Username)
+        </h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="section-card p-4" style="background:#fff; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+            <form asp-action="EditUser" asp-controller="Admin" method="post">
+                <input type="hidden" asp-for="UserId" />
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:0.875rem;">ชื่อผู้ใช้งาน (Username) *</label>
+                    <input type="text" class="form-control" asp-for="Username" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:0.875rem;">รหัสผ่าน (Password Hash) *</label>
+                    <input type="text" class="form-control" asp-for="PasswordHash" required />
+                    <small class="text-muted" style="font-size:0.75rem;">รหัสผ่านที่บันทึกในระบบ</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:0.875rem;">ชื่อ - นามสกุล *</label>
+                    <input type="text" class="form-control" asp-for="Fullname" required />
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:0.875rem;">อีเมล</label>
+                        <input type="email" class="form-control" asp-for="Email" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:0.875rem;">เบอร์โทรศัพท์</label>
+                        <input type="text" class="form-control" asp-for="Phone" />
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:0.875rem;">บทบาท (Role) *</label>
+                        <select class="form-select" asp-for="Role" required>
+                            <option value="Customer">Customer</option>
+                            <option value="Accounting">Accounting</option>
+                            <option value="Inventory">Inventory</option>
+                            <option value="CustomerService">CustomerService</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:0.875rem;">สถานะการใช้งาน</label>
+                        <select class="form-select" asp-for="IsActive">
+                            <option value="true">ปกติ (Active)</option>
+                            <option value="false">ระงับการใช้งาน (Inactive)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4 pt-2 border-top">
+                    <button type="submit" class="btn flex-fill" style="background:linear-gradient(135deg,#06b6d4,#0891b2); color:#fff; border:none; border-radius:10px; padding:0.6rem; font-weight:600;">
+                        <span class="material-symbols-outlined align-middle me-1" style="font-size:1.1rem;">save</span> บันทึกการแก้ไข
+                    </button>
+                    <a asp-action="Users" asp-controller="Admin" class="btn btn-outline-secondary" style="border-radius:10px; padding:0.6rem 1.25rem;">
+                        ยกเลิก
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

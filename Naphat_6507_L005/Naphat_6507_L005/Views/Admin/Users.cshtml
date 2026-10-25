@@ -93,14 +93,15 @@
                             <td><span class="badge-status badge-available">@(user.IsActive == true ? "ปกติ" : "ระงับ")</span></td>
                             <td>
                                 <div class="d-flex gap-1">
-                                    <button class="btn btn-sm" style="background:#f0fdf4; color:#065f46; border:none; border-radius:6px; font-size:0.7rem;"
-                                            onclick="alert('แก้ไขผู้ใช้: @user.Username')">
+                                    <a class="btn btn-sm" style="background:#f0fdf4; color:#065f46; border:none; border-radius:6px; font-size:0.7rem; display:inline-flex; align-items:center;"
+                                       asp-action="EditUser" asp-controller="Admin" asp-route-id="@user.UserId" title="แก้ไข">
                                         <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">edit</span>
-                                    </button>
-                                    <button class="btn btn-sm" style="background:#fee2e2; color:#991b1b; border:none; border-radius:6px; font-size:0.7rem;"
-                                            onclick="alert('ลบผู้ใช้: @user.Username')">
+                                    </a>
+                                    <a class="btn btn-sm" style="background:#fee2e2; color:#991b1b; border:none; border-radius:6px; font-size:0.7rem; display:inline-flex; align-items:center;"
+                                       asp-action="DeleteUser" asp-controller="Admin" asp-route-id="@user.UserId"
+                                       onclick="return confirm('ยืนยันที่จะลบผู้ใช้ @user.Username หรือไม่?');" title="ลบ">
                                         <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">delete</span>
-                                    </button>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
