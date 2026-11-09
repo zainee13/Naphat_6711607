@@ -125,3 +125,4 @@ a.pf-room-code:hover { text-decoration: underline; }
     .pf-qr { flex-direction: column; text-align: center; }
 }
 
+.pf-next { margin: 0.6rem 0 0; }

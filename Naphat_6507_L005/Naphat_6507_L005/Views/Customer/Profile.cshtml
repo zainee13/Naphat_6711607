@@ -7,17 +7,20 @@
     var fullName = ViewBag.FullName as string ?? "";
 
     // การจองของผู้ใช้ (ตอนต่อฐานข้อมูล ให้ดึงจากตาราง Bookings ของ user ที่ล็อกอิน)
-    // ยอดคิดสูตรเดียวกับหน้า RoomDetail/BookRoom: ค่าเช่า x เดือน + ประกัน 2 เดือน + VAT 7% ของค่าเช่า
+    // คิดแบบคลังเช่าทั่วไป เหมือนหน้า RoomDetail/BookRoom: จ่ายค่าเช่ารายเดือน
+    // ก่อนเข้าใช้จ่ายค่าเช่าเดือนแรก + เงินประกัน (1–3 เดือน = 1, 6 เดือน = 2, 12 เดือน = 3) คืนเมื่อสิ้นสุดสัญญา
+    // ค่าเช่าอสังหาริมทรัพย์ได้รับยกเว้น VAT จึงไม่บวก VAT
     var bookings = new[] {
         new { Id="BK-2026-002", Room="L-01",  Zone="โซน C1",       Period="1 ธ.ค. 2569 – 31 พ.ค. 2570", Months=6, Rate=75000, Status="pending",   Booked="9 พ.ย. 2569" },
         new { Id="BK-2026-001", Room="M-01",  Zone="โซน B1",       Period="1 ก.ค. – 31 ธ.ค. 2569",      Months=6, Rate=25000, Status="active",    Booked="15 มิ.ย. 2569" },
         new { Id="BK-2025-018", Room="CR-05", Zone="โซนห้องเย็น",   Period="1 ก.ค. – 31 ธ.ค. 2568",      Months=6, Rate=40000, Status="ended",     Booked="20 มิ.ย. 2568" },
         new { Id="BK-2025-009", Room="M-01",  Zone="โซน B1",       Period="1 ม.ค. – 30 มิ.ย. 2568",     Months=6, Rate=25000, Status="cancelled", Booked="10 ธ.ค. 2567" },
     };
-    Func<int, int, (int Rent, int Deposit, int Vat, int Total)> calc = (rate, months) =>
+    Func<int, int, (int DepMonths, int Deposit, int FirstPay)> calc = (rate, months) =>
     {
-        var rent = rate * months; var deposit = rate * 2; var vat = (int)Math.Round(rent * 0.07);
-        return (rent, deposit, vat, rent + deposit + vat);
+        var depMonths = months >= 12 ? 3 : months >= 6 ? 2 : 1;
+        var deposit = rate * depMonths;
+        return (depMonths, deposit, rate + deposit);
     };
     var statusText = new Dictionary<string, string> {
         ["pending"] = "รอชำระเงิน", ["active"] = "ใช้งานอยู่", ["ended"] = "สิ้นสุดสัญญา", ["cancelled"] = "ยกเลิก คืนเงินแล้ว"
@@ -27,10 +30,12 @@
     var dueAmt = calc(due.Rate, due.Months);
     var pendingCount = bookings.Count(b => b.Status == "pending");
 
+    // ประวัติ: ค่าเช่ารายเดือน และการคืนเงินประกันเมื่อหมดสัญญา
     var payments = new[] {
-        ("INV-2026-001", "M-01 สัญญา 6 เดือน",  calc(25000, 6).Total, "15 มิ.ย. 2569, โอนผ่าน SCB", "paid"),
-        ("INV-2025-018", "CR-05 สัญญา 6 เดือน", calc(40000, 6).Total, "20 มิ.ย. 2568, บัตรเครดิต", "paid"),
-        ("REF-2025-002", "คืนเงิน M-01 (ยกเลิก)", calc(25000, 6).Total, "12 ธ.ค. 2567, โอนคืนบัญชีเดิม", "refund"),
+        ("INV-2026-011", "M-01 ค่าเช่า พ.ย. 2569",            25000, "1 พ.ย. 2569, โอนผ่าน SCB", "paid"),
+        ("INV-2026-010", "M-01 ค่าเช่า ต.ค. 2569",            25000, "1 ต.ค. 2569, โอนผ่าน SCB", "paid"),
+        ("INV-2026-005", "M-01 ค่าเช่าเดือนแรกและเงินประกัน", calc(25000, 6).FirstPay, "15 มิ.ย. 2569, โอนผ่าน SCB", "paid"),
+        ("REF-2026-001", "คืนเงินประกัน CR-05",              calc(40000, 6).Deposit, "15 ม.ค. 2569, โอนคืนบัญชีเดิม", "refund"),
     };
 }
 
@@ -70,7 +75,6 @@
         <ul class="pf-bookings">
             @foreach (var b in bookings)
             {
-                var amt = calc(b.Rate, b.Months);
                 <li class="pf-booking is-@b.Status">
                     <div class="pf-booking-room">
                         <a class="pf-room-code" asp-controller="Customer" asp-action="RoomDetail" asp-route-id="@b.Room">@b.Room</a>
@@ -82,8 +86,8 @@
                     </div>
                     <span class="pf-status pf-status--@b.Status">@statusText[b.Status]</span>
                     <div class="pf-booking-amt">
-                        <strong>฿@amt.Total.ToString("N0")</strong>
-                        <span>@b.Months เดือน รวมประกันและ VAT</span>
+                        <strong>฿@b.Rate.ToString("N0") ต่อเดือน</strong>
+                        <span>สัญญา @b.Months เดือน</span>
                     </div>
                     <div class="pf-booking-act">
                         @if (b.Status == "pending")
@@ -111,11 +115,14 @@
                         <span class="pf-status pf-status--pending">รอชำระเงิน</span>
                     </div>
                     <dl class="pf-calc" id="payCalc" data-rate="@due.Rate" data-months="@due.Months">
-                        <div><dt>ค่าเช่า @due.Months เดือน</dt><dd>฿@dueAmt.Rent.ToString("N0")</dd></div>
-                        <div><dt>เงินประกัน 2 เดือน</dt><dd>฿@dueAmt.Deposit.ToString("N0")</dd></div>
-                        <div><dt>VAT 7%</dt><dd id="payVat">฿@dueAmt.Vat.ToString("N0")</dd></div>
-                        <div class="pf-total"><dt>ยอดชำระ</dt><dd class="js-pay-total">฿@dueAmt.Total.ToString("N0")</dd></div>
+                        <div><dt>ค่าเช่าเดือนแรก</dt><dd>฿@due.Rate.ToString("N0")</dd></div>
+                        <div><dt>เงินประกัน @dueAmt.DepMonths เดือน<span class="cu-sub">คืนเมื่อสิ้นสุดสัญญา</span></dt><dd>฿@dueAmt.Deposit.ToString("N0")</dd></div>
+                        <div class="pf-total"><dt>ชำระก่อนเข้าใช้</dt><dd class="js-pay-total">฿@dueAmt.FirstPay.ToString("N0")</dd></div>
                     </dl>
+                    @if (due.Months > 1)
+                    {
+                        <p class="cu-next pf-next">เดือนที่ 2–@due.Months ชำระเดือนละ ฿@due.Rate.ToString("N0")</p>
+                    }
 
                     <!-- โค้ดส่วนลด -->
                     <form class="cu-promo" id="promoForm" novalidate>
@@ -144,7 +151,7 @@
                         <div><dt>ธนาคาร</dt><dd>ไทยพาณิชย์ (SCB)</dd></div>
                         <div><dt>ชื่อบัญชี</dt><dd>บริษัท โลจิแมเนจ จำกัด</dd></div>
                         <div><dt>เลขบัญชี</dt><dd><span id="bankNo">123-4-56789-0</span> <button type="button" class="pf-copy" data-copy="1234567890">คัดลอก</button></dd></div>
-                        <div><dt>ยอดโอน</dt><dd class="js-pay-total">฿@dueAmt.Total.ToString("N0")</dd></div>
+                        <div><dt>ยอดโอน</dt><dd class="js-pay-total">฿@dueAmt.FirstPay.ToString("N0")</dd></div>
                     </dl>
                     <label class="cu-field">
                         <span>สลิปโอนเงิน</span>
@@ -157,8 +164,8 @@
                 <!-- QR -->
                 <form class="pf-method" data-method="qr" hidden>
                     <div class="pf-qr">
-                        <img id="payQr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PROMPTPAY-@dueAmt.Total" alt="QR พร้อมเพย์" width="160" height="160" />
-                        <p>สแกนด้วยแอปธนาคาร ยอด <strong class="js-pay-total">฿@dueAmt.Total.ToString("N0")</strong></p>
+                        <img id="payQr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PROMPTPAY-@dueAmt.FirstPay" alt="QR พร้อมเพย์" width="160" height="160" />
+                        <p>สแกนด้วยแอปธนาคาร ยอด <strong class="js-pay-total">฿@dueAmt.FirstPay.ToString("N0")</strong></p>
                     </div>
                     <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">ฉันชำระแล้ว</button>
                 </form>
@@ -171,7 +178,7 @@
                         <label class="cu-field"><span>หมดอายุ (ดด/ปป)</span><input type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="12/28" required /></label>
                         <label class="cu-field"><span>CVV</span><input type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" required /></label>
                     </div>
-                    <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">ชำระ <span class="js-pay-total">฿@dueAmt.Total.ToString("N0")</span></button>
+                    <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">ชำระ <span class="js-pay-total">฿@dueAmt.FirstPay.ToString("N0")</span></button>
                 </form>
 
                 <p class="pf-done" id="payDone" role="status" hidden>ได้รับแจ้งชำระเงินแล้ว เจ้าหน้าที่จะตรวจสอบและอัปเดตสถานะภายใน 15 นาที</p>

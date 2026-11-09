@@ -74,6 +74,10 @@
 }
 .cu-field input:focus-visible, .cu-field select:focus-visible, .cu-field textarea:focus-visible { outline: 3px solid var(--cu-blue); outline-offset: 1px; }
 
+/* สรุปยอด: คำอธิบายย่อยใต้รายการ และบรรทัดค่าเช่าเดือนถัดไป */
+.cu-sub { display: block; font-size: 0.78rem; color: var(--cu-muted); line-height: 1.3; }
+.cu-next { margin: -0.5rem 0 1rem; font-size: 0.88rem; color: var(--cu-muted); }
+
 /* โค้ดส่วนลด (ใช้ในหน้า BookRoom และ Profile) */
 .cu-discount dt, .cu-discount dd { color: #14632f !important; }
 .cu-link { border: 0; background: none; padding: 0 0.15rem; color: var(--cu-blue); font: inherit; font-size: 0.85rem; text-decoration: underline; cursor: pointer; }
