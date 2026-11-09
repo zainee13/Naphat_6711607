@@ -4,75 +4,93 @@
     Layout = "_LayoutLogin";
 }
 
-<div class="login-page">
-    <div class="login-card">
+<div class="auth">
 
-        <!-- Back to Home -->
-        <div class="mb-3 text-start">
-            <a asp-controller="Customer" asp-action="Dashboard" style="color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px;">
-                <span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>
-                <span>กลับสู่หน้าหลัก</span>
+    <!-- ฝั่งซ้าย: แบรนด์ -->
+    <aside class="auth-brand">
+        <a asp-controller="Customer" asp-action="Dashboard" class="auth-logo">Logi<span>Manage</span></a>
+
+        <div>
+            <span class="lm-eyebrow" style="color:rgba(255,255,255,.6);"><span class="lm-dot"></span> Warehouse rental platform</span>
+            <h2>เช่าคลังสินค้า<br />จบในที่เดียว <em>ออนไลน์</em></h2>
+            <p class="lead-s">จองห้อง ชำระเงิน ติดตามสต็อก และดูใบเสร็จได้จากหน้าเว็บเดียว ไม่ต้องเดินทางมาติดต่อ</p>
+
+            <div class="auth-points">
+                <div class="auth-point">
+                    <span class="material-symbols-outlined">warehouse</span>
+                    ห้องคลังไซส์ S ถึง XL และห้องเย็น
+                </div>
+                <div class="auth-point">
+                    <span class="material-symbols-outlined">inventory_2</span>
+                    ดูสต็อกสินค้าในห้องของคุณแบบเรียลไทม์
+                </div>
+                <div class="auth-point">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    ใบแจ้งหนี้และใบเสร็จออนไลน์ทุกเดือน
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-foot">© 2026 LOGIMANAGE · CSI402</div>
+    </aside>
+
+    <!-- ฝั่งขวา: ฟอร์ม -->
+    <main class="auth-form-wrap">
+        <div class="auth-form">
+            <a asp-controller="Customer" asp-action="Dashboard" class="auth-back">
+                <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_back</span>
+                กลับสู่หน้าหลัก
             </a>
+
+            <h1>ยินดีต้อนรับกลับ</h1>
+            <p class="sub">เข้าสู่ระบบเพื่อจัดการการเช่าคลังสินค้าของคุณ</p>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="auth-msg err">
+                    <span class="material-symbols-outlined" style="font-size:1.1rem;">error</span>
+                    @ViewBag.Error
+                </div>
+            }
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="auth-msg ok">
+                    <span class="material-symbols-outlined" style="font-size:1.1rem;">check_circle</span>
+                    @TempData["Success"]
+                </div>
+            }
+
+            <form asp-controller="Account" asp-action="Login" method="post">
+                <div class="mb-3">
+                    <label class="form-label" asp-for="Username">ชื่อผู้ใช้งาน</label>
+                    <div class="auth-input">
+                        <span class="material-symbols-outlined">person</span>
+                        <input type="text" asp-for="Username" class="form-control"
+                               placeholder="กรอกชื่อผู้ใช้" autocomplete="username" required />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label" asp-for="Password">รหัสผ่าน</label>
+                    <div class="auth-input">
+                        <span class="material-symbols-outlined">lock</span>
+                        <input type="password" asp-for="Password" class="form-control"
+                               placeholder="กรอกรหัสผ่าน" autocomplete="current-password" required />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary auth-submit">
+                    เข้าสู่ระบบ
+                    <span class="material-symbols-outlined" style="font-size:1.15rem;">arrow_forward</span>
+                </button>
+            </form>
+
+            <div class="auth-alt">
+                ยังไม่มีบัญชีผู้ใช้?
+                <a asp-controller="Account" asp-action="Register">สมัครสมาชิก</a>
+            </div>
         </div>
+    </main>
 
-        <!-- Logo -->
-        <div class="text-center mb-4">
-            <div class="logo-text">Logi<span>Manage</span></div>
-            <p style="color:rgba(255,255,255,0.5); font-size:0.82rem; margin-top:0.25rem;">
-                ระบบเช่าห้องคลังสินค้าออนไลน์
-            </p>
-        </div>
-
-        <!-- Error Alert -->
-        @if (ViewBag.Error != null)
-        {
-            <div class="alert" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.85rem;">
-                <span class="material-symbols-outlined align-middle" style="font-size:1rem;">error</span>
-                @ViewBag.Error
-            </div>
-        }
-
-        <!-- Success Alert -->
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#6ee7b7; border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.85rem;">
-                <span class="material-symbols-outlined align-middle" style="font-size:1rem;">check_circle</span>
-                @TempData["Success"]
-            </div>
-        }
-
-        <!-- Login Form -->
-        <form asp-controller="Account" asp-action="Login" method="post">
-            <div class="mb-3">
-                <label class="form-label">
-                    ชื่อผู้ใช้งาน
-                </label>
-                <input type="text" asp-for="Username" class="form-control"
-                       placeholder="กรอกชื่อผู้ใช้" autocomplete="username" required />
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label">
-                    <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">lock</span>
-                    รหัสผ่าน
-                </label>
-                <input type="password" asp-for="Password" class="form-control"
-                       placeholder="กรอกรหัสผ่าน" autocomplete="current-password" required />
-            </div>
-
-            <button type="submit" class="btn-login">
-                <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">login</span>
-                เข้าสู่ระบบ
-            </button>
-        </form>
-
-        <!-- Register Link -->
-        <div class="text-center mt-3">
-            <span style="color:rgba(255,255,255,0.6); font-size:0.85rem;">ยังไม่มีบัญชีผู้ใช้?</span>
-            <a asp-controller="Account" asp-action="Register" style="color:var(--orange); text-decoration:none; font-weight:600; font-size:0.85rem; margin-left:4px;">
-                Register
-            </a>
-        </div>
-
-    </div>
 </div>
