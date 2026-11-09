@@ -24,9 +24,9 @@
 .fp-plan {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    grid-template-rows: repeat(5, minmax(42px, 1fr)) minmax(50px, auto) 40px;
+    grid-template-rows: repeat(5, minmax(42px, 1fr)) minmax(50px, auto);
     gap: 6px;
-    aspect-ratio: 12 / 6.6;
+    aspect-ratio: 12 / 6;
 }
 
 .fp-unit {
@@ -64,30 +64,6 @@
 .fp-unit--xl .fp-unit-code { font-size: clamp(1.4rem, 3vw, 2.4rem); }
 .fp-unit-area { font-size: 0.75rem; opacity: 0.92; white-space: nowrap; }
 
-.fp-fixed {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    border: 1.5px dashed var(--cu-blue-2);
-    border-radius: 3px;
-    color: var(--cu-blue-2);
-    font-size: 0.78rem;
-    padding: 0.25rem;
-}
-.fp-fixed--gate { border-style: solid; border-width: 0 0 0 4px; border-color: var(--cu-orange); justify-content: flex-start; padding-left: 0.75rem; }
-
-.fp-dock {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--cu-blue);
-    color: #dfe7f0;
-    font-size: 0.8rem;
-    border-radius: 3px;
-    background-image: repeating-linear-gradient(90deg, transparent 0 calc(100% / 8 - 2px), rgba(255,255,255,.35) calc(100% / 8 - 2px) calc(100% / 8));
-}
-.fp-dock span { background: var(--cu-blue); padding: 0 0.6rem; }
 
 .fp-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem; list-style: none; margin: 0.75rem 0 0; padding: 0; font-size: 0.85rem; color: var(--cu-muted); }
 .fp-legend li { display: flex; align-items: center; gap: 0.4rem; }
@@ -128,12 +104,10 @@
 
 @media (max-width: 720px) {
     .fp-plan-wrap { padding: 8px; }
-    .fp-plan { gap: 4px; aspect-ratio: 12 / 10; grid-template-rows: repeat(5, minmax(34px, 1fr)) minmax(44px, auto) 34px; }
+    .fp-plan { gap: 4px; aspect-ratio: 12 / 9; grid-template-rows: repeat(5, minmax(34px, 1fr)) minmax(44px, auto); }
     .fp-unit { padding: 0.3rem 0.35rem; }
     .fp-unit-area { display: none; }
     .fp-unit--xl .fp-unit-area { display: block; }
-    .fp-fixed { font-size: 0.65rem; }
-    .fp-dock { font-size: 0.68rem; }
 }
 
 .sr { max-width: 1240px; }

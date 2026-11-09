@@ -3,14 +3,14 @@
     Layout = "_Layout";
 
     // ห้องทั้งหมด ใช้ทั้งผังคลังและรายการการ์ดด้านล่าง
-    // (ตอนต่อฐานข้อมูล ให้แทนที่ array นี้ด้วยข้อมูลจากตาราง Rooms; Grid คือตำแหน่งบนผัง 12 คอลัมน์ x 7 แถว)
+    // (ตอนต่อฐานข้อมูล ให้แทนที่ array นี้ด้วยข้อมูลจากตาราง Rooms; Grid คือตำแหน่งบนผัง 12 คอลัมน์ x 6 แถว)
     var rooms = new[] {
-        new { Id="XL-01", Kind="xl",   Free=true,  Area="1,200", Ceil="12 ม.", Truck="คอนเทนเนอร์ทุกขนาด", Power="หม้อแปลงแยก", Price="180,000", Zone="โซน D1 (เมกะ)",          Note="มีออฟฟิศและห้องน้ำในตัว",                  PriceVal=180000, OldPrice="210,000", Rating="5.0", Img="https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=600&q=80", Grid="1 / 1 / 6 / 6" },
+        new { Id="XL-01", Kind="xl",   Free=true,  Area="1,200", Ceil="12 ม.", Truck="คอนเทนเนอร์ทุกขนาด", Power="หม้อแปลงแยก", Price="180,000", Zone="โซน D1 (เมกะ)",          Note="คลังโล่งขนาดใหญ่พิเศษ",                    PriceVal=180000, OldPrice="210,000", Rating="5.0", Img="https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=600&q=80", Grid="1 / 1 / 6 / 6" },
         new { Id="L-01",  Kind="l",    Free=true,  Area="500",   Ceil="10 ม.", Truck="18 ล้อ / ตู้ 40ft",   Power="3 เฟส 380V",   Price="75,000",  Zone="โซน C1 (มี Dock)",        Note="มี Dock Leveler เทียบตู้คอนเทนเนอร์",       PriceVal=75000, OldPrice="85,000", Rating="4.6", Img="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80", Grid="1 / 6 / 4 / 10" },
         new { Id="L-02",  Kind="l",    Free=false, Area="350",   Ceil="10 ม.", Truck="10 ล้อ / เทรลเลอร์", Power="3 เฟส 380V",   Price="55,000",  Zone="โซน C2 (สินค้าปลอดภัย)", Note="ควบคุมการเข้าออกเฉพาะบุคคล",              PriceVal=55000, OldPrice="", Rating="4.5", Img="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80", Grid="1 / 10 / 4 / 13" },
-        new { Id="M-02",  Kind="m",    Free=true,  Area="250",   Ceil="8 ม.",  Truck="10 ล้อ",             Power="3 เฟส 380V",   Price="38,000",  Zone="โซน B2 (พาเลท)",         Note="Racking 3 ชั้น วางได้ 120 พาเลท",           PriceVal=38000, OldPrice="", Rating="4.8", Img="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80", Grid="4 / 6 / 6 / 9" },
-        new { Id="M-01",  Kind="m",    Free=true,  Area="150",   Ceil="8 ม.",  Truck="6 ล้อ / 10 ล้อ",     Power="3 เฟส 380V",   Price="25,000",  Zone="โซน B1 (มาตรฐาน)",       Note="พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม.",       PriceVal=25000, OldPrice="29,000", Rating="4.8", Img="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80", Grid="4 / 9 / 6 / 11" },
-        new { Id="CR-05", Kind="cold", Free=true,  Area="200",   Ceil="7 ม.",  Truck="10 ล้อตู้เย็น",      Power="ไฟสำรองคู่",    Price="40,000",  Zone="โซน Cold Chain",          Note="ควบคุม −18°C ถึง +5°C ดูอุณหภูมิผ่านมือถือ", PriceVal=40000, OldPrice="48,000", Rating="4.9", Img="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80", Grid="4 / 11 / 6 / 13" },
+        new { Id="M-02",  Kind="m",    Free=true,  Area="250",   Ceil="8 ม.",  Truck="10 ล้อ",             Power="3 เฟส 380V",   Price="38,000",  Zone="โซน B2 (พาเลท)",         Note="Racking 3 ชั้น วางได้ 120 พาเลท",           PriceVal=38000, OldPrice="", Rating="4.8", Img="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80", Grid="4 / 6 / 7 / 9" },
+        new { Id="M-01",  Kind="m",    Free=true,  Area="150",   Ceil="8 ม.",  Truck="6 ล้อ / 10 ล้อ",     Power="3 เฟส 380V",   Price="25,000",  Zone="โซน B1 (มาตรฐาน)",       Note="พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม.",       PriceVal=25000, OldPrice="29,000", Rating="4.8", Img="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80", Grid="4 / 9 / 7 / 11" },
+        new { Id="CR-05", Kind="cold", Free=true,  Area="200",   Ceil="7 ม.",  Truck="10 ล้อตู้เย็น",      Power="ไฟสำรองคู่",    Price="40,000",  Zone="โซน Cold Chain",          Note="ควบคุม −18°C ถึง +5°C ดูอุณหภูมิผ่านมือถือ", PriceVal=40000, OldPrice="48,000", Rating="4.9", Img="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80", Grid="4 / 11 / 7 / 13" },
         new { Id="S-01",  Kind="s",    Free=true,  Area="60",    Ceil="6 ม.",  Truck="กระบะ / 4 ล้อ",      Power="220V",         Price="12,000",  Zone="โซน A1 (ชั้น 1)",         Note="ชั้น 1 เข้าถึงง่าย",                       PriceVal=12000, OldPrice="", Rating="4.7", Img="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80", Grid="6 / 1 / 7 / 3" },
         new { Id="S-02",  Kind="s",    Free=true,  Area="80",    Ceil="6 ม.",  Truck="กระบะ / 4 ล้อ",      Power="220V / 380V",  Price="15,000",  Zone="โซน A2 (SME)",            Note="ประตูม้วนไฟฟ้า",                           PriceVal=15000, OldPrice="18,000", Rating="4.3", Img="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80", Grid="6 / 3 / 7 / 6" },
     };
@@ -50,9 +50,6 @@
                         <span class="fp-unit-area">@r.Area ตร.ม.</span>
                     </button>
                 }
-                <div class="fp-fixed" style="grid-area:6 / 6 / 7 / 9;">สำนักงานและ รปภ.</div>
-                <div class="fp-fixed fp-fixed--gate" style="grid-area:6 / 9 / 7 / 13;">ประตูเข้าออก</div>
-                <div class="fp-dock" style="grid-area:7 / 1 / 8 / 13;"><span>ลานเทียบตู้ 40 ฟุต ถนนกว้าง 20 ม.</span></div>
             </div>
             <ul class="fp-legend">
                 <li><i class="fp-sw"></i>ว่าง</li>
