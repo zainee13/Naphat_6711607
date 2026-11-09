@@ -1,5 +1,6 @@
 @{
     var roomId = ViewBag.RoomId as string ?? "M-01";
+    // รหัสห้องแบบเก่าที่อาจยังมีลิงก์ค้างอยู่
     if (roomId == "BN-A01") roomId = "M-01";
     if (roomId == "WN-B12") roomId = "L-01";
     if (roomId == "LC-C05") roomId = "CR-05";
@@ -7,535 +8,213 @@
     if (roomId == "BN-A07") roomId = "S-02";
     if (roomId == "WN-E01") roomId = "XL-01";
 
-    var roomDict = new Dictionary<string, (string Name, string Size, string Height, string Zone, string Vehicle, string Temp, string Img, string Price, int PriceNum, string Desc, string FloorLoad, string DockType, string Power)>
+    // (ตอนต่อฐานข้อมูล ให้แทนที่ dictionary นี้ด้วยข้อมูลจากตาราง Rooms)
+    var roomDict = new Dictionary<string, (bool Free, string Size, string Height, string Zone, string Vehicle, string Temp, string Img, string Price, int PriceNum, string Desc, string FloorLoad, string DockType, string Power)>
     {
-        ["S-01"] = ("Unit S-01 (ไซส์ S - 60 ตร.ม.)", "60 ตร.ม.", "6 เมตร", "โซน A1 (ชั้น 1)", "กระบะ / 4 ล้อ", "อุณหภูมิปกติ", "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80", "฿12,000", 12000, "ห้องไซส์เล็ก ชั้น 1 เข้าถึงง่าย ประตูม้วนกว้าง 3.5 เมตร เหมาะกับเก็บเอกสารและสต็อกสินค้าพร้อมส่งประจำวัน", "1.5 ตัน / ตร.ม.", "ทางลาดเทียบรถกระบะ", "220V 1 เฟส"),
-        ["S-02"] = ("Unit S-02 (ไซส์ S - 80 ตร.ม.)", "80 ตร.ม.", "6 เมตร", "โซน A2 (SME)", "4 ล้อ / 6 ล้อ", "อุณหภูมิปกติ", "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80", "฿15,000", 15000, "ห้องขนาดกะทัดรัด ประตูม้วนระบบไฟฟ้า สะดวกต่อการโหลดสินค้า เหมาะกับธุรกิจ SME และร้านค้าออนไลน์", "2 ตัน / ตร.ม.", "ทางลาดโหลดสินค้าในร่ม", "220V / 380V"),
-        ["M-01"] = ("Unit M-01 (ไซส์ M - 150 ตร.ม.)", "150 ตร.ม.", "8 เมตร", "โซน B1 (มาตรฐาน)", "6 ล้อ / 10 ล้อ", "อุณหภูมิปกติ", "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80", "฿25,000", 25000, "โกดังมาตรฐาน พื้นคอนกรีตเสริมเหล็กเคลือบอีพ็อกซี่ รองรับน้ำหนัก 3 ตัน/ตร.ม. รถโฟล์กลิฟต์เข้าสะดวก เหมาะสำหรับวางพาเลทสินค้า 60-120 ตัว", "3 ตัน / ตร.ม.", "ชานชาลาพร้อมทางลาด", "3 เฟส 380V (50A)"),
-        ["M-02"] = ("Unit M-02 (ไซส์ M - 250 ตร.ม.)", "250 ตร.ม.", "8 เมตร", "โซน B2 (พาเลท)", "10 ล้อ", "อุณหภูมิปกติ", "https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&q=80", "฿38,000", 38000, "ห้องขนาดกลาง เพดาน 8 เมตร ติดตั้ง Racking ได้ 3 ชั้น รองรับพาเลท 120 ตัว พร้อมระบบระบายอากาศหมุนเวียน 24 ชม.", "3.5 ตัน / ตร.ม.", "ชานชาลาระดับสูง 1.2 ม.", "3 เฟส 380V (100A)"),
-        ["L-01"] = ("Unit L-01 (ไซส์ L - 500 ตร.ม.)", "500 ตร.ม.", "10 เมตร", "โซน C1 (มี Dock)", "รถพ่วง 18 ล้อ / คอนเทนเนอร์ 40ft", "อุณหภูมิปกติ", "https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&q=80", "฿75,000", 75000, "คลังสินค้าขนาดใหญ่ รองรับรถพ่วง 18 ล้อ พร้อม Dock Leveler ชานชาลาปรับระดับอัตโนมัติ 2 ช่อง เทียบตู้คอนเทนเนอร์ โหลดสินค้าได้รวดเร็วทันใจ", "5 ตัน / ตร.ม.", "Dock Leveler ไฮดรอลิก 2 ช่อง", "3 เฟส 380V (200A)"),
-        ["L-02"] = ("Unit L-02 (ไซส์ L - 350 ตร.ม.)", "350 ตร.ม.", "10 เมตร", "โซน C2 (สินค้าปลอดภัย)", "10 ล้อ / เทรลเลอร์", "อุณหภูมิปกติ", "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=900&q=80", "฿55,000", 55000, "เพดานสูง 10 เมตร พื้นที่จัดเก็บสินค้ามูลค่าสูง พร้อมระบบ CCTV AI แยกห้อง บันทึกภาพ 90 วัน และประตูนิรภัย 2 ชั้น", "4 ตัน / ตร.ม.", "Dock Leveler 1 ช่อง", "3 เฟส 380V (150A)"),
-        ["XL-01"] = ("Unit XL-01 (ไซส์ XL - 1,200 ตร.ม.)", "1,200 ตร.ม.", "12 เมตร", "โซน D1 (เมกะ)", "คอนเทนเนอร์ทุกขนาด", "อุณหภูมิปกติ", "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=900&q=80", "฿180,000", 180000, "คลังขนาดใหญ่พิเศษ เพดานสูง 12 ม. ระบบ WMS Cloud Monitoring พร้อมออฟฟิศผู้บริหาร 2 ชั้น ห้องน้ำในตัว และระบบควบคุมพลังงาน Solar Roof", "5 ตัน / ตร.ม.", "Dock Leveler 4 ช่อง", "หม้อแปลงเฉพาะ 250 kVA"),
-        ["CR-05"] = ("Unit CR-05 (ห้องเย็น - 200 ตร.ม.)", "200 ตร.ม.", "7 เมตร", "โซน Cold Storage", "10 ล้อตู้เย็น", "-18°C ถึง +5°C", "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=900&q=80", "฿40,000", 40000, "ห้องเย็นควบคุมอุณหภูมิ -18 ถึง +5°C แผงฉนวน PIR หนา 100 มม. ระบบไฟสำรอง Generator คู่ เซ็นเซอร์ IoT Real-Time แจ้งเตือนอุณหภูมิผิดปกติผ่าน SMS/Email", "3 ตัน / ตร.ม.", "Air Lock Loading Bay", "3 เฟส + เครื่องปั่นไฟฉุกเฉิน")
+        ["S-01"]  = (true,  "60 ตร.ม.",    "6 ม.",  "โซน A1 (ชั้น 1)",         "กระบะ / 4 ล้อ",                  "อุณหภูมิปกติ",   "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80", "12,000",  12000,  "ห้องไซส์เล็กชั้น 1 ประตูม้วนกว้าง 3.5 ม. เหมาะกับเอกสารและสต็อกสินค้าพร้อมส่ง", "1.5 ตัน/ตร.ม.", "ทางลาดเทียบรถกระบะ", "220V 1 เฟส"),
+        ["S-02"]  = (true,  "80 ตร.ม.",    "6 ม.",  "โซน A2 (SME)",            "4 ล้อ / 6 ล้อ",                  "อุณหภูมิปกติ",   "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80", "15,000",  15000,  "ห้องกะทัดรัด ประตูม้วนไฟฟ้า เหมาะกับธุรกิจ SME และร้านค้าออนไลน์", "2 ตัน/ตร.ม.", "ทางลาดโหลดสินค้าในร่ม", "220V / 380V"),
+        ["M-01"]  = (true,  "150 ตร.ม.",   "8 ม.",  "โซน B1 (มาตรฐาน)",        "6 ล้อ / 10 ล้อ",                 "อุณหภูมิปกติ",   "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80", "25,000",  25000,  "พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม. โฟล์คลิฟต์เข้าได้ วางพาเลทได้ 60–120 ตัว", "3 ตัน/ตร.ม.", "ชานชาลาพร้อมทางลาด", "3 เฟส 380V (50A)"),
+        ["M-02"]  = (true,  "250 ตร.ม.",   "8 ม.",  "โซน B2 (พาเลท)",          "10 ล้อ",                         "อุณหภูมิปกติ",   "https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&q=80", "38,000",  38000,  "ติดตั้ง Racking ได้ 3 ชั้น วางพาเลทได้ 120 ตัว มีระบบระบายอากาศ 24 ชม.", "3.5 ตัน/ตร.ม.", "ชานชาลาสูง 1.2 ม.", "3 เฟส 380V (100A)"),
+        ["L-01"]  = (true,  "500 ตร.ม.",   "10 ม.", "โซน C1 (มี Dock)",        "รถพ่วง 18 ล้อ / ตู้ 40ft",       "อุณหภูมิปกติ",   "https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&q=80", "75,000",  75000,  "รถพ่วง 18 ล้อเข้าได้ มี Dock Leveler ปรับระดับอัตโนมัติ 2 ช่องสำหรับเทียบตู้คอนเทนเนอร์", "5 ตัน/ตร.ม.", "Dock Leveler 2 ช่อง", "3 เฟส 380V (200A)"),
+        ["L-02"]  = (false, "350 ตร.ม.",   "10 ม.", "โซน C2 (สินค้าปลอดภัย)",  "10 ล้อ / เทรลเลอร์",             "อุณหภูมิปกติ",   "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=900&q=80", "55,000",  55000,  "สำหรับสินค้ามูลค่าสูง ประตูนิรภัย 2 ชั้น กล้องบันทึกภาพย้อนหลัง 90 วัน", "4 ตัน/ตร.ม.", "Dock Leveler 1 ช่อง", "3 เฟส 380V (150A)"),
+        ["XL-01"] = (true,  "1,200 ตร.ม.", "12 ม.", "โซน D1 (เมกะ)",           "คอนเทนเนอร์ทุกขนาด",             "อุณหภูมิปกติ",   "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=900&q=80", "180,000", 180000, "คลังขนาดใหญ่พิเศษ มีออฟฟิศ 2 ชั้นและห้องน้ำในตัว หลังคา Solar Roof", "5 ตัน/ตร.ม.", "Dock Leveler 4 ช่อง", "หม้อแปลงแยก 250 kVA"),
+        ["CR-05"] = (true,  "200 ตร.ม.",   "7 ม.",  "โซนห้องเย็น",              "10 ล้อตู้เย็น",                   "−18°C ถึง +5°C", "https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&q=80", "40,000",  40000,  "ห้องเย็นฉนวน PIR หนา 100 มม. ไฟสำรองคู่ แจ้งเตือนเมื่ออุณหภูมิผิดปกติทาง SMS", "3 ตัน/ตร.ม.", "Air Lock Loading Bay", "3 เฟส + ไฟสำรอง"),
     };
 
-    if (!roomDict.ContainsKey(roomId))
-    {
-        roomId = "M-01";
-    }
+    if (!roomDict.ContainsKey(roomId)) roomId = "M-01";
     var info = roomDict[roomId];
-    ViewData["Title"] = $"รายละเอียด {info.Name}";
+    ViewData["Title"] = $"ห้อง {roomId}";
     Layout = "_Layout";
+
+    var specs = new[] {
+        ("พื้นที่", info.Size),
+        ("เพดานสูง", info.Height),
+        ("รับน้ำหนักพื้น", info.FloorLoad),
+        ("รถที่เข้าได้", info.Vehicle),
+        ("ชานชาลาโหลด", info.DockType),
+        ("ไฟฟ้า", info.Power),
+        ("อุณหภูมิ", info.Temp),
+    };
+
+    var reviews = new[] {
+        ("บริษัท สยาม โลจิสติกส์ โซลูชั่นส์", 5, "ม.ค. 2569", "ห้องสะอาด พื้นเรียบ โฟล์คลิฟต์วิ่งคล่อง เทียบตู้คอนเทนเนอร์สะดวก"),
+        ("บจก. นำเจริญ ซัพพลาย", 5, "ธ.ค. 2568", "เก็บพาเลทสินค้านำเข้าได้พอดี เจ้าหน้าที่ช่วยเรื่องเอกสารเร็ว"),
+        ("SuperShop Thailand", 5, "พ.ย. 2568", "ทำสัญญาออนไลน์ง่าย ประตูม้วนไฟฟ้าใช้สะดวก รถเข้าส่งของได้ง่าย"),
+    };
 }
 
-<!-- Breadcrumbs & Header -->
-<div class="page-header mb-4">
-    <nav aria-label="breadcrumb" class="mb-2">
-        <ol class="breadcrumb mb-0 small" style="--bs-breadcrumb-divider: '›';">
-            <li class="breadcrumb-item"><a asp-controller="Customer" asp-action="Dashboard" class="text-decoration-none text-muted">หน้าหลัก</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Customer" asp-action="Search" class="text-decoration-none text-muted">ค้นหาคลังสินค้า</a></li>
-            <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">@info.Name</li>
-        </ol>
-    </nav>
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-        <div>
-            <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2" style="color:#0f172a;">
-                <span class="material-symbols-outlined text-primary" style="font-size:2rem;">domain</span>
-                รายละเอียดห้องคลัง — @info.Name
-            </h1>
-            <p class="text-secondary mb-0" style="font-size:0.92rem;">
-                สเปกทางวิศวกรรม ระบบสาธารณูปโภค การคำนวณอัตราค่าเช่า พร้อมรีวิวและประเมินบริการ
-            </p>
+@section Styles {
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap" />
+    <link rel="stylesheet" href="~/css/customer-ui.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/room.css" asp-append-version="true" />
+}
+
+<div class="rd cu">
+
+    <a class="cu-back" asp-controller="Customer" asp-action="Search">
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>กลับไปผังคลัง
+    </a>
+    <header class="cu-head rd-head">
+        <div class="rd-title">
+            <h1>ห้อง @roomId</h1>
+            <span class="cu-status @(info.Free ? "" : "is-taken")">@(info.Free ? "ว่าง พร้อมส่งมอบ" : "มีผู้เช่าแล้ว")</span>
         </div>
-        <a asp-controller="Customer" asp-action="Search" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1" style="border-radius:8px;">
-            <span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>
-            <span>กลับไปหน้าค้นหา</span>
-        </a>
-    </div>
-</div>
+        <p>@info.Zone, @info.Desc</p>
+    </header>
 
-<div class="row g-4">
+    <div class="rd-layout">
 
-    <!-- Left Column: Image, Specifications, and Integrated Review & Rating System -->
-    <div class="col-12 col-lg-7 col-xl-8">
-        <!-- Image & Main Specs Card -->
-        <div class="section-card p-0 overflow-hidden mb-4">
-            <div style="position:relative; height:340px; overflow:hidden;">
-                <img src="@info.Img" alt="@info.Name" style="width:100%; height:100%; object-fit:cover;" />
-                <div style="position:absolute; top:16px; left:16px; z-index:2;">
-                    <span class="badge-status badge-available" style="backdrop-filter:blur(8px); padding:0.45rem 0.9rem; font-size:0.85rem;">
-                        ว่างพร้อมส่งมอบพื้นที่
-                    </span>
-                </div>
-                <div style="position:absolute; bottom:16px; left:16px; right:16px; display:flex; justify-content:space-between; align-items:center; z-index:2;">
-                    <span class="badge bg-dark bg-opacity-75 text-white p-2 px-3" style="backdrop-filter:blur(8px); font-size:0.85rem; border-radius:8px;">
-                        <span class="material-symbols-outlined align-middle me-1" style="font-size:1rem;">place</span>
-                        @info.Zone
-                    </span>
-                    <span class="badge bg-primary text-white p-2 px-3" style="font-size:0.85rem; border-radius:8px;">
-                        @info.Size
-                    </span>
-                </div>
-            </div>
+        <!-- ซ้าย: รูป สเปก รีวิว -->
+        <div class="rd-main">
+            <img class="rd-photo @(info.Free ? "" : "is-taken")" src="@info.Img" alt="ภายในห้อง @roomId" />
 
-            <div class="p-4">
-                <h2 class="h4 fw-bold text-dark mb-2">@info.Name</h2>
-                <p class="text-secondary" style="line-height:1.6;">
-                    @info.Desc ผ่านการตรวจสอบคุณภาพโครงสร้างตามมาตรฐานอุตสาหกรรม มีระบบกล้อง AI ตรวจจับความเคลื่อนไหวตลอด 24 ชม. ระบบดับเพลิงอัตโนมัติ และทีมช่างวิศวกรประจำโครงการคอยดูแลความเรียบร้อย
-                </p>
-
-                <!-- Technical Specification Grid -->
-                <h3 class="h6 fw-bold text-dark text-uppercase mt-4 mb-3" style="letter-spacing:0.04em;">
-                    ข้อมูลจำเพาะทางวิศวกรรม (Engineering Specifications)
-                </h3>
-                <div class="row g-3">
-                    @foreach (var spec in new[] {
-                        ("square_foot", "พื้นที่ใช้สอย", info.Size),
-                        ("height", "ความสูงเพดานสุทธิ", info.Height),
-                        ("layers", "การรับน้ำหนักพื้น", info.FloorLoad),
-                        ("local_shipping", "การรองรับรถขนส่ง", info.Vehicle),
-                        ("dock", "ระบบชานชาลาโหลด", info.DockType),
-                        ("bolt", "ระบบไฟฟ้าโรงงาน", info.Power),
-                        ("device_thermostat", "อุณหภูมิควบคุม", info.Temp),
-                        ("security", "ระบบรักษาความปลอดภัย", "AI CCTV 24 ชม. แยกห้อง")
-                    })
+            <section class="rd-section" aria-labelledby="rd-spec">
+                <h2 id="rd-spec" class="cu-h2">สเปกห้อง</h2>
+                <dl class="rd-spec">
+                    @foreach (var s in specs)
                     {
-                        <div class="col-12 col-sm-6 col-md-3">
-                            <div class="p-3 rounded-3 h-100 text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                                <span class="material-symbols-outlined text-primary mb-1" style="font-size:1.6rem;">@spec.Item1</span>
-                                <div class="text-muted small" style="font-size:0.75rem;">@spec.Item2</div>
-                                <div class="fw-bold text-dark mt-1" style="font-size:0.85rem;">@spec.Item3</div>
-                            </div>
-                        </div>
+                        <div><dt>@s.Item1</dt><dd>@s.Item2</dd></div>
                     }
+                </dl>
+                <p class="rd-included">
+                    รวมในค่าเช่า: กล้อง CCTV แยกห้อง 24 ชม., สปริงเกอร์ดับเพลิง, โฟล์คลิฟต์พร้อมคนขับ (นัดล่วงหน้า), WiFi และใบกำกับภาษีเต็มรูป
+                </p>
+            </section>
+
+            <section class="rd-section" aria-labelledby="rd-reviews">
+                <div class="rd-reviews-head">
+                    <h2 id="rd-reviews" class="cu-h2">รีวิว</h2>
+                    <p class="rd-score"><strong>★ 4.8</strong> จาก <span id="rdReviewCount">14</span> รีวิว</p>
                 </div>
 
-                <!-- Amenities Badges -->
-                <div class="mt-4 pt-3 border-top">
-                    <h4 class="h6 fw-bold text-dark mb-2">สิ่งอำนวยความสะดวกภายในโครงการ</h4>
-                    <div class="d-flex flex-wrap gap-2">
-                        @foreach (var amenity in new[] {
-                            "🅿️ ลานจอดรถหัวลาก & วนรถกว้างขวาง",
-                            "🚜 บริการรถโฟล์กลิฟต์พร้อมคนขับ",
-                            "🔥 สปริงเกอร์ดับเพลิงมาตรฐาน NFPA",
-                            "🚿 ห้องน้ำสะอาดและห้องพักคนขับรถ",
-                            "📶 อินเทอร์เน็ต WiFi ไฟเบอร์ออปติก",
-                            "☀️ หลังคา Solar Roof ลดความร้อน",
-                            "📄 ออกใบกำกับภาษีเต็มรูปแบบได้ทันที"
-                        })
-                        {
-                            <span class="badge bg-light text-dark border px-3 py-2" style="font-size:0.8rem; border-radius:20px; font-weight:500;">
-                                @amenity
-                            </span>
-                        }
-                    </div>
-                </div>
-            </div>
+                <ul class="rd-review-list" id="rdReviewList">
+                    @foreach (var r in reviews)
+                    {
+                        <li>
+                            <div class="rd-review-top">
+                                <strong>@r.Item1</strong>
+                                <span class="rd-stars" aria-label="@r.Item2 ดาว">@(new string('★', r.Item2))</span>
+                            </div>
+                            <p>@r.Item4</p>
+                            <span class="rd-date">@r.Item3</span>
+                        </li>
+                    }
+                </ul>
+
+                <details class="rd-write">
+                    <summary class="cu-btn">เขียนรีวิว</summary>
+                    <form id="rdReviewForm">
+                        <fieldset class="rd-star-input">
+                            <legend>คะแนน</legend>
+                            @for (int i = 5; i >= 1; i--)
+                            {
+                                <input type="radio" name="stars" id="star@(i)" value="@i" @(i == 5 ? "checked" : "") />
+                                <label for="star@(i)" title="@i ดาว">★</label>
+                            }
+                        </fieldset>
+                        <label class="cu-field">
+                            <span>ความคิดเห็น</span>
+                            <textarea id="rdReviewText" rows="3" required placeholder="เช่น ความสะดวกในการขนของ สภาพพื้น ความปลอดภัย"></textarea>
+                        </label>
+                        <button type="submit" class="cu-btn cu-btn--primary">ส่งรีวิว</button>
+                    </form>
+                </details>
+            </section>
         </div>
 
-        <!-- ======================================================== -->
-        <!-- INTEGRATED REVIEWS & RATING PORTAL (รีวิวและการประเมิน) -->
-        <!-- ======================================================== -->
-        <div class="section-card mb-4" id="roomReviewsSection">
-            <div class="section-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <div>
-                    <h2><span class="material-symbols-outlined text-warning">rate_review</span> รีวิวและคะแนนประเมินห้องนี้</h2>
-                    <p class="text-secondary small mb-0">ความคิดเห็นจากผู้เช่าจริงและผลการประเมินมาตรฐานคลังสินค้า</p>
-                </div>
-                <button type="button" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"
-                        onclick="toggleWriteReview()" style="border-radius:8px;">
-                    <span class="material-symbols-outlined" style="font-size:1rem;">edit_note</span>
-                    <span id="btnWriteReviewText">เขียนรีวิวห้องนี้</span>
-                </button>
-            </div>
+        <!-- ขวา: ค่าเช่าและการจอง -->
+        <aside class="rd-book" aria-labelledby="rd-price">
+            <p class="rd-price" id="rd-price"><strong>฿@info.Price</strong> ต่อเดือน</p>
 
-            <!-- Score Summary Dashboard -->
-            <div class="p-4 rounded-3 mb-4" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                <div class="row align-items-center g-4">
-                    <div class="col-12 col-md-4 text-center border-md-end">
-                        <div class="display-4 fw-bold text-dark mb-0" id="avgRatingDisplay">4.8</div>
-                        <div class="text-warning fs-5 my-1">★★★★★</div>
-                        <div class="text-muted small">จากผู้เช่าองค์กร <span id="totalReviewsCount">14</span> ราย</div>
-                        <div class="badge bg-success-subtle text-success fw-semibold mt-2 px-2 py-1">
-                            98% ผู้เช่าแนะนำต่อ
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-8">
-
-                        <!-- Progress Bars -->
-                        @foreach (var bar in new[] { ("5 ดาว", 85), ("4 ดาว", 12), ("3 ดาว", 3), ("2 ดาว", 0), ("1 ดาว", 0) })
-                        {
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="text-muted small" style="width:40px; font-size:0.75rem;">@bar.Item1</span>
-                                <div class="progress flex-grow-1" style="height:6px; border-radius:3px; background:#e2e8f0;">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: @bar.Item2%;" aria-valuenow="@bar.Item2" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <span class="text-muted small text-end" style="width:32px; font-size:0.75rem;">@bar.Item2%</span>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-
-            <!-- Expandable Write Review Form -->
-            <div id="writeReviewCard" class="p-4 rounded-3 mb-4" style="display:none; background:#ffffff; border:2px solid #3b82f6; box-shadow:0 4px 20px rgba(59,130,246,0.1);">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="h6 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                        <span class="material-symbols-outlined text-primary">rate_review</span>
-                        เขียนรีวิวและให้คะแนนสำหรับ @info.Name
-                    </h3>
-                    <button type="button" class="btn-close" onclick="toggleWriteReview()"></button>
-                </div>
-
-                <form id="roomReviewForm" onsubmit="submitRoomReview(event)">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-dark">ระดับคะแนนความพึงพอใจ *</label>
-                        <div class="d-flex align-items-center gap-2 p-2 rounded-3" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                            <div class="d-flex gap-1" id="starContainer">
-                                @for (int i = 1; i <= 5; i++)
-                                {
-                                    <span class="material-symbols-outlined"
-                                          id="star_@i"
-                                          onclick="setStar(@i)"
-                                          style="font-size:2rem; cursor:pointer; color:#cbd5e1; transition:all 0.15s ease;">
-                                        star
-                                    </span>
-                                }
-                            </div>
-                            <div id="starLabel" class="small fw-bold text-muted ms-2">คลิกเลือกดาว</div>
-                        </div>
-                    </div>
-
-
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-dark">ความคิดเห็นและข้อเสนอแนะ *</label>
-                        <textarea class="form-control" rows="3" id="inputReviewText"
-                                  placeholder="บอกเล่าประสบการณ์ใช้งาน เช่น ความสะดวก สภาพพื้น ความปลอดภัย การประสานงานกับทีมช่าง..." required></textarea>
-                    </div>
-
-                    <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="toggleWriteReview()">ยกเลิก</button>
-                        <button type="submit" class="btn btn-primary btn-sm px-4 fw-semibold d-inline-flex align-items-center gap-1">
-                            <span class="material-symbols-outlined" style="font-size:1rem;">send</span>
-                            <span>ส่งรีวิวประเมิน</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- List of Reviews -->
-            <div class="vstack gap-3" id="roomReviewsList">
-                <div class="p-3 rounded-3" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:36px; height:36px; font-size:0.85rem;">
-                                ส
-                            </div>
-                            <div>
-                                <strong class="text-dark small d-block">บริษัท สยาม โลจิสติกส์ โซลูชั่นส์ จำกัด</strong>
-                                <span class="text-warning small">★★★★★</span>
-                            </div>
-                        </div>
-                        <span class="text-muted small">ม.ค. 2569</span>
-                    </div>
-                    <p class="text-secondary small mb-2" style="line-height:1.55;">
-                        ห้องสะอาด ปลอดภัยมาก พื้นคอนกรีตอีพ็อกซี่เรียบเนียน โฟล์กลิฟต์วิ่งคล่องตัว ชานชาลาเทียบตู้คอนเทนเนอร์สะดวก ทีมงานดูแลประสานงานดีมากครับ
-                    </p>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                        <span class="badge bg-light text-muted border small">
-                            <span class="material-symbols-outlined align-middle me-1" style="font-size:0.85rem; color:#059669;">verified</span>
-                            ผู้เช่าจริง @info.Name
-                        </span>
-                        <button class="btn btn-sm btn-link text-decoration-none text-muted p-0 small d-inline-flex align-items-center gap-1"
-                                onclick="likeReview(this, 12)">
-                            <span class="material-symbols-outlined" style="font-size:1rem;">thumb_up</span>
-                            <span>มีประโยชน์ (<span class="like-num">12</span>)</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="p-3 rounded-3" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="avatar text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="background:#059669; width:36px; height:36px; font-size:0.85rem;">
-                                น
-                            </div>
-                            <div>
-                                <strong class="text-dark small d-block">คุณสมชาย นำเจริญ (ตัวแทน บจก. นำเจริญ ซัพพลาย)</strong>
-                                <span class="text-warning small">★★★★★</span>
-                            </div>
-                        </div>
-                        <span class="text-muted small">ธ.ค. 2568</span>
-                    </div>
-                    <p class="text-secondary small mb-2" style="line-height:1.55;">
-                        เช่าห้องสเปกนี้ตอบโจทย์การเก็บสต็อกสินค้าพาเลทนำเข้า มีระบบ AI CCTV ดูแลตลอด 24 ชม. เจ้าหน้าที่โครงการอำนวยความสะดวกด้านเอกสารเร็วมากครับ
-                    </p>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                        <span class="badge bg-light text-muted border small">
-                            <span class="material-symbols-outlined align-middle me-1" style="font-size:0.85rem; color:#059669;">verified</span>
-                            ผู้เช่าจริง @info.Name
-                        </span>
-                        <button class="btn btn-sm btn-link text-decoration-none text-muted p-0 small d-inline-flex align-items-center gap-1"
-                                onclick="likeReview(this, 8)">
-                            <span class="material-symbols-outlined" style="font-size:1rem;">thumb_up</span>
-                            <span>มีประโยชน์ (<span class="like-num">8</span>)</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="p-3 rounded-3" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="avatar text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="background:#d97706; width:36px; height:36px; font-size:0.85rem;">
-                                S
-                            </div>
-                            <div>
-                                <strong class="text-dark small d-block">ร้านค้าออนไลน์ SuperShop Thailand</strong>
-                                <span class="text-warning small">★★★★★</span>
-                            </div>
-                        </div>
-                        <span class="text-muted small">พ.ย. 2568</span>
-                    </div>
-                    <p class="text-secondary small mb-2" style="line-height:1.55;">
-                        ระบบสัญญาออนไลน์สะดวกสบาย ประตูม้วนไฟฟ้าใช้ง่าย รถเข้าเทียบส่งของได้สะดวก แนะนำสำหรับธุรกิจที่ต้องการพื้นที่คลังคุณภาพครับ
-                    </p>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                        <span class="badge bg-light text-muted border small">
-                            <span class="material-symbols-outlined align-middle me-1" style="font-size:0.85rem; color:#059669;">verified</span>
-                            ผู้เช่าจริง @info.Name
-                        </span>
-                        <button class="btn btn-sm btn-link text-decoration-none text-muted p-0 small d-inline-flex align-items-center gap-1"
-                                onclick="likeReview(this, 5)">
-                            <span class="material-symbols-outlined" style="font-size:1rem;">thumb_up</span>
-                            <span>มีประโยชน์ (<span class="like-num">5</span>)</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right Column: Interactive Lease Calculator & Booking Panel -->
-    <div class="col-12 col-lg-5 col-xl-4">
-        <div class="section-card sticky-top" style="top:90px;">
-            <div class="d-flex justify-content-between align-items-baseline mb-3 pb-3 border-bottom">
-                <div>
-                    <span class="text-muted small d-block">อัตราค่าเช่ามาตรฐาน</span>
-                    <div class="d-flex align-items-baseline gap-1">
-                        <strong class="text-primary fs-3 fw-bold">@info.Price</strong>
-                        <span class="text-muted small">/ เดือน</span>
-                    </div>
-                </div>
-                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill small">
-                    ● มีห้องว่าง
-                </span>
-            </div>
-
-            <!-- Lease Calculator Form -->
-            <div class="mb-3">
-                <label class="form-label small fw-bold text-dark">
-                    <span class="material-symbols-outlined align-middle me-1 text-primary" style="font-size:1rem;">event</span>
-                    วันที่ต้องการเริ่มสัญญา
+            @if (info.Free)
+            {
+                <label class="cu-field">
+                    <span>วันเริ่มเช่า</span>
+                    <input type="date" id="rdStart" />
                 </label>
-                <input type="date" class="form-control" id="detailStartDate" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label small fw-bold text-dark">
-                    <span class="material-symbols-outlined align-middle me-1 text-primary" style="font-size:1rem;">schedule</span>
-                    ระยะเวลาสัญญาเช่า
+                <label class="cu-field">
+                    <span>ระยะสัญญา</span>
+                    <select id="rdDuration">
+                        <option value="1">1 เดือน</option>
+                        <option value="3">3 เดือน</option>
+                        <option value="6" selected>6 เดือน</option>
+                        <option value="12">12 เดือน</option>
+                    </select>
                 </label>
-                <select class="form-select" id="detailDuration" onchange="updateCalc()">
-                    <option value="1">1 เดือน (ระยะสั้น)</option>
-                    <option value="3">3 เดือน (รายไตรมาส)</option>
-                    <option value="6" selected>6 เดือน (สัญญายอดนิยม รับส่วนลดพิเศษ)</option>
-                    <option value="12">12 เดือน (ฟรีค่าเช่าเดือนที่ 12)</option>
-                </select>
-            </div>
 
-            <!-- Estimated Calculation Breakdown -->
-            <div class="p-3 rounded-3 mb-3" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                <div class="d-flex justify-content-between small text-secondary mb-2">
-                    <span id="calcRentLabel">ค่าเช่า 6 เดือน</span>
-                    <strong class="text-dark" id="calcRentVal">฿@((info.PriceNum * 6).ToString("N0"))</strong>
-                </div>
-                <div class="d-flex justify-content-between small text-secondary mb-2">
-                    <span>เงินประกันความเสียหาย (2 เดือน)</span>
-                    <strong class="text-dark" id="calcDepositVal">฿@((info.PriceNum * 2).ToString("N0"))</strong>
-                </div>
-                <div class="d-flex justify-content-between small text-secondary mb-2">
-                    <span>ภาษีมูลค่าเพิ่ม (VAT 7%)</span>
-                    <strong class="text-dark" id="calcVatVal">฿@(((info.PriceNum * 6) * 0.07).ToString("N0"))</strong>
-                </div>
-                <hr class="my-2 text-muted opacity-25" />
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong class="text-dark d-block">ยอดรวมงวดแรก</strong>
-                        <small class="text-muted" style="font-size:0.7rem;">(ค่าเช่า + ประกัน + VAT)</small>
-                    </div>
-                    <strong class="text-primary fs-5 fw-bold" id="calcTotalVal">
-                        ฿@((info.PriceNum * 6 + info.PriceNum * 2 + (info.PriceNum * 6 * 0.07)).ToString("N0"))
-                    </strong>
-                </div>
-            </div>
+                <dl class="rd-calc">
+                    <div><dt id="rdRentLabel">ค่าเช่า 6 เดือน</dt><dd id="rdRent"></dd></div>
+                    <div><dt>เงินประกัน 2 เดือน</dt><dd id="rdDeposit"></dd></div>
+                    <div><dt>VAT 7%</dt><dd id="rdVat"></dd></div>
+                    <div class="rd-total"><dt>ยอดชำระงวดแรก</dt><dd id="rdTotal"></dd></div>
+                </dl>
 
-            <!-- Corporate Trust Badge -->
-            <div class="p-2 px-3 rounded-2 mb-3 small d-flex align-items-center gap-2" style="background:#eff6ff; color:#1e40af;">
-                <span class="material-symbols-outlined" style="font-size:1.2rem;">verified</span>
-                <span>ออกใบเสร็จรับเงิน/ใบกำกับภาษี หัก ณ ที่จ่าย 5% ได้ตามกฎหมาย</span>
-            </div>
-
-            <!-- Booking CTA -->
-            <a asp-controller="Customer" asp-action="BookRoom" asp-route-id="@roomId"
-               class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2 mb-2"
-               style="height:44px; font-weight:600; border-radius:10px;">
-                <span class="material-symbols-outlined" style="font-size:1.2rem;">bookmark_add</span>
-                <span>ไปที่ขั้นตอนการจองห้องนี้</span>
-            </a>
-
-            <div class="text-center">
-                <small class="text-muted" style="font-size:0.75rem;">
-                    <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">lock</span>
-                    ระบบสัญญาออนไลน์ปลอดภัย 100% · ชำระเงินผ่าน QR หรือ โอนธนาคาร
-                </small>
-            </div>
-        </div>
+                <a class="cu-btn cu-btn--primary rd-cta" asp-controller="Customer" asp-action="BookRoom" asp-route-id="@roomId">จองห้องนี้</a>
+            }
+            else
+            {
+                <p class="rd-taken-note">ห้องนี้มีผู้เช่าแล้ว ยังจองไม่ได้ในตอนนี้</p>
+                <a class="cu-btn rd-cta" asp-controller="Customer" asp-action="Search">เลือกห้องอื่นบนผัง</a>
+            }
+        </aside>
     </div>
-
 </div>
 
 @section Scripts {
 <script>
-const priceRate = @info.PriceNum;
-
-function updateCalc() {
-    const dur = parseInt(document.getElementById('detailDuration').value) || 1;
-    const rent = priceRate * dur;
-    const deposit = priceRate * 2;
-    const vat = rent * 0.07;
-    const total = rent + deposit + vat;
-
-    document.getElementById('calcRentLabel').textContent = `ค่าเช่า ${dur} เดือน`;
-    document.getElementById('calcRentVal').textContent = '฿' + rent.toLocaleString();
-    document.getElementById('calcDepositVal').textContent = '฿' + deposit.toLocaleString();
-    document.getElementById('calcVatVal').textContent = '฿' + Math.round(vat).toLocaleString();
-    document.getElementById('calcTotalVal').textContent = '฿' + Math.round(total).toLocaleString();
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-    const startInput = document.getElementById('detailStartDate');
-    if (startInput) {
-        startInput.valueAsDate = new Date();
+(function () {
+    // คำนวณค่าเช่า
+    const rate = @info.PriceNum;
+    const dur = document.getElementById('rdDuration');
+    if (dur) {
+        const baht = n => '฿' + Math.round(n).toLocaleString('th-TH');
+        const calc = () => {
+            const m = parseInt(dur.value) || 1;
+            const rent = rate * m, deposit = rate * 2, vat = rent * 0.07;
+            document.getElementById('rdRentLabel').textContent = 'ค่าเช่า ' + m + ' เดือน';
+            document.getElementById('rdRent').textContent = baht(rent);
+            document.getElementById('rdDeposit').textContent = baht(deposit);
+            document.getElementById('rdVat').textContent = baht(vat);
+            document.getElementById('rdTotal').textContent = baht(rent + deposit + vat);
+        };
+        dur.addEventListener('change', calc);
+        const start = document.getElementById('rdStart');
+        start.valueAsDate = new Date();
+        start.min = start.value;
+        calc();
     }
-    updateCalc();
-});
 
-// Review & Rating Logic
-let currentStar = 5;
-const labels = ['','1 ดาว — ควรปรับปรุง','2 ดาว — พอใช้','3 ดาว — ปานกลาง','4 ดาว — ดีมาก','5 ดาว — ยอดเยี่ยม'];
-const colors = ['','#ef4444','#f97316','#f59e0b','#2563eb','#059669'];
+    // รีวิว (ยังไม่บันทึกลงฐานข้อมูล แสดงในหน้านี้เท่านั้น)
+    const form = document.getElementById('rdReviewForm');
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        const text = document.getElementById('rdReviewText').value.trim();
+        if (!text) return;
+        const stars = +form.querySelector('input[name=stars]:checked').value;
 
-function setStar(n) {
-    currentStar = n;
-    for (let i = 1; i <= 5; i++) {
-        const el = document.getElementById('star_' + i);
-        if (el) {
-            el.style.color = (i <= n) ? colors[n] : '#cbd5e1';
-        }
-    }
-    const lbl = document.getElementById('starLabel');
-    if (lbl) {
-        lbl.textContent = labels[n];
-        lbl.style.color = colors[n];
-    }
-}
+        const li = document.createElement('li');
+        li.className = 'is-new';
+        const top = document.createElement('div');
+        top.className = 'rd-review-top';
+        const name = document.createElement('strong');
+        name.textContent = @Json.Serialize(ViewBag.FullName as string ?? "คุณ");
+        const st = document.createElement('span');
+        st.className = 'rd-stars';
+        st.textContent = '★'.repeat(stars);
+        top.append(name, st);
+        const p = document.createElement('p');
+        p.textContent = text; // textContent: ไม่แปลงข้อความเป็น HTML
+        const date = document.createElement('span');
+        date.className = 'rd-date';
+        date.textContent = 'เมื่อสักครู่';
+        li.append(top, p, date);
 
-for (let i = 1; i <= 5; i++) {
-    const el = document.getElementById('star_' + i);
-    if (el) {
-        el.addEventListener('mouseenter', () => {
-            for (let j = 1; j <= 5; j++) {
-                const target = document.getElementById('star_' + j);
-                if (target) target.style.color = (j <= i) ? '#f59e0b' : '#cbd5e1';
-            }
-        });
-        el.addEventListener('mouseleave', () => setStar(currentStar));
-    }
-}
-
-setStar(5);
-
-function toggleWriteReview() {
-    const card = document.getElementById('writeReviewCard');
-    const btnText = document.getElementById('btnWriteReviewText');
-    if (card.style.display === 'none' || !card.style.display) {
-        card.style.display = 'block';
-        btnText.textContent = 'ปิดฟอร์มรีวิว';
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } else {
-        card.style.display = 'none';
-        btnText.textContent = 'เขียนรีวิวห้องนี้';
-    }
-}
-
-function submitRoomReview(e) {
-    e.preventDefault();
-    const comment = document.getElementById('inputReviewText').value.trim();
-    if (!comment) return;
-
-    // Create and prepend new review to the list
-    const list = document.getElementById('roomReviewsList');
-    const newRev = document.createElement('div');
-    newRev.className = 'p-3 rounded-3 mb-2';
-    newRev.style.background = '#f0fdf4';
-    newRev.style.border = '1px solid #86efac';
-
-    let starsHtml = '';
-    for (let i = 0; i < currentStar; i++) starsHtml += '★';
-    for (let i = currentStar; i < 5; i++) starsHtml += '<span class="text-secondary opacity-25">★</span>';
-
-    newRev.innerHTML = `
-        <div class="d-flex justify-content-between align-items-start mb-2">
-            <div class="d-flex align-items-center gap-2">
-                <div class="avatar bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:36px; height:36px; font-size:0.85rem;">
-                    @((ViewBag.FullName as string ?? "คุณ")[0])
-                </div>
-                <div>
-                    <strong class="text-dark small d-block">@(ViewBag.FullName ?? "ลูกค้าผู้เช่า")</strong>
-                    <span class="text-warning small">${starsHtml}</span>
-                </div>
-            </div>
-            <span class="badge bg-success text-white small">รีวิวใหม่เมื่อสักครู่</span>
-        </div>
-        <p class="text-secondary small mb-2" style="line-height:1.55;">${comment}</p>
-        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-            <span class="badge bg-light text-muted border small">
-                <span class="material-symbols-outlined align-middle me-1" style="font-size:0.85rem; color:#059669;">verified</span>
-                ผู้เช่าจริง @info.Name
-            </span>
-            <span class="text-muted small">ขอบคุณสำหรับความคิดเห็น</span>
-        </div>
-    `;
-
-    list.insertBefore(newRev, list.firstChild);
-
-    alert('ขอบคุณสำหรับรีวิวของคุณ!\nระบบได้บันทึกการประเมินห้อง @info.Name เรียบร้อยแล้ว');
-    document.getElementById('inputReviewText').value = '';
-    toggleWriteReview();
-
-    // Update counter
-    const countEl = document.getElementById('totalReviewsCount');
-    if (countEl) countEl.textContent = parseInt(countEl.textContent) + 1;
-}
-
-function likeReview(btn, count) {
-    const numSpan = btn.querySelector('.like-num');
-    if (!btn.classList.contains('liked')) {
-        btn.classList.add('liked');
-        btn.classList.remove('text-muted');
-        btn.classList.add('text-primary');
-        numSpan.textContent = count + 1;
-    }
-}
+        document.getElementById('rdReviewList').prepend(li);
+        const count = document.getElementById('rdReviewCount');
+        count.textContent = (+count.textContent) + 1;
+        form.reset();
+        form.closest('details').open = false;
+    });
+})();
 </script>
 }

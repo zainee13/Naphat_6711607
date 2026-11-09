@@ -1,822 +1,295 @@
 @{
-    ViewData["Title"] = "โปรไฟล์ของฉัน — การจองและการชำระเงิน";
+    ViewData["Title"] = "บัญชีของฉัน";
     Layout = "_Layout";
 
     var activeTab = ViewBag.ActiveTab as string ?? "bookings";
-    var defaultBookingId = ViewBag.BookingId as string ?? "BK-2026-002";
-    var fullName = ViewBag.FullName as string ?? "คุณณภัทร วงศ์เจริญ";
-    var initial = !string.IsNullOrEmpty(fullName) ? fullName[0].ToString() : "U";
+    if (activeTab != "bookings" && activeTab != "payment" && activeTab != "info") activeTab = "bookings";
+    var fullName = ViewBag.FullName as string ?? "";
+
+    // การจองของผู้ใช้ (ตอนต่อฐานข้อมูล ให้ดึงจากตาราง Bookings ของ user ที่ล็อกอิน)
+    // ยอดคิดสูตรเดียวกับหน้า RoomDetail/BookRoom: ค่าเช่า x เดือน + ประกัน 2 เดือน + VAT 7% ของค่าเช่า
+    var bookings = new[] {
+        new { Id="BK-2026-002", Room="L-01",  Zone="โซน C1",       Period="1 ธ.ค. 2569 – 31 พ.ค. 2570", Months=6, Rate=75000, Status="pending",   Booked="9 พ.ย. 2569" },
+        new { Id="BK-2026-001", Room="M-01",  Zone="โซน B1",       Period="1 ก.ค. – 31 ธ.ค. 2569",      Months=6, Rate=25000, Status="active",    Booked="15 มิ.ย. 2569" },
+        new { Id="BK-2025-018", Room="CR-05", Zone="โซนห้องเย็น",   Period="1 ก.ค. – 31 ธ.ค. 2568",      Months=6, Rate=40000, Status="ended",     Booked="20 มิ.ย. 2568" },
+        new { Id="BK-2025-009", Room="M-01",  Zone="โซน B1",       Period="1 ม.ค. – 30 มิ.ย. 2568",     Months=6, Rate=25000, Status="cancelled", Booked="10 ธ.ค. 2567" },
+    };
+    Func<int, int, (int Rent, int Deposit, int Vat, int Total)> calc = (rate, months) =>
+    {
+        var rent = rate * months; var deposit = rate * 2; var vat = (int)Math.Round(rent * 0.07);
+        return (rent, deposit, vat, rent + deposit + vat);
+    };
+    var statusText = new Dictionary<string, string> {
+        ["pending"] = "รอชำระเงิน", ["active"] = "ใช้งานอยู่", ["ended"] = "สิ้นสุดสัญญา", ["cancelled"] = "ยกเลิก คืนเงินแล้ว"
+    };
+
+    var due = bookings.First(b => b.Status == "pending");
+    var dueAmt = calc(due.Rate, due.Months);
+    var pendingCount = bookings.Count(b => b.Status == "pending");
+
+    var payments = new[] {
+        ("INV-2026-001", "M-01 สัญญา 6 เดือน",  calc(25000, 6).Total, "15 มิ.ย. 2569, โอนผ่าน SCB", "paid"),
+        ("INV-2025-018", "CR-05 สัญญา 6 เดือน", calc(40000, 6).Total, "20 มิ.ย. 2568, บัตรเครดิต", "paid"),
+        ("REF-2025-002", "คืนเงิน M-01 (ยกเลิก)", calc(25000, 6).Total, "12 ธ.ค. 2567, โอนคืนบัญชีเดิม", "refund"),
+    };
 }
 
-<!-- Profile Header Banner -->
-<div class="card border-0 text-white mb-4 shadow-sm overflow-hidden position-relative"
-     style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #2563eb 100%); border-radius: 18px;">
-    <div class="card-body p-4 p-md-5">
-        <div class="row align-items-center g-4">
-            <div class="col-auto">
-                <div class="position-relative">
-                    <div class="d-flex align-items-center justify-content-center text-white fw-bold shadow-lg"
-                         style="width: 86px; height: 86px; border-radius: 50%; font-size: 2.2rem; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: 4px solid rgba(255,255,255,0.25);">
-                        @initial
+@section Styles {
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap" />
+    <link rel="stylesheet" href="~/css/customer-ui.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
+}
+
+<div class="pf cu">
+
+    <header class="cu-head">
+        <h1>บัญชีของฉัน</h1>
+        <p>@(string.IsNullOrEmpty(fullName) ? "จัดการการจอง การชำระเงิน และข้อมูลออกใบกำกับภาษี" : fullName)</p>
+    </header>
+
+    <!-- แท็บ: เป็นลิงก์จริง (?tab=) และ JS สลับให้โดยไม่โหลดหน้าใหม่ -->
+    <nav class="pf-tabs" role="tablist" aria-label="ส่วนของบัญชี">
+        <a role="tab" id="tab-bookings" href="?tab=bookings" data-tab="bookings" aria-controls="panel-bookings" aria-selected="@(activeTab == "bookings" ? "true" : "false")">
+            การจองของฉัน <span class="pf-count">@bookings.Length</span>
+        </a>
+        <a role="tab" id="tab-payment" href="?tab=payment" data-tab="payment" aria-controls="panel-payment" aria-selected="@(activeTab == "payment" ? "true" : "false")">
+            ชำระเงิน @if (pendingCount > 0) { <span class="pf-count pf-count--due">@pendingCount รอชำระ</span> }
+        </a>
+        <a role="tab" id="tab-info" href="?tab=info" data-tab="info" aria-controls="panel-info" aria-selected="@(activeTab == "info" ? "true" : "false")">
+            ข้อมูลส่วนตัว
+        </a>
+    </nav>
+
+    <!-- ========== การจองของฉัน ========== -->
+    <section class="pf-panel" id="panel-bookings" role="tabpanel" aria-labelledby="tab-bookings" @(activeTab == "bookings" ? "" : "hidden")>
+        <div class="pf-panel-head">
+            <h2 class="cu-h2">การจองของฉัน</h2>
+            <a class="cu-btn" asp-controller="Customer" asp-action="Search">จองห้องเพิ่ม</a>
+        </div>
+
+        <ul class="pf-bookings">
+            @foreach (var b in bookings)
+            {
+                var amt = calc(b.Rate, b.Months);
+                <li class="pf-booking is-@b.Status">
+                    <div class="pf-booking-room">
+                        <a class="pf-room-code" asp-controller="Customer" asp-action="RoomDetail" asp-route-id="@b.Room">@b.Room</a>
+                        <span>@b.Zone</span>
                     </div>
-                    <span class="position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle p-2" title="ออนไลน์"></span>
-                </div>
-            </div>
-            <div class="col">
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                    <h1 class="h3 fw-bold mb-0 text-white">@fullName</h1>
-                    <span class="badge bg-primary text-white px-3 py-1 rounded-pill fw-bold" style="font-size: 0.78rem;">
-                        <span class="material-symbols-outlined align-middle" style="font-size:0.95rem;">verified</span>
-                        บัญชีลูกค้าทั่วไป
-                    </span>
-                    <span class="badge bg-secondary-subtle text-light border border-light-subtle px-2 py-1 rounded-pill" style="font-size:0.75rem;">
-                        รหัสลูกค้า: CUST-6711607
-                    </span>
-                </div>
-                <div class="d-flex flex-wrap gap-3 text-white-50 small mb-3">
-                    <div class="d-flex align-items-center gap-1">
-                        <span class="material-symbols-outlined" style="font-size: 1rem;">apartment</span>
-                        <span>บริษัท สยาม โลจิสติกส์ โซลูชั่นส์ จำกัด</span>
+                    <div class="pf-booking-info">
+                        <strong>@b.Period</strong>
+                        <span>@b.Id, จองเมื่อ @b.Booked</span>
                     </div>
-                    <div class="d-flex align-items-center gap-1">
-                        <span class="material-symbols-outlined" style="font-size: 1rem;">mail</span>
-                        <span>naphat.w@siamlogistics.co.th</span>
+                    <span class="pf-status pf-status--@b.Status">@statusText[b.Status]</span>
+                    <div class="pf-booking-amt">
+                        <strong>฿@amt.Total.ToString("N0")</strong>
+                        <span>@b.Months เดือน รวมประกันและ VAT</span>
                     </div>
-                    <div class="d-flex align-items-center gap-1">
-                        <span class="material-symbols-outlined" style="font-size: 1rem;">call</span>
-                        <span>089-765-4321</span>
+                    <div class="pf-booking-act">
+                        @if (b.Status == "pending")
+                        {
+                            <a class="cu-btn cu-btn--primary" href="?tab=payment" data-tab="payment">ชำระเงิน</a>
+                        }
                     </div>
-                </div>
-                <div class="d-flex flex-wrap gap-2">
-                    <a asp-controller="Customer" asp-action="Search" class="btn btn-sm btn-warning text-dark fw-bold px-3 py-1 d-inline-flex align-items-center gap-1" style="border-radius: 8px;">
-                        <span class="material-symbols-outlined" style="font-size: 1rem;">search</span>
-                        ค้นหาสินค้า / คลังสินค้าเพิ่ม
-                    </a>
-                    <button type="button" class="btn btn-sm btn-outline-light px-3 py-1 d-inline-flex align-items-center gap-1" style="border-radius: 8px;" onclick="switchProfileTab('info')">
-                        <span class="material-symbols-outlined" style="font-size: 1rem;">edit</span>
-                        แก้ไขข้อมูลโปรไฟล์
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- KPI Summary Cards -->
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="kpi-card" style="padding:1.1rem; cursor:pointer;" onclick="switchProfileTab('bookings')">
-            <div style="display:flex; align-items:center; gap:0.75rem;">
-                <div class="kpi-icon" style="background:#eff6ff; width:44px; height:44px; border-radius:10px; margin-bottom:0;">
-                    <span class="material-symbols-outlined" style="font-size:1.4rem; color:#2563eb;">book_online</span>
-                </div>
-                <div>
-                    <div class="kpi-value" style="font-size:1.5rem;">4</div>
-                    <div class="kpi-label" style="font-size:0.75rem;">การจองทั้งหมด</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-6 col-md-3">
-        <div class="kpi-card" style="padding:1.1rem; cursor:pointer;" onclick="switchProfileTab('payment')">
-            <div style="display:flex; align-items:center; gap:0.75rem;">
-                <div class="kpi-icon" style="background:#fffbeb; width:44px; height:44px; border-radius:10px; margin-bottom:0;">
-                    <span class="material-symbols-outlined" style="font-size:1.4rem; color:#d97706;">pending_actions</span>
-                </div>
-                <div>
-                    <div class="kpi-value text-danger" style="font-size:1.5rem;">1</div>
-                    <div class="kpi-label" style="font-size:0.75rem;">รอการชำระเงิน</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-6 col-md-3">
-        <div class="kpi-card" style="padding:1.1rem; cursor:pointer;" onclick="switchProfileTab('bookings')">
-            <div style="display:flex; align-items:center; gap:0.75rem;">
-                <div class="kpi-icon" style="background:#ecfdf5; width:44px; height:44px; border-radius:10px; margin-bottom:0;">
-                    <span class="material-symbols-outlined" style="font-size:1.4rem; color:#059669;">verified</span>
-                </div>
-                <div>
-                    <div class="kpi-value" style="font-size:1.5rem;">2</div>
-                    <div class="kpi-label" style="font-size:0.75rem;">สัญญาที่ใช้งานอยู่</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-6 col-md-3">
-        <div class="kpi-card" style="padding:1.1rem;">
-            <div style="display:flex; align-items:center; gap:0.75rem;">
-                <div class="kpi-icon" style="background:#fff7ed; width:44px; height:44px; border-radius:10px; margin-bottom:0;">
-                    <span class="material-symbols-outlined" style="font-size:1.4rem; color:#ea580c;">local_activity</span>
-                </div>
-                <div>
-                    <div class="kpi-value" style="font-size:1.5rem; color:#ea580c;">3</div>
-                    <div class="kpi-label" style="font-size:0.75rem;">โปรโมชั่นที่ใช้งานได้</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Nav Tabs for Profile Sections -->
-<div class="card border-0 shadow-sm mb-4" style="border-radius: 14px;">
-    <div class="card-body p-2">
-        <ul class="nav nav-pills nav-fill gap-2" id="profileTabNav" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link py-2 px-3 fw-bold d-flex align-items-center justify-content-center gap-2 @(activeTab == "bookings" ? "active" : "")"
-                        id="tab-btn-bookings" onclick="switchProfileTab('bookings')" type="button">
-                    <span class="material-symbols-outlined">book_online</span>
-                    <span>การจองของฉัน</span>
-                    <span class="badge bg-primary rounded-pill ms-1">4</span>
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link py-2 px-3 fw-bold d-flex align-items-center justify-content-center gap-2 @(activeTab == "payment" ? "active" : "")"
-                        id="tab-btn-payment" onclick="switchProfileTab('payment')" type="button">
-                    <span class="material-symbols-outlined">payments</span>
-                    <span>การชำระเงิน & ใบแจ้งหนี้</span>
-                    <span class="badge bg-danger rounded-pill ms-1">1 รอชำระ</span>
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link py-2 px-3 fw-bold d-flex align-items-center justify-content-center gap-2 @(activeTab == "info" ? "active" : "")"
-                        id="tab-btn-info" onclick="switchProfileTab('info')" type="button">
-                    <span class="material-symbols-outlined">person</span>
-                    <span>ข้อมูลส่วนตัว & ที่อยู่</span>
-                </button>
-            </li>
+                </li>
+            }
         </ul>
-    </div>
-</div>
+    </section>
 
-<!-- ========================================== -->
-<!-- SECTION 1: MY BOOKINGS TAB -->
-<!-- ========================================== -->
-<div id="section-bookings" class="profile-section" style="@(activeTab == "bookings" ? "" : "display:none;")">
-    <div class="section-card mb-4">
-        <div class="section-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <div>
-                <h2 class="h5 fw-bold mb-1" style="color:#0f172a;">
-                    <span class="material-symbols-outlined align-middle text-primary me-1">receipt_long</span>
-                    รายการจองห้องคลังสินค้าทั้งหมด (My Bookings)
-                </h2>
-                <p class="text-secondary small mb-0">ตรวจสอบสถานะสัญญา วันที่เริ่มเช่า และประวัติการจอง</p>
-            </div>
-            <div class="d-flex gap-2">
-                <select class="form-select form-select-sm" id="bookingFilterStatus" onchange="filterBookings()" style="border-radius: 8px; width:auto;">
-                    <option value="all">ทุกสถานะการจอง</option>
-                    <option value="pending">รอการยืนยัน / รอชำระ</option>
-                    <option value="confirmed">ยืนยันแล้ว / ใช้งานอยู่</option>
-                    <option value="cancelled">ยกเลิก</option>
-                </select>
-                <a asp-controller="Customer" asp-action="Search" class="btn btn-sm btn-primary d-flex align-items-center gap-1" style="border-radius:8px;">
-                    <span class="material-symbols-outlined" style="font-size:1rem;">add</span>
-                    จองห้องเพิ่ม
-                </a>
-            </div>
-        </div>
+    <!-- ========== ชำระเงิน ========== -->
+    <section class="pf-panel" id="panel-payment" role="tabpanel" aria-labelledby="tab-payment" @(activeTab == "payment" ? "" : "hidden")>
+        <div class="pf-pay-layout">
 
-        <div class="table-responsive">
-            <table class="table-custom w-100" id="bookingsTable">
-                <thead>
-                    <tr>
-                        <th>รหัสการจอง</th>
-                        <th>ห้องคลัง</th>
-                        <th>ขนาดห้อง / โซน</th>
-                        <th>ระยะเวลาเช่า</th>
-                        <th>ค่าเช่ารวม</th>
-                        <th>สถานะการจอง</th>
-                        <th>การชำระเงิน</th>
-                        <th class="text-center">การดำเนินการ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Item 1: Pending Payment -->
-                    <tr data-status="pending">
-                        <td>
-                            <span class="fw-bold text-primary">BK-2026-002</span>
-                            <div class="text-muted" style="font-size:0.7rem;">จองเมื่อ 10 ก.ย. 2569</div>
-                        </td>
-                        <td>
-                            <div class="fw-bold" style="font-size:0.9rem; color:#0f172a;">Unit L-01</div>
-                            <small class="text-muted">คลังสินค้าขนาดใหญ่ 500 ตร.ม.</small>
-                        </td>
-                        <td>
-                            <span class="badge bg-light text-dark border">
-                                <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">warehouse</span> โซน B1 (ไซส์ L)
-                            </span>
-                        </td>
-                        <td style="font-size:0.85rem; color:#475569;">1 ก.พ. 2569 — 31 ก.ค. 2569 (6 เดือน)</td>
-                        <td>
-                            <div class="fw-bold text-dark">฿275,000</div>
-                            <small class="text-muted">มัดจำ ฿150,000</small>
-                        </td>
-                        <td>
-                            <span class="badge-status badge-pending">รอการยืนยัน</span>
-                        </td>
-                        <td>
-                            <span class="badge-status badge-pending text-danger fw-bold">⚠️ รอชำระเงิน</span>
-                        </td>
-                        <td>
-                            <div class="d-flex justify-content-center gap-1">
-                                <button class="btn btn-sm btn-danger fw-bold d-inline-flex align-items-center gap-1"
-                                        style="border-radius:6px; font-size:0.75rem; padding:0.35rem 0.75rem;"
-                                        onclick="goToPaymentForBooking('BK-2026-002')">
-                                    <span class="material-symbols-outlined" style="font-size:0.9rem;">payments</span>
-                                    ชำระเงินทันที
-                                </button>
-                                <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="L-01" class="btn btn-sm btn-outline-secondary" style="border-radius:6px; font-size:0.75rem;">
-                                    ดูห้อง
-                                </a>
+            <div class="pf-pay-main">
+                <h2 class="cu-h2">ยอดที่ต้องชำระ</h2>
+                <div class="pf-bill">
+                    <div class="pf-bill-head">
+                        <div>
+                            <strong class="pf-room-code">@due.Room</strong>
+                            <span>@due.Id, @due.Period</span>
+                        </div>
+                        <span class="pf-status pf-status--pending">รอชำระเงิน</span>
+                    </div>
+                    <dl class="pf-calc" id="payCalc" data-rate="@due.Rate" data-months="@due.Months">
+                        <div><dt>ค่าเช่า @due.Months เดือน</dt><dd>฿@dueAmt.Rent.ToString("N0")</dd></div>
+                        <div><dt>เงินประกัน 2 เดือน</dt><dd>฿@dueAmt.Deposit.ToString("N0")</dd></div>
+                        <div><dt>VAT 7%</dt><dd id="payVat">฿@dueAmt.Vat.ToString("N0")</dd></div>
+                        <div class="pf-total"><dt>ยอดชำระ</dt><dd class="js-pay-total">฿@dueAmt.Total.ToString("N0")</dd></div>
+                    </dl>
+
+                    <!-- โค้ดส่วนลด -->
+                    <form class="cu-promo" id="promoForm" novalidate>
+                        <div class="cu-field">
+                            <label for="promoInput">โค้ดส่วนลด</label>
+                            <div class="cu-promo-row">
+                                <input type="text" id="promoInput" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="เช่น MEGA35START" aria-describedby="promoMsg" />
+                                <button type="submit" class="cu-btn">ใช้โค้ด</button>
                             </div>
-                        </td>
-                    </tr>
-
-                    <!-- Item 2: Confirmed -->
-                    <tr data-status="confirmed">
-                        <td>
-                            <span class="fw-bold text-primary">BK-2026-001</span>
-                            <div class="text-muted" style="font-size:0.7rem;">จองเมื่อ 15 ธ.ค. 2568</div>
-                        </td>
-                        <td>
-                            <div class="fw-bold" style="font-size:0.9rem; color:#0f172a;">Unit M-01</div>
-                            <small class="text-muted">มาตรฐานสากล 150 ตร.ม.</small>
-                        </td>
-                        <td>
-                            <span class="badge bg-light text-dark border">
-                                <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">warehouse</span> โซน A1 (ไซส์ M)
-                            </span>
-                        </td>
-                        <td style="font-size:0.85rem; color:#475569;">1 ม.ค. 2569 — 30 มิ.ย. 2569 (6 เดือน)</td>
-                        <td>
-                            <div class="fw-bold text-dark">฿200,000</div>
-                            <small class="text-muted">ชำระครบแล้ว</small>
-                        </td>
-                        <td>
-                            <span class="badge-status badge-confirmed">ยืนยันแล้ว</span>
-                        </td>
-                        <td>
-                            <span class="badge-status badge-paid">ชำระแล้ว</span>
-                        </td>
-                        <td>
-                            <div class="d-flex justify-content-center gap-1">
-                                <button class="btn btn-sm btn-outline-primary" style="border-radius:6px; font-size:0.75rem;" onclick="alert('เปิดดูสัญญาเช่าห้อง Unit M-01 (PDF)');">
-                                    <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">description</span>
-                                    สัญญา
-                                </button>
-                                <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="M-01" class="btn btn-sm btn-outline-secondary" style="border-radius:6px; font-size:0.75rem;">
-                                    ดูห้อง
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Item 3: Past Confirmed -->
-                    <tr data-status="confirmed">
-                        <td>
-                            <span class="fw-bold text-primary">BK-2025-018</span>
-                            <div class="text-muted" style="font-size:0.7rem;">จองเมื่อ 20 มิ.ย. 2568</div>
-                        </td>
-                        <td>
-                            <div class="fw-bold" style="font-size:0.9rem; color:#0f172a;">Unit CR-05</div>
-                            <small class="text-muted">ห้องเย็นควบคุมอุณหภูมิ 200 ตร.ม.</small>
-                        </td>
-                        <td>
-                            <span class="badge bg-light text-dark border">
-                                <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">ac_unit</span> โซน Cold Storage
-                            </span>
-                        </td>
-                        <td style="font-size:0.85rem; color:#475569;">1 ก.ค. 2568 — 31 ธ.ค. 2568 (6 เดือน)</td>
-                        <td>
-                            <div class="fw-bold text-dark">฿130,000</div>
-                            <small class="text-muted">ครบกำหนดสัญญา</small>
-                        </td>
-                        <td>
-                            <span class="badge-status badge-confirmed">เสร็จสิ้นสัญญา</span>
-                        </td>
-                        <td>
-                            <span class="badge-status badge-paid">ชำระแล้ว</span>
-                        </td>
-                        <td>
-                            <div class="d-flex justify-content-center gap-1">
-                                <button class="btn btn-sm btn-outline-secondary" style="border-radius:6px; font-size:0.75rem;" onclick="alert('ดาวน์โหลดประวัติการเช่า LC-C05 เรียบร้อย');">
-                                    <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">download</span>
-                                    ประวัติ
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Item 4: Cancelled -->
-                    <tr data-status="cancelled">
-                        <td>
-                            <span class="fw-bold text-secondary">BK-2025-009</span>
-                            <div class="text-muted" style="font-size:0.7rem;">จองเมื่อ 10 ธ.ค. 2567</div>
-                        </td>
-                        <td>
-                            <div class="fw-bold" style="font-size:0.9rem; color:#0f172a;">Unit M-01</div>
-                            <small class="text-muted">150 ตร.ม.</small>
-                        </td>
-                        <td>
-                            <span class="badge bg-light text-dark border">
-                                <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">warehouse</span> โซน A1 (ไซส์ M)
-                            </span>
-                        </td>
-                        <td style="font-size:0.85rem; color:#6c757d;">1 ม.ค. 2568 — 30 มิ.ย. 2568</td>
-                        <td>
-                            <div class="fw-bold text-muted">฿200,000</div>
-                            <small class="text-success">คืนเงินแล้ว</small>
-                        </td>
-                        <td>
-                            <span class="badge-status badge-cancelled">ยกเลิก</span>
-                        </td>
-                        <td>
-                            <span class="badge-status badge-paid">คืนเงินแล้ว</span>
-                        </td>
-                        <td>
-                            <div class="d-flex justify-content-center">
-                                <span class="text-muted small">-</span>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<!-- ========================================== -->
-<!-- SECTION 2: PAYMENT & BILLING TAB -->
-<!-- ========================================== -->
-<div id="section-payment" class="profile-section" style="@(activeTab == "payment" ? "" : "display:none;")">
-    <div class="row g-4 mb-4">
-        <!-- Invoice Details & Checkout Form -->
-        <div class="col-12 col-lg-7">
-            <!-- Active Invoice Card -->
-            <div class="section-card mb-4 border border-warning" style="border-width: 2px !important; background: #fffdf7;">
-                <div class="section-card-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <h2 class="h5 fw-bold mb-0 text-dark">
-                            <span class="material-symbols-outlined align-middle text-warning me-1">receipt_long</span>
-                            ใบแจ้งยอดรอการชำระเงิน (Pending Bill)
-                        </h2>
-                    </div>
-                    <span class="badge bg-danger text-white px-3 py-1 rounded-pill fw-bold">⚠️ รอชำระเงิน</span>
+                        </div>
+                        <p class="cu-promo-msg" id="promoMsg" role="status" hidden></p>
+                    </form>
+                    <p class="pf-due">ชำระภายใน <strong>16 พ.ย. 2569, 23:59 น.</strong> ถ้าเลยกำหนด การจองจะถูกยกเลิก</p>
                 </div>
 
-                <div class="p-3 mb-3 bg-white rounded-3 border" style="font-size:0.875rem;">
-                    <div class="row mb-2">
-                        <div class="col-6 text-secondary">รหัสการจอง:</div>
-                        <div class="col-6 fw-bold text-primary" id="payBookingIdDisplay">@defaultBookingId</div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-6 text-secondary">ห้องคลังสินค้า:</div>
-                        <div class="col-6 fw-semibold">Unit L-01 (ไซส์ L โซน B1 - 500 ตร.ม.)</div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-6 text-secondary">ระยะเวลาสัญญาเช่า:</div>
-                        <div class="col-6 fw-semibold">1 ก.พ. — 31 ก.ค. 2569 (6 เดือน)</div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-6 text-secondary">ค่าเช่ารวม (6 เดือน):</div>
-                        <div class="col-6">฿450,000</div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-6 text-secondary">เงินประกันความเสียหาย (มัดจำ):</div>
-                        <div class="col-6">฿150,000</div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-6 text-secondary">ภาษีมูลค่าเพิ่ม (VAT 7%):</div>
-                        <div class="col-6">฿42,000</div>
-                    </div>
-                    <hr />
-                    <div class="row fw-bold align-items-center">
-                        <div class="col-6 fs-6">ยอดสุทธิที่ต้องชำระ:</div>
-                        <div class="col-6 text-danger text-end fs-4" style="font-weight:800;">฿642,000</div>
-                    </div>
+                <h3 class="pf-h3">วิธีชำระเงิน</h3>
+                <div class="pf-methods" role="radiogroup" aria-label="วิธีชำระเงิน">
+                    <label><input type="radio" name="payMethod" value="transfer" checked /><span><i class="material-symbols-outlined" aria-hidden="true">account_balance</i>โอนเงิน</span></label>
+                    <label><input type="radio" name="payMethod" value="qr" /><span><i class="material-symbols-outlined" aria-hidden="true">qr_code_2</i>พร้อมเพย์ QR</span></label>
+                    <label><input type="radio" name="payMethod" value="card" /><span><i class="material-symbols-outlined" aria-hidden="true">credit_card</i>บัตรเครดิต / เดบิต</span></label>
                 </div>
 
-                <div class="alert alert-warning d-flex align-items-center gap-2 mb-0" style="border-radius:10px; font-size:0.82rem;">
-                    <span class="material-symbols-outlined text-danger" style="font-size:1.3rem;">hourglass_top</span>
-                    <div>
-                        กำหนดชำระภายใน: <strong>16 ก.ย. 2569 ก่อนเวลา 23:59 น.</strong> (หากเกินกำหนด คำขอจองจะถูกยกเลิกโดยอัตโนมัติ)
-                    </div>
-                </div>
-            </div>
-
-            <!-- Payment Methods Card -->
-            <div class="section-card">
-                <div class="section-card-header">
-                    <h2 class="h5 fw-bold mb-0 text-dark">
-                        <span class="material-symbols-outlined align-middle text-primary me-1">credit_card</span>
-                        เลือกช่องทางชำระเงิน (Select Payment Method)
-                    </h2>
-                </div>
-
-                <div class="row g-3 mb-4">
-                    <div class="col-4">
-                        <label style="cursor:pointer; width:100%;">
-                            <input type="radio" name="profilePaymentMethod" value="transfer" class="d-none" checked onchange="changeProfilePayMethod('transfer')" />
-                            <div class="p-3 text-center payment-option-box active" id="pop_transfer" onclick="changeProfilePayMethod('transfer')">
-                                <span class="material-symbols-outlined" style="font-size:1.8rem; color:#2563eb;">account_balance</span>
-                                <div class="small fw-bold mt-1">โอนผ่านธนาคาร</div>
-                            </div>
-                        </label>
-                    </div>
-                    <div class="col-4">
-                        <label style="cursor:pointer; width:100%;">
-                            <input type="radio" name="profilePaymentMethod" value="qr" class="d-none" onchange="changeProfilePayMethod('qr')" />
-                            <div class="p-3 text-center payment-option-box" id="pop_qr" onclick="changeProfilePayMethod('qr')">
-                                <span class="material-symbols-outlined" style="font-size:1.8rem; color:#10b981;">qr_code_2</span>
-                                <div class="small fw-bold mt-1">พร้อมเพย์ QR</div>
-                            </div>
-                        </label>
-                    </div>
-                    <div class="col-4">
-                        <label style="cursor:pointer; width:100%;">
-                            <input type="radio" name="profilePaymentMethod" value="card" class="d-none" onchange="changeProfilePayMethod('card')" />
-                            <div class="p-3 text-center payment-option-box" id="pop_card" onclick="changeProfilePayMethod('card')">
-                                <span class="material-symbols-outlined" style="font-size:1.8rem; color:#8b5cf6;">credit_card</span>
-                                <div class="small fw-bold mt-1">บัตรเครดิต/เดบิต</div>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- 1. Bank Transfer Panel -->
-                <div id="panel_transfer" class="payment-method-panel">
-                    <div class="p-3 mb-3 rounded-3" style="background:#eff6ff; border:1px solid #bfdbfe;">
-                        <div class="fw-bold text-primary mb-2">
-                            <span class="material-symbols-outlined align-middle me-1">domain</span> ข้อมูลบัญชีสำหรับโอนเงิน
-                        </div>
-                        <div style="font-size:0.875rem; line-height:2;">
-                            <div><strong>ธนาคาร:</strong> ธนาคารไทยพาณิชย์ (SCB)</div>
-                            <div><strong>ชื่อบัญชี:</strong> บริษัท โลจิแมเนจ จำกัด (สำนักงานใหญ่)</div>
-                            <div><strong>เลขที่บัญชี:</strong> <span class="fw-bold fs-6 text-primary">123-4-56789-0</span> <button class="btn btn-xs btn-outline-primary py-0 px-2 ms-2" onclick="navigator.clipboard.writeText('1234567890'); alert('คัดลอกเลขบัญชีแล้ว!');">คัดลอก</button></div>
-                            <div><strong>ยอดเงินที่ต้องโอน:</strong> <span class="fw-bold text-danger fs-6">฿642,000.00</span></div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label small fw-semibold">อัปโหลดสลิปหลักฐานการโอนเงิน (Slip Upload) *</label>
-                        <input type="file" class="form-control" id="slipFileInput" accept="image/*" onchange="previewSlip(event)" />
-                        <div id="slipPreviewContainer" class="mt-2 text-center d-none p-2 border rounded-3 bg-light">
-                            <img id="slipPreviewImg" src="" alt="Slip Preview" style="max-height:180px; border-radius:8px;" />
-                            <div class="text-success small fw-bold mt-1">✓ แนบหลักฐานเรียบร้อยแล้ว</div>
-                        </div>
-                    </div>
-
-                    <button class="btn btn-primary w-100 fw-bold py-2 shadow-sm" style="border-radius:10px;" onclick="submitPayment('bank')">
-                        <span class="material-symbols-outlined align-middle me-1">upload_file</span>
-                        ยืนยันการแจ้งชำระเงิน
-                    </button>
-                </div>
-
-                <!-- 2. QR Code Panel -->
-                <div id="panel_qr" class="payment-method-panel" style="display:none;">
-                    <div class="text-center p-4 bg-white rounded-3 border mb-3">
-                        <div class="fw-bold mb-2">สแกนจ่ายด้วย Mobile Banking ทุกธนาคาร</div>
-                        <div class="d-inline-block p-3 bg-light rounded-3 shadow-sm border mb-2">
-                            <!-- PromptPay QR Mockup -->
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PROMPTPAY-0897654321-642000"
-                                 alt="QR Code" style="width:160px; height:160px;" />
-                        </div>
-                        <div class="fw-bold fs-5 text-primary mb-1">฿642,000.00</div>
-                        <div class="text-muted small">หมดอายุใน <span id="countdownTimer" class="fw-bold text-danger">14:59</span> นาที</div>
-                    </div>
-                    <button class="btn btn-success w-100 fw-bold py-2 shadow-sm" style="border-radius:10px;" onclick="submitPayment('qr')">
-                        <span class="material-symbols-outlined align-middle me-1">verified</span>
-                        ฉันได้ทำการสแกนชำระเงินเรียบร้อยแล้ว
-                    </button>
-                </div>
-
-                <!-- 3. Credit Card Panel -->
-                <div id="panel_card" class="payment-method-panel" style="display:none;">
-                    <div class="row g-3 mb-3">
-                        <div class="col-12">
-                            <label class="form-label small fw-semibold">หมายเลขบัตรเครดิต / เดบิต</label>
-                            <input type="text" class="form-control" placeholder="4000 1234 5678 9010" maxlength="19" />
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label small fw-semibold">ชื่อผู้ถือบัตร (ตามหน้าบัตร)</label>
-                            <input type="text" class="form-control" placeholder="NAPHAT WONGCHAROEN" />
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-semibold">วันหมดอายุ (MM/YY)</label>
-                            <input type="text" class="form-control" placeholder="12/28" maxlength="5" />
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-semibold">รหัส CVV / CVC</label>
-                            <input type="password" class="form-control" placeholder="•••" maxlength="3" />
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 text-muted small mb-3">
-                        <span class="material-symbols-outlined text-success" style="font-size:1.1rem;">lock</span>
-                        <span>ปลอดภัยด้วยการเข้ารหัส 256-bit SSL มาตรฐาน PCI-DSS</span>
-                    </div>
-                    <button class="btn btn-primary w-100 fw-bold py-2 shadow-sm" style="border-radius:10px;" onclick="submitPayment('card')">
-                        <span class="material-symbols-outlined align-middle me-1">credit_score</span>
-                        ชำระเงิน ฿642,000.00 ทันที
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Payment History & Past Invoices -->
-        <div class="col-12 col-lg-5">
-            <div class="section-card h-100">
-                <div class="section-card-header">
-                    <h2 class="h5 fw-bold mb-0 text-dark">
-                        <span class="material-symbols-outlined align-middle text-success me-1">task_alt</span>
-                        ประวัติการชำระเงิน & ใบเสร็จ
-                    </h2>
-                </div>
-
-                <div class="list-group list-group-flush">
-                    <div class="list-group-item p-3 border-bottom">
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <span class="fw-bold text-dark">INV-2026-001</span>
-                            <span class="badge bg-success-subtle text-success fw-bold">ชำระสำเร็จ</span>
-                        </div>
-                        <div class="text-muted small mb-1">จองคลัง: Unit M-01 (ไซส์ M - 150 ตร.ม.)</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold text-primary">฿200,000</span>
-                            <button class="btn btn-sm btn-outline-primary py-1 px-2 d-inline-flex align-items-center gap-1" style="border-radius:6px; font-size:0.75rem;" onclick="alert('ดาวน์โหลดใบเสร็จ INV-2026-001 (PDF)');">
-                                <span class="material-symbols-outlined" style="font-size:0.85rem;">download</span>
-                                ใบเสร็จรับเงิน
-                            </button>
-                        </div>
-                        <div class="text-muted" style="font-size:0.7rem; margin-top:3px;">ชำระเมื่อ 15 ธ.ค. 2568 (โอนผ่าน SCB)</div>
-                    </div>
-
-                    <div class="list-group-item p-3 border-bottom">
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <span class="fw-bold text-dark">INV-2025-018</span>
-                            <span class="badge bg-success-subtle text-success fw-bold">ชำระสำเร็จ</span>
-                        </div>
-                        <div class="text-muted small mb-1">จองคลัง: Unit CR-05 (ห้องเย็น 200 ตร.ม.)</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold text-primary">฿130,000</span>
-                            <button class="btn btn-sm btn-outline-primary py-1 px-2 d-inline-flex align-items-center gap-1" style="border-radius:6px; font-size:0.75rem;" onclick="alert('ดาวน์โหลดใบเสร็จ INV-2025-018 (PDF)');">
-                                <span class="material-symbols-outlined" style="font-size:0.85rem;">download</span>
-                                ใบเสร็จรับเงิน
-                            </button>
-                        </div>
-                        <div class="text-muted" style="font-size:0.7rem; margin-top:3px;">ชำระเมื่อ 20 มิ.ย. 2568 (บัตรเครดิต)</div>
-                    </div>
-
-                    <div class="list-group-item p-3">
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <span class="fw-bold text-muted">REF-2025-002</span>
-                            <span class="badge bg-secondary-subtle text-secondary">คืนเงินแล้ว</span>
-                        </div>
-                        <div class="text-muted small mb-1">ยกเลิกสัญญา: Unit M-01 (ไซส์ M - 150 ตร.ม.)</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold text-muted">฿200,000</span>
-                            <span class="badge bg-light text-muted border">โอนคืนเข้าบัญชีเดิม</span>
-                        </div>
-                        <div class="text-muted" style="font-size:0.7rem; margin-top:3px;">ดำเนินการเมื่อ 12 ธ.ค. 2567</div>
-                    </div>
-                </div>
-
-                <div class="p-3 bg-light rounded-3 mt-3 text-center">
-                    <div class="text-secondary small mb-1">ต้องการเอกสารหัก ณ ที่จ่าย ภ.ง.ด.53?</div>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="alert('ระบบจะส่งแบบฟอร์มเอกสารหัก ณ ที่จ่ายไปยังอีเมลของท่าน');">
-                        <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">mail</span>
-                        ขอเอกสารทางภาษี
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ========================================== -->
-<!-- SECTION 3: PROFILE INFO & SETTINGS TAB -->
-<!-- ========================================== -->
-<div id="section-info" class="profile-section" style="@(activeTab == "info" ? "" : "display:none;")">
-    <div class="row g-4">
-        <div class="col-12 col-lg-8">
-            <div class="section-card">
-                <div class="section-card-header">
-                    <h2 class="h5 fw-bold mb-0 text-dark">
-                        <span class="material-symbols-outlined align-middle text-primary me-1">badge</span>
-                        ข้อมูลส่วนบุคคลและข้อมูลออกใบเสร็จ (Customer Profile)
-                    </h2>
-                </div>
-
-                <form onsubmit="saveProfileInfo(event)">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-semibold">ชื่อ - นามสกุล *</label>
-                            <input type="text" class="form-control" id="profName" value="@fullName" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-semibold">ชื่อบริษัท / องค์กร</label>
-                            <input type="text" class="form-control" id="profCompany" value="บริษัท สยาม โลจิสติกส์ โซลูชั่นส์ จำกัด" />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-semibold">เบอร์โทรศัพท์ติดต่อ *</label>
-                            <input type="tel" class="form-control" id="profPhone" value="089-765-4321" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-semibold">อีเมลติดต่อ *</label>
-                            <input type="email" class="form-control" id="profEmail" value="naphat.w@siamlogistics.co.th" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-semibold">เลขประจำตัวผู้เสียภาษี / เลขบัตรประชาชน</label>
-                            <input type="text" class="form-control" value="0105561234567" />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-semibold">ประเภทธุรกิจ</label>
-                            <select class="form-select">
-                                <option selected>ค้าปลีก / อีคอมเมิร์ซ (E-Commerce)</option>
-                                <option>นำเข้า-ส่งออก (Import / Export)</option>
-                                <option>อาหารและเครื่องดื่ม (F&B)</option>
-                                <option>อุตสาหกรรมการผลิต</option>
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label small fw-semibold">ที่อยู่สำหรับออกใบกำกับภาษี & ส่งเอกสาร</label>
-                            <textarea class="form-control" rows="3">88/9 อาคารสยามทาวเวอร์ ชั้น 14 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร 10110</textarea>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-outline-secondary" onclick="switchProfileTab('bookings')">ยกเลิก</button>
-                        <button type="submit" class="btn btn-primary fw-bold px-4">
-                            <span class="material-symbols-outlined align-middle me-1">save</span>
-                            บันทึกข้อมูลโปรไฟล์
-                        </button>
-                    </div>
+                <!-- โอนเงิน -->
+                <form class="pf-method" data-method="transfer" id="payTransfer">
+                    <dl class="pf-bank">
+                        <div><dt>ธนาคาร</dt><dd>ไทยพาณิชย์ (SCB)</dd></div>
+                        <div><dt>ชื่อบัญชี</dt><dd>บริษัท โลจิแมเนจ จำกัด</dd></div>
+                        <div><dt>เลขบัญชี</dt><dd><span id="bankNo">123-4-56789-0</span> <button type="button" class="pf-copy" data-copy="1234567890">คัดลอก</button></dd></div>
+                        <div><dt>ยอดโอน</dt><dd class="js-pay-total">฿@dueAmt.Total.ToString("N0")</dd></div>
+                    </dl>
+                    <label class="cu-field">
+                        <span>สลิปโอนเงิน</span>
+                        <input type="file" id="slipInput" accept="image/*" required />
+                    </label>
+                    <img id="slipPreview" class="pf-slip" alt="ตัวอย่างสลิปที่แนบ" hidden />
+                    <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">แจ้งชำระเงิน</button>
                 </form>
-            </div>
-        </div>
 
-        <div class="col-12 col-lg-4">
-            <div class="section-card mb-4">
-                <div class="section-card-header">
-                    <h2 class="h6 fw-bold mb-0 text-dark">
-                        <span class="material-symbols-outlined align-middle text-warning me-1">shield</span>
-                        ความปลอดภัยและบัญชี
-                    </h2>
-                </div>
-                <div class="d-flex flex-column gap-3 small">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="fw-semibold">รหัสผ่าน</div>
-                            <div class="text-muted">เปลี่ยนล่าสุดเมื่อ 3 เดือนที่แล้ว</div>
-                        </div>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="alert('ระบบส่งลิงก์เปลี่ยนรหัสผ่านไปทางอีเมลแล้ว');">เปลี่ยนรหัส</button>
+                <!-- QR -->
+                <form class="pf-method" data-method="qr" hidden>
+                    <div class="pf-qr">
+                        <img id="payQr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PROMPTPAY-@dueAmt.Total" alt="QR พร้อมเพย์" width="160" height="160" />
+                        <p>สแกนด้วยแอปธนาคาร ยอด <strong class="js-pay-total">฿@dueAmt.Total.ToString("N0")</strong></p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="fw-semibold">การยืนยันตัวตน 2 ขั้นตอน (2FA)</div>
-                            <div class="text-success fw-semibold">เปิดใช้งานแล้ว</div>
-                        </div>
-                        <span class="badge bg-success">เปิด</span>
+                    <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">ฉันชำระแล้ว</button>
+                </form>
+
+                <!-- บัตร -->
+                <form class="pf-method" data-method="card" hidden>
+                    <div class="pf-grid">
+                        <label class="cu-field pf-span-2"><span>เลขบัตร</span><input type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000" required /></label>
+                        <label class="cu-field pf-span-2"><span>ชื่อบนบัตร</span><input type="text" autocomplete="cc-name" required /></label>
+                        <label class="cu-field"><span>หมดอายุ (ดด/ปป)</span><input type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="12/28" required /></label>
+                        <label class="cu-field"><span>CVV</span><input type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" required /></label>
                     </div>
-                </div>
+                    <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">ชำระ <span class="js-pay-total">฿@dueAmt.Total.ToString("N0")</span></button>
+                </form>
+
+                <p class="pf-done" id="payDone" role="status" hidden>ได้รับแจ้งชำระเงินแล้ว เจ้าหน้าที่จะตรวจสอบและอัปเดตสถานะภายใน 15 นาที</p>
             </div>
 
-            <div class="section-card">
-                <div class="section-card-header">
-                    <h2 class="h6 fw-bold mb-0 text-dark">
-                        <span class="material-symbols-outlined align-middle text-primary me-1">help</span>
-                        ต้องการความช่วยเหลือ?
-                    </h2>
-                </div>
-                <p class="text-secondary small mb-3">ทีมบริการลูกค้าของ LogiManage พร้อมช่วยเหลือคุณตลอด 24 ชั่วโมง</p>
-                <div class="d-grid gap-2">
-                    <a href="tel:021234567" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center gap-2">
-                        <span class="material-symbols-outlined" style="font-size:1rem;">call</span>
-                        โทร 02-123-4567
-                    </a>
-                    <button class="btn btn-sm btn-outline-success d-flex align-items-center justify-content-center gap-2" onclick="alert('กำลังเชื่อมต่อแชทกับเจ้าหน้าที่ฝ่ายบริการ...');">
-                        <span class="material-symbols-outlined" style="font-size:1rem;">chat</span>
-                        แชทกับเจ้าหน้าที่ (Live Chat)
-                    </button>
-                </div>
-            </div>
+            <aside class="pf-history" aria-labelledby="pf-history-title">
+                <h2 class="cu-h2" id="pf-history-title">ประวัติการชำระ</h2>
+                <ul>
+                    @foreach (var p in payments)
+                    {
+                        <li class="@(p.Item5 == "refund" ? "is-refund" : "")">
+                            <div class="pf-history-top">
+                                <strong>@p.Item2</strong>
+                                <span>@(p.Item5 == "refund" ? "−" : "")฿@p.Item3.ToString("N0")</span>
+                            </div>
+                            <span class="pf-history-meta">@p.Item1, @p.Item4</span>
+                        </li>
+                    }
+                </ul>
+            </aside>
         </div>
-    </div>
+    </section>
+
+    <!-- ========== ข้อมูลส่วนตัว ========== -->
+    <section class="pf-panel" id="panel-info" role="tabpanel" aria-labelledby="tab-info" @(activeTab == "info" ? "" : "hidden")>
+        <h2 class="cu-h2">ข้อมูลส่วนตัวและที่อยู่ออกใบกำกับภาษี</h2>
+        <form class="pf-info" id="infoForm">
+            <div class="pf-grid">
+                <label class="cu-field"><span>ชื่อ-นามสกุล</span><input type="text" autocomplete="name" value="@fullName" required /></label>
+                <label class="cu-field"><span>ชื่อบริษัท (ไม่บังคับ)</span><input type="text" autocomplete="organization" /></label>
+                <label class="cu-field"><span>เบอร์โทร</span><input type="tel" autocomplete="tel" inputmode="tel" pattern="0\d{8,9}" placeholder="0812345678" required /></label>
+                <label class="cu-field"><span>อีเมล</span><input type="email" autocomplete="email" placeholder="name@company.com" required /></label>
+                <label class="cu-field"><span>เลขผู้เสียภาษี / เลขบัตรประชาชน</span><input type="text" inputmode="numeric" pattern="\d{13}" maxlength="13" placeholder="ตัวเลข 13 หลัก" /></label>
+                <label class="cu-field pf-span-2"><span>ที่อยู่ออกใบกำกับภาษี</span><textarea rows="3" autocomplete="street-address"></textarea></label>
+            </div>
+            <div class="pf-info-actions">
+                <button type="submit" class="cu-btn cu-btn--primary">บันทึกข้อมูล</button>
+                <p class="pf-saved" id="infoSaved" role="status" hidden>บันทึกข้อมูลแล้ว</p>
+            </div>
+        </form>
+        <p class="pf-help">ต้องการความช่วยเหลือ? โทร <a href="tel:021234567">02-123-4567</a> ทุกวัน 8:00–18:00</p>
+    </section>
 </div>
-
-<style>
-.payment-option-box {
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    background: #f8fafc;
-    transition: all 0.2s ease;
-}
-.payment-option-box:hover {
-    border-color: #3b82f6;
-    background: #eff6ff;
-}
-.payment-option-box.active {
-    border-color: #2563eb;
-    background: #eff6ff;
-    box-shadow: 0 4px 12px rgba(37,99,235,0.12);
-}
-#profileTabNav .nav-link {
-    border-radius: 10px;
-    color: #64748b;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    transition: all 0.2s ease;
-}
-#profileTabNav .nav-link.active {
-    color: #ffffff;
-    background: #2563eb;
-    border-color: #2563eb;
-}
-</style>
 
 @section Scripts {
 <script>
-function switchProfileTab(tabName) {
-    // Hide all sections
-    document.querySelectorAll('.profile-section').forEach(sec => sec.style.display = 'none');
-    
-    // Remove active from all tab buttons
-    document.querySelectorAll('#profileTabNav .nav-link').forEach(btn => btn.classList.remove('active'));
-
-    // Show target section
-    const targetSec = document.getElementById('section-' + tabName);
-    if (targetSec) targetSec.style.display = 'block';
-
-    // Set active button
-    const targetBtn = document.getElementById('tab-btn-' + tabName);
-    if (targetBtn) targetBtn.classList.add('active');
-
-    // Update URL hash
-    window.location.hash = tabName;
-}
-
-function goToPaymentForBooking(bookingId) {
-    document.getElementById('payBookingIdDisplay').textContent = bookingId;
-    switchProfileTab('payment');
-    window.scrollTo({ top: 300, behavior: 'smooth' });
-}
-
-function changeProfilePayMethod(method) {
-    document.querySelectorAll('.payment-option-box').forEach(box => box.classList.remove('active'));
-    document.querySelectorAll('.payment-method-panel').forEach(p => p.style.display = 'none');
-
-    const optBox = document.getElementById('pop_' + method);
-    if (optBox) optBox.classList.add('active');
-
-    const panel = document.getElementById('panel_' + method);
-    if (panel) panel.style.display = 'block';
-}
-
-function previewSlip(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('slipPreviewImg').src = e.target.result;
-            document.getElementById('slipPreviewContainer').classList.remove('d-none');
-        };
-        reader.readAsDataURL(file);
+(function () {
+    // ----- แท็บ -----
+    const tabs = document.querySelectorAll('.pf-tabs [role=tab]');
+    function show(name, push) {
+        tabs.forEach(t => t.setAttribute('aria-selected', t.dataset.tab === name ? 'true' : 'false'));
+        document.querySelectorAll('.pf-panel').forEach(p => p.hidden = p.id !== 'panel-' + name);
+        if (push) history.replaceState(null, '', '?tab=' + name);
     }
-}
-
-function submitPayment(method) {
-    alert('บันทึกข้อมูลการชำระเงินเรียบร้อยแล้ว!\nระบบกำลังตรวจสอบยอดเงินและจะอัปเดตสถานะสัญญาการจองภายใน 15 นาที');
-    switchProfileTab('bookings');
-}
-
-function saveProfileInfo(e) {
-    e.preventDefault();
-    alert('บันทึกข้อมูลโปรไฟล์และที่อยู่เรียบร้อยแล้ว!');
-}
-
-function filterBookings() {
-    const val = document.getElementById('bookingFilterStatus').value;
-    const rows = document.querySelectorAll('#bookingsTable tbody tr');
-    rows.forEach(row => {
-        const status = row.getAttribute('data-status');
-        if (val === 'all' || status === val) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+    document.querySelectorAll('[data-tab]').forEach(a => a.addEventListener('click', e => {
+        e.preventDefault();
+        show(a.dataset.tab, true);
+        if (!a.closest('.pf-tabs')) document.querySelector('.pf-tabs').scrollIntoView({ block: 'start' });
+    }));
+    // เดินด้วยลูกศรซ้ายขวาบนแท็บ
+    document.querySelector('.pf-tabs').addEventListener('keydown', e => {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        const list = [...tabs], i = list.indexOf(document.activeElement);
+        if (i < 0) return;
+        const next = list[(i + (e.key === 'ArrowRight' ? 1 : list.length - 1)) % list.length];
+        next.focus(); show(next.dataset.tab, true);
     });
-}
 
-// Initial tab check from URL query or hash
-document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get('tab');
-    const hash = window.location.hash.replace('#', '');
-    const active = tabParam || hash || '@activeTab';
-    if (active && ['bookings', 'payment', 'info'].includes(active)) {
-        switchProfileTab(active);
-    }
-});
+    // ----- โค้ดส่วนลด: มีแค่หน้าตา ยังไม่คิดส่วนลด (รอทำตอนต่อ backend) -----
+    const promoInput = document.getElementById('promoInput'), promoMsg = document.getElementById('promoMsg');
+    document.getElementById('promoForm').addEventListener('submit', e => {
+        e.preventDefault();
+        promoMsg.textContent = promoInput.value.trim()
+            ? 'ยังใช้โค้ดส่วนลดไม่ได้ในตอนนี้'
+            : 'พิมพ์โค้ดส่วนลดก่อนกดใช้โค้ด';
+        promoMsg.classList.remove('is-ok');
+        promoMsg.hidden = false;
+        promoInput.focus();
+    });
+
+    // ----- วิธีชำระเงิน -----
+    const done = document.getElementById('payDone');
+    document.querySelectorAll('input[name=payMethod]').forEach(r => r.addEventListener('change', () => {
+        document.querySelectorAll('.pf-method').forEach(f => f.hidden = f.dataset.method !== r.value);
+        done.hidden = true;
+    }));
+
+    document.querySelectorAll('.pf-copy').forEach(b => b.addEventListener('click', () => {
+        if (!navigator.clipboard) return;
+        navigator.clipboard.writeText(b.dataset.copy).then(() => {
+            b.textContent = 'คัดลอกแล้ว';
+            setTimeout(() => b.textContent = 'คัดลอก', 1800);
+        });
+    }));
+
+    const slip = document.getElementById('slipInput'), preview = document.getElementById('slipPreview');
+    slip.addEventListener('change', () => {
+        const f = slip.files[0];
+        if (f) { preview.src = URL.createObjectURL(f); preview.hidden = false; }
+        else preview.hidden = true;
+    });
+
+    // ยังไม่บันทึกลงฐานข้อมูล: แสดงข้อความยืนยันในหน้าเท่านั้น
+    document.querySelectorAll('.pf-method').forEach(f => f.addEventListener('submit', e => {
+        e.preventDefault();
+        if (!f.reportValidity()) return;
+        f.hidden = true;
+        done.hidden = false;
+        done.focus?.();
+    }));
+
+    const info = document.getElementById('infoForm'), saved = document.getElementById('infoSaved');
+    info.addEventListener('submit', e => {
+        e.preventDefault();
+        if (!info.reportValidity()) return;
+        saved.hidden = false;
+        setTimeout(() => saved.hidden = true, 2500);
+    });
+})();
 </script>
 }

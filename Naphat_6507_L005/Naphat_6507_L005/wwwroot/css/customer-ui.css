@@ -1,0 +1,93 @@
+/* =========================================================
+   ฐานร่วมของหน้าฝั่งลูกค้า: สี ตัวอักษร ปุ่ม ส่วนหัวหน้า
+   สีอิงชั้นวางพาเลท: เสาสีน้ำเงิน คานสีส้ม พื้นคอนกรีต
+   ใช้: ใส่ class="cu" ที่ div นอกสุดของหน้า
+   ========================================================= */
+.cu {
+    --cu-blue: #1e3f66;
+    --cu-blue-2: #34587f;
+    --cu-orange: #ff5b1f;
+    --cu-concrete: #e3e5e2;
+    --cu-slab: #ffffff;
+    --cu-taken: #a7ada9;
+    --cu-cold: #4a90b8;
+    --cu-text: #1d2733;
+    --cu-muted: #5b6672;
+    --cu-line: #cfd4d1;
+    --cu-display: 'Chakra Petch', 'IBM Plex Sans Thai', sans-serif;
+    color: var(--cu-text);
+}
+
+/* ส่วนหัวหน้า: หัวข้อ 1 อัน + คำอธิบาย 1 บรรทัด */
+.cu-head { margin-bottom: 1.25rem; }
+.cu-head h1 { font-family: var(--cu-display); font-weight: 700; color: var(--cu-blue); font-size: clamp(1.6rem, 3vw, 2.1rem); margin: 0 0 0.25rem; line-height: 1.15; }
+.cu-head p { margin: 0; color: var(--cu-muted); }
+.cu-head strong { color: var(--cu-text); }
+
+.cu-back { display: inline-flex; align-items: center; gap: 0.25rem; color: var(--cu-muted); font-size: 0.9rem; text-decoration: none; margin-bottom: 0.5rem; }
+.cu-back:hover { color: var(--cu-blue); }
+.cu-back .material-symbols-outlined { font-size: 1.1rem; }
+
+.cu-h2 { font-family: var(--cu-display); font-weight: 700; color: var(--cu-blue); font-size: 1.3rem; margin: 0 0 0.75rem; }
+
+/* สถานะห้อง */
+.cu-status { font-size: 0.8rem; font-weight: 600; color: #14632f; background: #e5f3e9; padding: 0.2rem 0.6rem; border-radius: 999px; white-space: nowrap; }
+.cu-status.is-taken { color: #4a525a; background: #eceeed; }
+
+/* ปุ่ม */
+.cu-btn {
+    flex: 1 1 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding: 0 1.1rem;
+    border-radius: 4px;
+    border: 1.5px solid var(--cu-blue);
+    background: transparent;
+    color: var(--cu-blue);
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+.cu-btn:hover { background: #eef2f6; color: var(--cu-blue); }
+.cu-btn--primary { background: var(--cu-orange); border-color: var(--cu-orange); color: #fff; }
+.cu-btn--primary:hover { background: #e8480f; border-color: #e8480f; color: #fff; }
+.cu-btn:focus-visible { outline: 3px solid var(--cu-blue); outline-offset: 2px; }
+.cu-btn .material-symbols-outlined { font-size: 1.15rem; }
+
+/* ช่องกรอก */
+.cu-field { display: flex; flex-direction: column; gap: 0.25rem; margin: 0 0 0.9rem; }
+.cu-field > span { font-size: 0.85rem; color: var(--cu-muted); }
+.cu-field input, .cu-field select, .cu-field textarea {
+    min-height: 44px;
+    border: 1.5px solid var(--cu-line);
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    background: #fff;
+    font: inherit;
+    color: var(--cu-text);
+    width: 100%;
+}
+.cu-field input:focus-visible, .cu-field select:focus-visible, .cu-field textarea:focus-visible { outline: 3px solid var(--cu-blue); outline-offset: 1px; }
+
+/* โค้ดส่วนลด (ใช้ในหน้า BookRoom และ Profile) */
+.cu-discount dt, .cu-discount dd { color: #14632f !important; }
+.cu-link { border: 0; background: none; padding: 0 0.15rem; color: var(--cu-blue); font: inherit; font-size: 0.85rem; text-decoration: underline; cursor: pointer; }
+.cu-link:focus-visible { outline: 3px solid var(--cu-blue); outline-offset: 2px; }
+.cu-promo { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px dashed var(--cu-line); }
+.cu-promo .cu-field { margin-bottom: 0; }
+.cu-promo label { font-size: 0.85rem; color: var(--cu-muted); margin: 0; }
+.cu-promo-row { display: flex; gap: 0.5rem; }
+.cu-promo-row input { flex: 1 1 auto; min-width: 0; text-transform: uppercase; }
+.cu-promo-row .cu-btn { flex: 0 0 auto; }
+.cu-promo-msg { margin: 0.4rem 0 0; font-size: 0.88rem; color: #a12020; }
+.cu-promo-msg.is-ok { color: #14632f; }
+.cu [hidden] { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+    .cu * { transition: none !important; }
+}

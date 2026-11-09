@@ -1,396 +1,154 @@
 @{
-    ViewData["Title"] = "ค้นหาและจองห้องคลังสินค้า";
+    ViewData["Title"] = "ค้นหาห้องคลังสินค้า";
     Layout = "_Layout";
+
+    // ห้องทั้งหมด ใช้ทั้งผังคลังและรายการการ์ดด้านล่าง
+    // (ตอนต่อฐานข้อมูล ให้แทนที่ array นี้ด้วยข้อมูลจากตาราง Rooms; Grid คือตำแหน่งบนผัง 12 คอลัมน์ x 7 แถว)
+    var rooms = new[] {
+        new { Id="XL-01", Kind="xl",   Free=true,  Area="1,200", Ceil="12 ม.", Truck="คอนเทนเนอร์ทุกขนาด", Power="หม้อแปลงแยก", Price="180,000", Zone="โซน D1 (เมกะ)",          Note="มีออฟฟิศและห้องน้ำในตัว",                  PriceVal=180000, OldPrice="210,000", Rating="5.0", Img="https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=600&q=80", Grid="1 / 1 / 6 / 6" },
+        new { Id="L-01",  Kind="l",    Free=true,  Area="500",   Ceil="10 ม.", Truck="18 ล้อ / ตู้ 40ft",   Power="3 เฟส 380V",   Price="75,000",  Zone="โซน C1 (มี Dock)",        Note="มี Dock Leveler เทียบตู้คอนเทนเนอร์",       PriceVal=75000, OldPrice="85,000", Rating="4.6", Img="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80", Grid="1 / 6 / 4 / 10" },
+        new { Id="L-02",  Kind="l",    Free=false, Area="350",   Ceil="10 ม.", Truck="10 ล้อ / เทรลเลอร์", Power="3 เฟส 380V",   Price="55,000",  Zone="โซน C2 (สินค้าปลอดภัย)", Note="ควบคุมการเข้าออกเฉพาะบุคคล",              PriceVal=55000, OldPrice="", Rating="4.5", Img="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80", Grid="1 / 10 / 4 / 13" },
+        new { Id="M-02",  Kind="m",    Free=true,  Area="250",   Ceil="8 ม.",  Truck="10 ล้อ",             Power="3 เฟส 380V",   Price="38,000",  Zone="โซน B2 (พาเลท)",         Note="Racking 3 ชั้น วางได้ 120 พาเลท",           PriceVal=38000, OldPrice="", Rating="4.8", Img="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80", Grid="4 / 6 / 6 / 9" },
+        new { Id="M-01",  Kind="m",    Free=true,  Area="150",   Ceil="8 ม.",  Truck="6 ล้อ / 10 ล้อ",     Power="3 เฟส 380V",   Price="25,000",  Zone="โซน B1 (มาตรฐาน)",       Note="พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม.",       PriceVal=25000, OldPrice="29,000", Rating="4.8", Img="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80", Grid="4 / 9 / 6 / 11" },
+        new { Id="CR-05", Kind="cold", Free=true,  Area="200",   Ceil="7 ม.",  Truck="10 ล้อตู้เย็น",      Power="ไฟสำรองคู่",    Price="40,000",  Zone="โซน Cold Chain",          Note="ควบคุม −18°C ถึง +5°C ดูอุณหภูมิผ่านมือถือ", PriceVal=40000, OldPrice="48,000", Rating="4.9", Img="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80", Grid="4 / 11 / 6 / 13" },
+        new { Id="S-01",  Kind="s",    Free=true,  Area="60",    Ceil="6 ม.",  Truck="กระบะ / 4 ล้อ",      Power="220V",         Price="12,000",  Zone="โซน A1 (ชั้น 1)",         Note="ชั้น 1 เข้าถึงง่าย",                       PriceVal=12000, OldPrice="", Rating="4.7", Img="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80", Grid="6 / 1 / 7 / 3" },
+        new { Id="S-02",  Kind="s",    Free=true,  Area="80",    Ceil="6 ม.",  Truck="กระบะ / 4 ล้อ",      Power="220V / 380V",  Price="15,000",  Zone="โซน A2 (SME)",            Note="ประตูม้วนไฟฟ้า",                           PriceVal=15000, OldPrice="18,000", Rating="4.3", Img="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80", Grid="6 / 3 / 7 / 6" },
+    };
+    var freeCount = rooms.Count(r => r.Free);
+    var first = rooms.First(r => r.Id == "M-01");
+    var detailBase = Url.Action("RoomDetail", "Customer");
+    var bookBase = Url.Action("BookRoom", "Customer");
 }
 
-<!-- Page Header with Breadcrumbs & Counters -->
-<div class="page-header mb-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-        <div>
-            <nav aria-label="breadcrumb" class="mb-1">
-                <ol class="breadcrumb mb-0 small" style="--bs-breadcrumb-divider: '›';">
-                    <li class="breadcrumb-item"><a asp-controller="Customer" asp-action="Dashboard" class="text-decoration-none text-muted">หน้าหลัก</a></li>
-                    <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">ค้นหาห้องคลังสินค้า</li>
-                </ol>
-            </nav>
-            <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2" style="color:#0f172a;">
-                <span class="material-symbols-outlined text-primary" style="font-size:2rem;">warehouse</span>
-                ค้นหาและจองห้องคลังสินค้าตามขนาด
-            </h1>
-            <p class="text-secondary mb-0" style="font-size:0.92rem;">
-                คลังสินค้ามาตรฐานสากล พร้อมระบบ AI Security 24 ชม., Dock Leveler และทำสัญญาออนไลน์พร้อมเข้าใช้งานได้ทันที
-            </p>
+@section Styles {
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap" />
+    <link rel="stylesheet" href="~/css/customer-ui.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/search.css" asp-append-version="true" />
+}
+
+<div class="sr cu">
+
+    <header class="cu-head">
+        <h1>ค้นหาห้องคลังสินค้า</h1>
+        <p>ว่าง <strong>@freeCount</strong> จาก @rooms.Length ห้อง แตะห้องบนผังเพื่อดูรายละเอียดและจอง ราคายังไม่รวม VAT</p>
+    </header>
+
+    <div class="fp-board">
+        <div class="fp-plan-wrap">
+            <div class="fp-plan" role="group" aria-label="ผังห้องคลังสินค้า">
+                @foreach (var r in rooms)
+                {
+                    <button type="button"
+                            class="fp-unit fp-unit--@r.Kind @(r.Free ? "" : "is-taken") @(r.Id == first.Id ? "is-selected" : "")"
+                            style="grid-area:@r.Grid;"
+                            aria-pressed="@(r.Id == first.Id ? "true" : "false")"
+                            aria-label="ห้อง @r.Id @r.Area ตารางเมตร @(r.Free ? "ว่าง" : "มีผู้เช่าแล้ว")"
+                            data-id="@r.Id" data-free="@(r.Free ? "1" : "0")" data-kind="@r.Kind"
+                            data-area="@r.Area" data-ceil="@r.Ceil" data-truck="@r.Truck" data-power="@r.Power"
+                            data-price="@r.Price" data-zone="@r.Zone" data-note="@r.Note">
+                        <span class="fp-unit-code">@r.Id</span>
+                        <span class="fp-unit-area">@r.Area ตร.ม.</span>
+                    </button>
+                }
+                <div class="fp-fixed" style="grid-area:6 / 6 / 7 / 9;">สำนักงานและ รปภ.</div>
+                <div class="fp-fixed fp-fixed--gate" style="grid-area:6 / 9 / 7 / 13;">ประตูเข้าออก</div>
+                <div class="fp-dock" style="grid-area:7 / 1 / 8 / 13;"><span>ลานเทียบตู้ 40 ฟุต ถนนกว้าง 20 ม.</span></div>
+            </div>
+            <ul class="fp-legend">
+                <li><i class="fp-sw"></i>ว่าง</li>
+                <li><i class="fp-sw fp-sw--cold"></i>ห้องเย็น (ว่าง)</li>
+                <li><i class="fp-sw fp-sw--taken"></i>มีผู้เช่าแล้ว</li>
+            </ul>
         </div>
 
-        <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold" style="font-size:0.85rem;">
-                <span class="material-symbols-outlined align-middle me-1" style="font-size:1.1rem;">check_circle</span>
-                <span id="availableCounter">ว่างพร้อมใช้งาน 7 ยูนิต</span>
-            </span>
-            <a asp-controller="Customer" asp-action="Dashboard" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1" style="border-radius:8px;">
-                <span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>
-                <span>กลับหน้าหลัก</span>
-            </a>
-        </div>
+        <aside class="fp-detail" aria-live="polite" id="fp-detail" data-detail-base="@detailBase" data-book-base="@bookBase">
+            <div class="fp-detail-head">
+                <div class="fp-detail-code" data-f="id">@first.Id</div>
+                <span class="cu-status" data-f="status">ว่าง พร้อมส่งมอบ</span>
+            </div>
+            <p class="fp-detail-zone"><span data-f="zone">@first.Zone</span>, <span data-f="note">@first.Note</span></p>
+            <dl class="fp-spec">
+                <div><dt>พื้นที่</dt><dd><span data-f="area">@first.Area</span> ตร.ม.</dd></div>
+                <div><dt>เพดานสูง</dt><dd data-f="ceil">@first.Ceil</dd></div>
+                <div><dt>รถที่เข้าได้</dt><dd data-f="truck">@first.Truck</dd></div>
+                <div><dt>ไฟฟ้า</dt><dd data-f="power">@first.Power</dd></div>
+            </dl>
+            <div class="fp-price">
+                <span>ค่าเช่า</span>
+                <strong>฿<span data-f="price">@first.Price</span></strong>
+                <span>ต่อเดือน</span>
+            </div>
+            <div class="fp-actions" data-f="actions-free">
+                <a class="cu-btn cu-btn--primary" data-f="book" href="@bookBase/@first.Id">จองห้องนี้</a>
+                <a class="cu-btn" data-f="detail" href="@detailBase/@first.Id">ดูสเปกห้อง</a>
+            </div>
+            <div class="fp-actions" data-f="actions-taken" hidden>
+                <p class="fp-taken-note">ห้องนี้มีผู้เช่าแล้ว เลือกห้องอื่นบนผังได้เลย</p>
+            </div>
+        </aside>
     </div>
-</div>
 
-<!-- Modern Filter Card -->
-<div class="section-card mb-4">
-    <!-- Quick Size Filter Pills -->
-    <div class="mb-3">
-        <label class="form-label small fw-bold text-muted text-uppercase mb-2 d-block" style="letter-spacing:0.04em;">
-            ระดับขนาดห้องคลังสินค้า (Quick Size Filter)
-        </label>
-        <div class="d-flex flex-wrap gap-2">
-            <button type="button" class="btn btn-sm btn-primary px-3 size-filter-btn active" onclick="selectSizeFilter('all', this)" style="border-radius:20px; font-weight:600;">
-                ทุกขนาดห้อง
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary px-3 size-filter-btn" onclick="selectSizeFilter('s', this)" style="border-radius:20px;">
-                📦 ไซส์ S (30 - 80 ตร.ม.)
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary px-3 size-filter-btn" onclick="selectSizeFilter('m', this)" style="border-radius:20px;">
-                🏭 ไซส์ M (100 - 250 ตร.ม.)
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary px-3 size-filter-btn" onclick="selectSizeFilter('l', this)" style="border-radius:20px;">
-                🚚 ไซส์ L (300 - 500 ตร.ม.)
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary px-3 size-filter-btn" onclick="selectSizeFilter('xl', this)" style="border-radius:20px;">
-                ⚡ ไซส์ XL (600 - 1,200 ตร.ม.)
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary px-3 size-filter-btn" onclick="selectSizeFilter('cold', this)" style="border-radius:20px;">
-                ❄️ ห้องเย็น / ควบคุมอุณหภูมิ
-            </button>
-        </div>
-    </div>
-
-    <hr class="my-3 text-muted opacity-25" />
-
-    <!-- Advanced Filter Controls -->
-    <form id="filterForm" onsubmit="return false;">
-        <div class="row g-3 align-items-end">
-            <!-- Search Keyword -->
-            <div class="col-12 col-md-4">
-                <label class="form-label small fw-bold text-secondary mb-1">
-                    <span class="material-symbols-outlined align-middle" style="font-size:1rem;">search</span>
-                    ค้นหาด้วยชื่อยูนิต หรือ โซน
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><span class="material-symbols-outlined" style="font-size:1.1rem; color:#64748b;">search</span></span>
-                    <input type="text" id="filterKeyword" class="form-control border-start-0 ps-0" placeholder="พิมพ์ชื่อยูนิต เช่น M-01, โซน, หรือห้องเย็น..." onkeyup="applyFilters()" />
-                </div>
-            </div>
-
-            <!-- Size Select -->
-            <div class="col-12 col-sm-6 col-md-3">
-                <label class="form-label small fw-bold text-secondary mb-1">
-                    <span class="material-symbols-outlined align-middle" style="font-size:1rem;">square_foot</span>
-                    ขนาดพื้นที่
-                </label>
-                <select class="form-select" id="filterSizeSelect" onchange="onSelectChanged()">
-                    <option value="all">ทุกขนาดห้อง</option>
-                    <option value="s">ไซส์ S: 30 - 80 ตร.ม. (SME)</option>
-                    <option value="m">ไซส์ M: 100 - 250 ตร.ม. (วางพาเลท)</option>
-                    <option value="l">ไซส์ L: 300 - 500 ตร.ม. (มี Dock)</option>
-                    <option value="xl">ไซส์ XL: 600 - 1,200 ตร.ม. (เมกะ)</option>
-                    <option value="cold">ห้องเย็นควบคุมอุณหภูมิ</option>
-                </select>
-            </div>
-
-            <!-- Budget Range -->
-            <div class="col-12 col-sm-6 col-md-3">
-                <label class="form-label small fw-bold text-secondary mb-1">
-                    <span class="material-symbols-outlined align-middle" style="font-size:1rem;">payments</span>
-                    งบประมาณ / เดือน
-                </label>
-                <select class="form-select" id="filterPriceSelect" onchange="applyFilters()">
-                    <option value="all">ทุกช่วงราคา</option>
-                    <option value="under20k">ต่ำกว่า 20,000 บาท</option>
-                    <option value="20k-50k">20,000 - 50,000 บาท</option>
-                    <option value="50k-100k">50,000 - 100,000 บาท</option>
-                    <option value="over100k">100,000 บาทขึ้นไป</option>
-                </select>
-            </div>
-
-            <!-- Reset Filter Button -->
-            <div class="col-12 col-md-2">
-                <button type="button" class="btn btn-outline-secondary w-100 d-flex justify-content-center align-items-center gap-1"
-                        onclick="resetFilters()" style="border-radius:8px; font-weight:600; height:41px;">
-                    <span class="material-symbols-outlined" style="font-size:1.1rem;">restart_alt</span>
-                    <span>ล้างตัวกรอง</span>
-                </button>
-            </div>
-        </div>
-    </form>
-</div>
-
-<!-- Service Standard Notice Banner -->
-<div class="alert border-0 shadow-sm d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4"
-     style="background: linear-gradient(90deg, #eff6ff 0%, #f8fafc 100%); border-left: 4px solid #2563eb !important; border-radius: 12px; padding: 1rem 1.25rem;">
-    <div class="d-flex align-items-center gap-3">
-        <span class="material-symbols-outlined text-primary" style="font-size: 2.2rem;">verified</span>
-        <div>
-            <strong style="color: #1e3a8a; font-size: 0.95rem;">มาตรฐานคลังสินค้าพร้อมเข้าใช้งานทันที (Ready to Move-in)</strong>
-            <p class="mb-0 text-secondary" style="font-size: 0.85rem;">
-                ทุกห้องคลังผ่านการตรวจสอบโครงสร้าง ระบบระบายอากาศ ประตูม้วนไฟฟ้า และทำความสะอาดฆ่าเชื้อก่อนส่งมอบ
-            </p>
-        </div>
-    </div>
-    <a asp-controller="Customer" asp-action="Dashboard" class="btn btn-sm btn-outline-primary flex-shrink-0" style="border-radius: 8px; font-size: 0.82rem;">
-        มาตรฐานบริการ &rarr;
-    </a>
-</div>
-
-<!-- Room Cards Grid -->
-<div class="row g-4" id="customerRoomGrid">
-    @foreach (var room in new[] {
-        new { Id="M-01", Name="Unit M-01 (ไซส์ M - 150 ตร.ม.)", SizeCat="m", Desc="โกดังมาตรฐาน พื้นอีพ็อกซี่ รองรับน้ำหนัก 3 ตัน/ตร.ม. โฟล์กลิฟต์เข้าสะดวก เหมาะสำหรับวางพาเลทสินค้า", Size="150", Height="8 ม.", Vehicle="6 ล้อ / 10 ล้อ", Price="25,000", PriceVal=25000, OldPrice="29,000", Promo="ลด 14%", Status="ว่าง",
-              Img="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80", Rating="4.8", Reviews="12", Zone="โซน B1 (มาตรฐาน)", SizeLabel="ไซส์ M", Power="3 เฟส 380V" },
-        new { Id="L-01", Name="Unit L-01 (ไซส์ L - 500 ตร.ม.)", SizeCat="l", Desc="คลังสินค้าขนาดใหญ่ รองรับรถพ่วง 18 ล้อ พร้อม Dock Leveler เทียบตู้คอนเทนเนอร์ โหลดสินค้าได้รวดเร็ว", Size="500", Height="10 ม.", Vehicle="18 ล้อ / 40ft", Price="75,000", PriceVal=75000, OldPrice="85,000", Promo="ลด 12%", Status="ว่าง",
-              Img="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80", Rating="4.6", Reviews="8", Zone="โซน C1 (มี Dock)", SizeLabel="ไซส์ L", Power="3 เฟส 380V" },
-        new { Id="CR-05", Name="Unit CR-05 (ห้องเย็น - 200 ตร.ม.)", SizeCat="cold", Desc="ห้องเย็นควบคุมอุณหภูมิ -18 ถึง +5°C ระบบไฟสำรองคู่ พร้อมเซ็นเซอร์ IoT Real-Time ตรวจสอบผ่านมือถือ", Size="200", Height="7 ม.", Vehicle="10 ล้อตู้เย็น", Price="40,000", PriceVal=40000, OldPrice="48,000", Promo="HOT DEAL", Status="ว่าง",
-              Img="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&q=80", Rating="4.9", Reviews="21", Zone="โซน Cold Chain", SizeLabel="ห้องเย็น", Power="ไฟสำรองคู่" },
-        new { Id="L-02", Name="Unit L-02 (ไซส์ L - 350 ตร.ม.)", SizeCat="l", Desc="เพดานสูง 10 เมตร พื้นที่จัดเก็บสินค้าปลอดภัยสูง พร้อมระบบ CCTV แยกห้อง ควบคุมการเข้าออกเฉพาะบุคคล", Size="350", Height="10 ม.", Vehicle="10 ล้อ / เทรลเลอร์", Price="55,000", PriceVal=55000, OldPrice="", Promo="", Status="ไม่ว่าง",
-              Img="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80", Rating="4.5", Reviews="6", Zone="โซน C2 (สินค้าปลอดภัย)", SizeLabel="ไซส์ L", Power="3 เฟส 380V" },
-        new { Id="S-02", Name="Unit S-02 (ไซส์ S - 80 ตร.ม.)", SizeCat="s", Desc="ห้องขนาดกะทัดรัด ประตูม้วนไฟฟ้า สะดวกต่อการโหลดสินค้า เหมาะกับ SME และร้านค้าออนไลน์", Size="80", Height="6 ม.", Vehicle="4 ล้อ / กระบะ", Price="15,000", PriceVal=15000, OldPrice="18,000", Promo="ลด 16%", Status="ว่าง",
-              Img="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80", Rating="4.3", Reviews="9", Zone="โซน A2 (SME)", SizeLabel="ไซส์ S", Power="220V / 380V" },
-        new { Id="XL-01", Name="Unit XL-01 (ไซส์ XL - 1,200 ตร.ม.)", SizeCat="xl", Desc="คลังขนาดใหญ่พิเศษ เพดานสูง 12 ม. ระบบ WMS & Cloud Monitoring พร้อมออฟฟิศและห้องน้ำในตัว", Size="1,200", Height="12 ม.", Vehicle="คอนเทนเนอร์ทุกขนาด", Price="180,000", PriceVal=180000, OldPrice="210,000", Promo="FLASH DEAL", Status="ว่าง",
-              Img="https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=600&q=80", Rating="5.0", Reviews="4", Zone="โซน D1 (เมกะ)", SizeLabel="ไซส์ XL", Power="หม้อแปลงแยก" },
-        new { Id="S-01", Name="Unit S-01 (ไซส์ S - 60 ตร.ม.)", SizeCat="s", Desc="ห้องไซส์เล็ก ชั้น 1 เข้าถึงง่าย เหมาะกับเก็บเอกสารและสต็อกสินค้าพร้อมส่งประจำวัน", Size="60", Height="6 ม.", Vehicle="กระบะ / 4 ล้อ", Price="12,000", PriceVal=12000, OldPrice="", Promo="SME START", Status="ว่าง",
-              Img="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80", Rating="4.7", Reviews="10", Zone="โซน A1 (ชั้น 1)", SizeLabel="ไซส์ S", Power="220V ทั่วไป" },
-        new { Id="M-02", Name="Unit M-02 (ไซส์ M - 250 ตร.ม.)", SizeCat="m", Desc="ห้องขนาดกลาง เพดาน 8 เมตร ติดตั้ง Racking ได้ 3 ชั้น รองรับพาเลท 120 ตัว ทางเดินโฟล์คลิฟต์กว้าง", Size="250", Height="8 ม.", Vehicle="10 ล้อ", Price="38,000", PriceVal=38000, OldPrice="", Promo="", Status="ว่าง",
-              Img="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80", Rating="4.8", Reviews="5", Zone="โซน B2 (พาเลท)", SizeLabel="ไซส์ M", Power="3 เฟส 380V" }
-    })
-    {
-        <div class="col-12 col-md-6 col-xl-4 customer-room-card" data-size="@room.SizeCat" data-price="@room.PriceVal" data-status="@room.Status" data-title="@room.Name.ToLower() @room.Zone.ToLower() @room.Desc.ToLower()">
-            <div class="card h-100 d-flex flex-column">
-                <!-- Image Header -->
-                <div class="room-img-wrap">
-                    <img src="@room.Img" alt="@room.Name" />
-
-                    <!-- Status Badge -->
-                    <span class="badge-status @(room.Status == "ว่าง" ? "badge-available" : "badge-occupied")"
-                          style="position:absolute; top:12px; left:12px; z-index:2; backdrop-filter:blur(6px);">
-                        @(room.Status == "ว่าง" ? "ว่างพร้อมใช้งาน" : "มีผู้เช่าแล้ว")
-                    </span>
-
-                    @if (!string.IsNullOrEmpty(room.Promo))
-                    {
-                        <span class="badge bg-danger shadow-sm"
-                              style="position:absolute; top:12px; right:12px; z-index:2; font-weight:700; padding:0.4rem 0.65rem; border-radius:6px; font-size:0.75rem;">
-                            🔥 @room.Promo
-                        </span>
-                    }
-
-                    <!-- Bottom Overlay Badge -->
-                    <div style="position:absolute; bottom:10px; left:12px; right:12px; display:flex; justify-content:space-between; align-items:center; z-index:2;">
-                        <span class="badge bg-dark bg-opacity-75 text-white" style="backdrop-filter:blur(4px); font-size:0.75rem; border-radius:6px; padding:0.35rem 0.6rem;">
-                            <span class="material-symbols-outlined align-middle me-1" style="font-size:0.9rem;">pin_drop</span>
-                            @room.Zone
-                        </span>
-                        <span class="badge bg-primary text-white" style="font-size:0.75rem; border-radius:6px; padding:0.35rem 0.6rem;">
-                            @room.SizeLabel
-                        </span>
+    <!-- รายการห้องทั้งหมด -->
+    <section class="sr-list" aria-labelledby="sr-list-title">
+        <h2 id="sr-list-title">ห้องทั้งหมด</h2>
+        <ul class="sr-grid">
+            @foreach (var r in rooms.OrderBy(r => r.Free ? 0 : 1).ThenBy(r => r.PriceVal))
+            {
+                <li class="sr-card @(r.Free ? "" : "is-taken")">
+                    <div class="sr-card-img">
+                        <img src="@r.Img" alt="" loading="lazy" />
+                        @if (!r.Free) { <span class="sr-card-flag">มีผู้เช่าแล้ว</span> }
                     </div>
-                </div>
-
-                <!-- Card Body -->
-                <div class="card-body p-3 d-flex flex-column flex-grow-1">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h2 class="h6 fw-bold mb-0 text-dark" style="font-size:1rem;">@room.Name</h2>
-                        <div class="text-warning fw-bold d-flex align-items-center flex-shrink-0 ms-2" style="font-size:0.85rem;">
-                            ★ @room.Rating
-                            <span class="text-muted ms-1 small fw-normal">(@room.Reviews)</span>
+                    <div class="sr-card-body">
+                        <div class="sr-card-top">
+                            <h3><a href="@detailBase/@r.Id">@r.Id</a></h3>
+                            <span class="sr-rating" aria-label="คะแนน @r.Rating จาก 5">★ @r.Rating</span>
                         </div>
+                        <p class="sr-card-spec">@r.Area ตร.ม., เพดาน @r.Ceil</p>
+                        <p class="sr-card-zone">@r.Zone, @r.Note</p>
+                        <p class="sr-card-price">
+                            <strong>฿@r.Price</strong> ต่อเดือน
+                            @if (r.OldPrice != "") { <s>฿@r.OldPrice</s> }
+                        </p>
                     </div>
-
-                    <p class="text-secondary small mb-3 flex-grow-1" style="line-height:1.5;">@room.Desc</p>
-
-                    <!-- Technical Specs Pills -->
-                    <div class="row g-2 mb-3 py-2 px-1 rounded-3" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                        <div class="col-4 text-center border-end">
-                            <span class="text-muted d-block" style="font-size:0.7rem;">พื้นที่จัดเก็บ</span>
-                            <strong class="text-dark" style="font-size:0.85rem;">@room.Size ตร.ม.</strong>
-                        </div>
-                        <div class="col-4 text-center border-end">
-                            <span class="text-muted d-block" style="font-size:0.7rem;">ความสูงเพดาน</span>
-                            <strong class="text-dark" style="font-size:0.85rem;">@room.Height</strong>
-                        </div>
-                        <div class="col-4 text-center">
-                            <span class="text-muted d-block" style="font-size:0.7rem;">รองรับรถบรรทุก</span>
-                            <strong class="text-dark text-truncate d-block" style="font-size:0.82rem;" title="@room.Vehicle">@room.Vehicle</strong>
-                        </div>
-                    </div>
-
-                    <!-- Pricing & CTA -->
-                    <div class="d-flex justify-content-between align-items-end mb-3 pt-1">
-                        <div>
-                            <span class="text-muted d-block" style="font-size:0.72rem;">อัตราค่าเช่า / เดือน</span>
-                            <div class="d-flex align-items-baseline gap-1">
-                                @if (!string.IsNullOrEmpty(room.OldPrice))
-                                {
-                                    <small class="text-muted text-decoration-line-through" style="font-size:0.8rem;">฿@room.OldPrice</small>
-                                }
-                                <strong class="text-primary fs-5 fw-bold">฿@room.Price</strong>
-                            </div>
-                        </div>
-                        <span class="text-muted" style="font-size:0.72rem;">*ยังไม่รวม VAT</span>
-                    </div>
-
-                    <div class="d-flex gap-2">
-                        @if (room.Status == "ว่าง")
-                        {
-                            <a asp-controller="Customer" asp-action="BookRoom" asp-route-id="@room.Id"
-                               class="btn btn-primary flex-fill btn-sm fw-semibold d-inline-flex align-items-center justify-content-center gap-1"
-                               style="height:38px;">
-                                <span class="material-symbols-outlined" style="font-size:1.05rem;">bookmark_add</span>
-                                <span>จองทันที</span>
-                            </a>
-                        }
-                        else
-                        {
-                            <button class="btn btn-secondary flex-fill btn-sm d-inline-flex align-items-center justify-content-center gap-1"
-                                    disabled style="height:38px;">
-                                <span class="material-symbols-outlined" style="font-size:1.05rem;">lock</span>
-                                <span>เต็มแล้ว</span>
-                            </button>
-                        }
-                        <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="@room.Id"
-                           class="btn btn-outline-primary flex-fill btn-sm fw-semibold d-inline-flex align-items-center justify-content-center gap-1"
-                           style="height:38px;">
-                            <span class="material-symbols-outlined" style="font-size:1.05rem;">info</span>
-                            <span>ดูสเปกห้อง</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-</div>
-
-<!-- Empty State (Hidden by default) -->
-<div id="noResultsState" class="text-center py-5" style="display:none;">
-    <div class="rounded-circle bg-light d-inline-flex p-4 mb-3 text-muted">
-        <span class="material-symbols-outlined" style="font-size:3rem;">search_off</span>
-    </div>
-    <h3 class="h5 fw-bold text-dark mb-2">ไม่พบห้องคลังสินค้าที่ตรงกับเงื่อนไข</h3>
-    <p class="text-secondary small mb-3">ลองปรับเปลี่ยนขนาดห้อง หรือ งบประมาณการค้นหาใหม่</p>
-    <button type="button" class="btn btn-outline-primary btn-sm px-3" onclick="resetFilters()">
-        ล้างตัวกรองทั้งหมด
-    </button>
+                </li>
+            }
+        </ul>
+    </section>
 </div>
 
 @section Scripts {
 <script>
-let activeSize = 'all';
+(function () {
+    const detail = document.getElementById('fp-detail');
+    const units = document.querySelectorAll('.fp-unit');
+    const f = name => detail.querySelector('[data-f="' + name + '"]');
 
-function selectSizeFilter(size, btn) {
-    activeSize = size;
-    document.querySelectorAll('.size-filter-btn').forEach(b => {
-        b.classList.remove('btn-primary', 'active');
-        b.classList.add('btn-outline-secondary');
-    });
-    btn.classList.remove('btn-outline-secondary');
-    btn.classList.add('btn-primary', 'active');
-    document.getElementById('filterSizeSelect').value = size;
-    applyFilters();
-}
-
-function onSelectChanged() {
-    activeSize = document.getElementById('filterSizeSelect').value;
-    document.querySelectorAll('.size-filter-btn').forEach(b => {
-        b.classList.remove('btn-primary', 'active');
-        b.classList.add('btn-outline-secondary');
-        if (b.textContent.toLowerCase().includes(activeSize)) {
-            b.classList.remove('btn-outline-secondary');
-            b.classList.add('btn-primary', 'active');
-        }
-    });
-    applyFilters();
-}
-
-function resetFilters() {
-    activeSize = 'all';
-    document.getElementById('filterKeyword').value = '';
-    document.getElementById('filterSizeSelect').value = 'all';
-    document.getElementById('filterPriceSelect').value = 'all';
-    document.querySelectorAll('.size-filter-btn').forEach(b => {
-        b.classList.remove('btn-primary', 'active');
-        b.classList.add('btn-outline-secondary');
-    });
-    const allBtn = document.querySelector('.size-filter-btn');
-    if (allBtn) {
-        allBtn.classList.remove('btn-outline-secondary');
-        allBtn.classList.add('btn-primary', 'active');
-    }
-    applyFilters();
-}
-
-function applyFilters() {
-    const size = activeSize;
-    const price = document.getElementById('filterPriceSelect').value;
-    const keyword = (document.getElementById('filterKeyword').value || '').trim().toLowerCase();
-    const cards = document.querySelectorAll('.customer-room-card');
-    let visibleCount = 0;
-    let availableCount = 0;
-
-    cards.forEach(card => {
-        const itemSize = card.getAttribute('data-size');
-        const itemPrice = parseInt(card.getAttribute('data-price')) || 0;
-        const itemStatus = card.getAttribute('data-status');
-        const itemTitle = card.getAttribute('data-title') || '';
-
-        let matchSize = (size === 'all' || itemSize === size);
-        let matchKeyword = (!keyword || itemTitle.includes(keyword));
-        let matchPrice = true;
-        if (price === 'under20k') matchPrice = itemPrice < 20000;
-        else if (price === '20k-50k') matchPrice = itemPrice >= 20000 && itemPrice <= 50000;
-        else if (price === '50k-100k') matchPrice = itemPrice > 50000 && itemPrice <= 100000;
-        else if (price === 'over100k') matchPrice = itemPrice > 100000;
-
-        if (matchSize && matchPrice && matchKeyword) {
-            card.style.display = '';
-            visibleCount++;
-            if (itemStatus === 'ว่าง') availableCount++;
-        } else {
-            card.style.display = 'none';
-        }
-    });
-
-    const noResults = document.getElementById('noResultsState');
-    if (noResults) {
-        noResults.style.display = (visibleCount === 0) ? 'block' : 'none';
-    }
-    const counterEl = document.getElementById('availableCounter');
-    if (counterEl) {
-        counterEl.textContent = `ว่างพร้อมใช้งาน ${availableCount} ยูนิต`;
-    }
-}
-
-// Check URL query parameters (e.g. ?size=s or ?price=under20k)
-window.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sizeParam = urlParams.get('size');
-    const priceParam = urlParams.get('price');
-
-    if (sizeParam) {
-        const select = document.getElementById('filterSizeSelect');
-        if (select) {
-            select.value = sizeParam;
-            activeSize = sizeParam;
-        }
-        document.querySelectorAll('.size-filter-btn').forEach(b => {
-            b.classList.remove('btn-primary', 'active');
-            b.classList.add('btn-outline-secondary');
+    function select(btn) {
+        units.forEach(u => {
+            const on = u === btn;
+            u.classList.toggle('is-selected', on);
+            u.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
+        const d = btn.dataset, free = d.free === '1';
+        ['id', 'zone', 'note', 'area', 'ceil', 'truck', 'power', 'price'].forEach(k => f(k).textContent = d[k]);
+        const status = f('status');
+        status.textContent = free ? (d.kind === 'cold' ? 'ว่าง ห้องเย็น' : 'ว่าง พร้อมส่งมอบ') : 'มีผู้เช่าแล้ว';
+        status.classList.toggle('is-taken', !free);
+        detail.classList.toggle('is-taken', !free);
+        f('actions-free').hidden = !free;
+        f('actions-taken').hidden = free;
+        f('book').href = detail.dataset.bookBase + '/' + d.id;
+        f('detail').href = detail.dataset.detailBase + '/' + d.id;
     }
+    units.forEach(u => u.addEventListener('click', () => select(u)));
 
-    if (priceParam) {
-        const priceSelect = document.getElementById('filterPriceSelect');
-        if (priceSelect) priceSelect.value = priceParam;
+    // มาจากฟอร์มค้นหาหน้าหลัก (?size=s): เลือกห้องว่างห้องแรกของขนาดนั้นให้เลย
+    const size = new URLSearchParams(location.search).get('size');
+    if (size && size !== 'all') {
+        const match = document.querySelector('.fp-unit[data-kind="' + size + '"][data-free="1"]');
+        if (match) select(match);
     }
-
-    applyFilters();
-});
+})();
 </script>
 }

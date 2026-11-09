@@ -1,0 +1,96 @@
+/* =========================================================
+   หน้ารายละเอียดห้อง (Customer/RoomDetail)
+   ใช้ตัวแปรสีจาก customer-ui.css
+   ========================================================= */
+.rd { max-width: 1240px; }
+
+.rd-title { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; }
+.rd-head p { max-width: 46rem; }
+
+.rd-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 21rem;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.rd-photo {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 8;
+    object-fit: cover;
+    border-radius: 6px;
+    background: var(--cu-concrete);
+}
+.rd-photo.is-taken { filter: grayscale(1); opacity: 0.7; }
+
+.rd-section { margin-top: 2rem; }
+
+/* สเปก */
+.rd-spec {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    border-top: 1px solid var(--cu-line);
+}
+.rd-spec div { padding: 0.7rem 0.9rem 0.7rem 0; border-bottom: 1px solid var(--cu-line); }
+.rd-spec dt { font-weight: 400; font-size: 0.8rem; color: var(--cu-muted); }
+.rd-spec dd { margin: 0; font-weight: 600; }
+.rd-included { margin: 0.9rem 0 0; color: var(--cu-muted); font-size: 0.92rem; max-width: 46rem; }
+
+/* รีวิว */
+.rd-reviews-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+.rd-score { margin: 0 0 0.75rem; color: var(--cu-muted); }
+.rd-score strong { color: #8a6200; font-size: 1.1rem; }
+.rd-review-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--cu-line); }
+.rd-review-list li { padding: 0.85rem 0; border-bottom: 1px solid var(--cu-line); }
+.rd-review-list li.is-new { background: #f3f8f4; padding-left: 0.75rem; padding-right: 0.75rem; }
+.rd-review-top { display: flex; justify-content: space-between; gap: 1rem; }
+.rd-stars { color: #c48a00; letter-spacing: 0.05em; white-space: nowrap; }
+.rd-review-list p { margin: 0.25rem 0; max-width: 46rem; }
+.rd-date { font-size: 0.8rem; color: var(--cu-muted); }
+
+.rd-write { margin-top: 1rem; }
+.rd-write summary { list-style: none; display: inline-flex; flex: 0 0 auto; }
+.rd-write summary::-webkit-details-marker { display: none; }
+.rd-write[open] summary { display: none; }
+.rd-write form { max-width: 36rem; padding: 1rem; border: 1px solid var(--cu-line); border-radius: 6px; background: #fff; }
+.rd-write .cu-btn { flex: 0 0 auto; }
+
+/* เลือกดาว: เรียง 5 ไป 1 ใน HTML แล้วกลับด้านด้วย row-reverse เพื่อให้ hover ระบายดาวทางซ้ายได้ */
+.rd-star-input { border: 0; margin: 0 0 0.9rem; padding: 0; display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; }
+.rd-star-input legend { float: left; width: 100%; font-size: 0.85rem; color: var(--cu-muted); margin-bottom: 0.15rem; }
+.rd-star-input input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.rd-star-input label { font-size: 2rem; line-height: 1; color: #cfd4d1; cursor: pointer; padding: 0 0.1rem; }
+.rd-star-input input:checked ~ label,
+.rd-star-input label:hover,
+.rd-star-input label:hover ~ label { color: #e0a100; }
+.rd-star-input input:focus-visible + label { outline: 3px solid var(--cu-blue); outline-offset: 2px; }
+
+/* กล่องจอง */
+.rd-book {
+    position: sticky;
+    top: 84px;
+    background: #fff;
+    border: 1px solid var(--cu-line);
+    border-top: 6px solid var(--cu-orange);
+    border-radius: 6px;
+    padding: 1.25rem;
+}
+.rd-price { margin: 0 0 1rem; color: var(--cu-muted); }
+.rd-price strong { font-family: var(--cu-display); font-size: 2rem; color: var(--cu-text); font-variant-numeric: tabular-nums; }
+
+.rd-calc { margin: 0 0 1rem; padding-top: 0.75rem; border-top: 1px solid var(--cu-line); }
+.rd-calc div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.2rem 0; font-size: 0.92rem; }
+.rd-calc dt { font-weight: 400; color: var(--cu-muted); }
+.rd-calc dd { margin: 0; font-variant-numeric: tabular-nums; }
+.rd-calc .rd-total { margin-top: 0.4rem; padding-top: 0.6rem; border-top: 1px solid var(--cu-line); font-size: 1rem; }
+.rd-calc .rd-total dt { color: var(--cu-text); font-weight: 600; }
+.rd-calc .rd-total dd { font-family: var(--cu-display); font-weight: 700; font-size: 1.3rem; }
+.rd-cta { width: 100%; }
+.rd-taken-note { color: var(--cu-muted); margin: 0 0 1rem; }
+
+@media (max-width: 1000px) {
+    .rd-layout { grid-template-columns: 1fr; }
+    .rd-book { position: static; grid-row: 1; }
+}

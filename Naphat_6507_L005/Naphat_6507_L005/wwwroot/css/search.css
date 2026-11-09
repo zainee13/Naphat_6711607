@@ -1,0 +1,173 @@
+/* =========================================================
+   หน้าค้นหาห้อง (Customer/Search): ผังคลังและแผงรายละเอียด
+   สีอิงชั้นวางพาเลท: เสาสีน้ำเงิน คานสีส้ม พื้นคอนกรีต
+   ========================================================= */
+
+.fp-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 0.5rem 1.5rem; margin-bottom: 0.9rem; }
+.fp-head h2 { font-family: var(--cu-display); font-weight: 700; color: var(--cu-blue); font-size: 1.4rem; margin: 0; }
+.fp-head p { margin: 0.15rem 0 0; color: var(--cu-muted); font-size: 0.92rem; }
+
+.fp-board {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.fp-plan-wrap {
+    background: var(--cu-concrete);
+    border-radius: 6px;
+    padding: 14px;
+    border: 2px solid var(--cu-blue);
+}
+
+.fp-plan {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: repeat(5, minmax(42px, 1fr)) minmax(50px, auto) 40px;
+    gap: 6px;
+    aspect-ratio: 12 / 6.6;
+}
+
+.fp-unit {
+    --tone: var(--cu-orange);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    text-align: left;
+    padding: 0.5rem 0.65rem;
+    border: 0;
+    border-top: 6px solid var(--tone);
+    border-radius: 3px;
+    background: var(--cu-slab);
+    color: var(--cu-blue);
+    cursor: pointer;
+    font: inherit;
+    transition: box-shadow .15s ease, background-color .15s ease, color .15s ease, opacity .2s ease;
+    min-width: 0;
+    overflow: hidden;
+}
+.fp-unit:hover { background: #fff3ec; }
+.fp-unit--cold { --tone: var(--cu-cold); }
+.fp-unit--cold:hover { background: #edf5fa; }
+.fp-unit.is-taken {
+    --tone: var(--cu-taken);
+    background: repeating-linear-gradient(-45deg, #d3d7d4 0 6px, #dcdfdd 6px 12px);
+    color: #56606a;
+}
+.fp-unit.is-selected { background: var(--tone); color: #fff; box-shadow: 0 0 0 3px var(--cu-concrete), 0 0 0 6px var(--cu-blue); z-index: 1; }
+.fp-unit.is-taken.is-selected { background: var(--cu-taken); color: #1d2733; }
+.fp-unit:focus-visible { outline: 3px solid var(--cu-blue); outline-offset: 3px; z-index: 2; }
+
+.fp-unit-code { font-family: var(--cu-display); font-weight: 700; font-size: clamp(0.85rem, 1.5vw, 1.3rem); line-height: 1; }
+.fp-unit--xl .fp-unit-code { font-size: clamp(1.4rem, 3vw, 2.4rem); }
+.fp-unit-area { font-size: 0.75rem; opacity: 0.92; white-space: nowrap; }
+
+.fp-fixed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 1.5px dashed var(--cu-blue-2);
+    border-radius: 3px;
+    color: var(--cu-blue-2);
+    font-size: 0.78rem;
+    padding: 0.25rem;
+}
+.fp-fixed--gate { border-style: solid; border-width: 0 0 0 4px; border-color: var(--cu-orange); justify-content: flex-start; padding-left: 0.75rem; }
+
+.fp-dock {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cu-blue);
+    color: #dfe7f0;
+    font-size: 0.8rem;
+    border-radius: 3px;
+    background-image: repeating-linear-gradient(90deg, transparent 0 calc(100% / 8 - 2px), rgba(255,255,255,.35) calc(100% / 8 - 2px) calc(100% / 8));
+}
+.fp-dock span { background: var(--cu-blue); padding: 0 0.6rem; }
+
+.fp-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem; list-style: none; margin: 0.75rem 0 0; padding: 0; font-size: 0.85rem; color: var(--cu-muted); }
+.fp-legend li { display: flex; align-items: center; gap: 0.4rem; }
+.fp-sw { width: 14px; height: 14px; border-radius: 2px; display: inline-block; background: #fff; border-top: 4px solid var(--cu-orange); }
+.fp-sw--cold { border-top-color: var(--cu-cold); }
+.fp-sw--taken { border-top-color: var(--cu-taken); background: repeating-linear-gradient(-45deg, #d3d7d4 0 3px, #dcdfdd 3px 6px); }
+
+/* ---------- Detail panel ---------- */
+.fp-detail {
+    background: var(--cu-slab);
+    border: 1px solid var(--cu-line);
+    border-top: 6px solid var(--cu-orange);
+    border-radius: 6px;
+    padding: 1.25rem;
+    position: sticky;
+    top: 84px;
+}
+.fp-detail.is-taken { border-top-color: var(--cu-taken); }
+.fp-detail-head { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; }
+.fp-detail-code { font-family: var(--cu-display); font-weight: 700; font-size: 2.5rem; line-height: 1; color: var(--cu-blue); }
+.fp-detail-zone { color: var(--cu-muted); font-size: 0.9rem; margin: 0.6rem 0 1rem; }
+
+.fp-spec { margin: 0 0 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1rem; }
+.fp-spec dt { font-weight: 400; font-size: 0.8rem; color: var(--cu-muted); }
+.fp-spec dd { margin: 0; font-weight: 600; font-size: 0.95rem; }
+
+.fp-price { display: flex; align-items: baseline; gap: 0.4rem; padding: 0.85rem 0; border-top: 1px solid var(--cu-line); color: var(--cu-muted); font-size: 0.85rem; }
+.fp-price strong { font-family: var(--cu-display); font-size: 1.75rem; color: var(--cu-text); font-variant-numeric: tabular-nums; }
+
+.fp-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.fp-actions[hidden] { display: none; }
+.fp-taken-note { font-size: 0.88rem; color: var(--cu-muted); margin: 0 0 0.25rem; }
+
+@media (max-width: 1100px) {
+    .fp-board { grid-template-columns: 1fr; }
+    .fp-detail { position: static; }
+}
+
+@media (max-width: 720px) {
+    .fp-plan-wrap { padding: 8px; }
+    .fp-plan { gap: 4px; aspect-ratio: 12 / 10; grid-template-rows: repeat(5, minmax(34px, 1fr)) minmax(44px, auto) 34px; }
+    .fp-unit { padding: 0.3rem 0.35rem; }
+    .fp-unit-area { display: none; }
+    .fp-unit--xl .fp-unit-area { display: block; }
+    .fp-fixed { font-size: 0.65rem; }
+    .fp-dock { font-size: 0.68rem; }
+}
+
+.sr { max-width: 1240px; }
+
+/* ---------- รายการห้องทั้งหมด (ใต้ผัง) ---------- */
+.sr-list { margin-top: 2.5rem; }
+.sr-list h2 { font-family: var(--cu-display); font-weight: 700; color: var(--cu-blue); font-size: 1.4rem; margin: 0 0 0.9rem; }
+.sr-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 1rem; }
+.sr-card {
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--cu-line);
+    border-top: 5px solid var(--cu-orange);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color .15s ease;
+}
+.sr-card:hover { border-color: var(--cu-blue-2); border-top-color: var(--cu-orange); }
+.sr-card.is-taken,
+.sr-card.is-taken:hover { border-top-color: var(--cu-taken); }
+.sr-card:focus-within { outline: 3px solid var(--cu-blue); outline-offset: 2px; }
+.sr-card-img { position: relative; aspect-ratio: 16 / 9; background: var(--cu-concrete); }
+.sr-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sr-card.is-taken .sr-card-img img { filter: grayscale(1); opacity: 0.6; }
+.sr-card-flag { position: absolute; left: 0.6rem; top: 0.6rem; background: #fff; color: #3d464f; font-size: 0.78rem; font-weight: 600; padding: 0.15rem 0.55rem; border-radius: 3px; }
+.sr-card-body { padding: 0.8rem 0.95rem 0.95rem; }
+.sr-card-top { display: flex; justify-content: space-between; align-items: baseline; }
+.sr-card h3 { font-family: var(--cu-display); font-weight: 700; font-size: 1.4rem; margin: 0; line-height: 1.1; }
+.sr-card h3 a { color: var(--cu-blue); text-decoration: none; }
+.sr-card h3 a::after { content: ""; position: absolute; inset: 0; } /* ทั้งการ์ดกดได้ */
+.sr-card h3 a:focus-visible { outline: none; }
+.sr-rating { font-size: 0.85rem; color: #8a6200; font-weight: 600; }
+.sr-card-spec { margin: 0.35rem 0 0; font-weight: 600; font-size: 0.95rem; }
+.sr-card-zone { margin: 0.1rem 0 0.6rem; color: var(--cu-muted); font-size: 0.85rem; line-height: 1.45; }
+.sr-card-price { margin: 0; color: var(--cu-muted); font-size: 0.85rem; display: flex; align-items: baseline; gap: 0.35rem; flex-wrap: wrap; }
+.sr-card-price strong { font-family: var(--cu-display); font-size: 1.25rem; color: var(--cu-text); }
+.sr-card-price s { color: #8b949c; }
