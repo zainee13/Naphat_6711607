@@ -9,4 +9,5 @@ public class PaymentHistoryViewModel
     public string Detail { get; set; }
     public bool IsRefund { get; set; }
     public string? ReceiptId { get; set; }   // มีใบเสร็จแล้ว ลูกค้ากดดูได้
+    public DateTime Date { get; set; }       // ใช้เรียงรายการ (ชำระ + คืนเงิน)
 }

@@ -1,0 +1,103 @@
+@model List<Naphat_6507_L005.ViewModels.RefundBookingViewModel>
+@{
+    ViewData["Title"] = "การคืนเงิน";
+    Layout = "_Layout";
+
+    var history = ViewBag.History as List<Naphat_6507_L005.ViewModels.RefundHistoryViewModel> ?? new();
+}
+
+<div class="page-header">
+    <div>
+        <h1><span class="material-symbols-outlined align-middle me-2" style="color:#10b981;">currency_exchange</span>การคืนเงิน</h1>
+        <p>คืนเงินประกันเมื่อสิ้นสุดสัญญา การจองจะสิ้นสุดและห้องกลับมาว่าง</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" role="status">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+}
+
+<!-- การจองที่คืนเงินประกันได้ -->
+<div class="section-card mb-4">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#10b981;">event_available</span> การจองที่ใช้งานอยู่</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom w-100">
+            <thead>
+                <tr><th>การจอง / ห้อง</th><th>ลูกค้า</th><th>สัญญา</th><th>สิ้นสุด</th><th class="text-end">เงินประกัน</th><th>ดำเนินการ</th></tr>
+            </thead>
+            <tbody>
+                @if (Model.Count > 0)
+                {
+                    foreach (var b in Model)
+                    {
+                        <tr style="font-size:0.85rem;">
+                            <td>@b.BookingId<br /><span style="color:#6c757d; font-size:0.78rem;">ห้อง @b.RoomId, @b.Zone</span></td>
+                            <td>@b.CustomerName</td>
+                            <td style="font-size:0.8rem;">@b.Period</td>
+                            <td>
+                                @b.EndDateText
+                                @if (b.IsEnded)
+                                {
+                                    <span class="badge" style="background:#ecfdf5; color:#065f46;">ครบสัญญาแล้ว</span>
+                                }
+                            </td>
+                            <td class="text-end fw-semibold">฿@b.Deposit.ToString("N0")</td>
+                            <td>
+                                <a class="btn btn-sm" style="background:#ecfdf5; color:#065f46; border:none; border-radius:6px; font-size:0.78rem;"
+                                   asp-controller="Accounting" asp-action="RefundDeposit" asp-route-id="@b.BookingId">
+                                    <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">payments</span> คืนเงินประกัน
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6" style="text-align:center; color:#9ca3af; padding:2rem;">ไม่มีการจองที่ใช้งานอยู่</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ประวัติการคืนเงิน -->
+<div class="section-card">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#10b981;">history</span> ประวัติการคืนเงิน</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom w-100">
+            <thead>
+                <tr><th>เลขที่</th><th>การจอง / ห้อง</th><th>ลูกค้า</th><th class="text-end">ยอดคืน</th><th>เหตุผล</th><th>วิธีคืน</th><th>วันที่ / ผู้ทำ</th></tr>
+            </thead>
+            <tbody>
+                @if (history.Count > 0)
+                {
+                    foreach (var h in history)
+                    {
+                        <tr style="font-size:0.85rem;">
+                            <td class="fw-semibold" style="color:#10b981;">@h.RefundId</td>
+                            <td>@h.BookingId<br /><span style="color:#6c757d; font-size:0.78rem;">ห้อง @h.RoomId</span></td>
+                            <td>@h.CustomerName</td>
+                            <td class="text-end fw-semibold">฿@h.Amount.ToString("N0")</td>
+                            <td style="font-size:0.8rem;">@(h.Reason ?? "-")</td>
+                            <td style="font-size:0.8rem;">@(h.Method ?? "-")</td>
+                            <td style="font-size:0.78rem; color:#6c757d;">@h.DateText<br />@h.StaffName</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:2rem;">ยังไม่มีการคืนเงิน</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,94 @@
+@model Naphat_6507_L005.ViewModels.RefundFormViewModel
+@{
+    ViewData["Title"] = "คืนเงินประกัน " + Model.BookingId;
+    Layout = "_Layout";
+
+    var booking = (Naphat_6507_L005.ViewModels.RefundBookingViewModel)ViewBag.Booking;
+}
+
+<div class="page-header mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <a asp-controller="Accounting" asp-action="Refunds" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
+            <span class="material-symbols-outlined align-middle" style="font-size:1rem;">arrow_back</span> ย้อนกลับ
+        </a>
+        <h1 class="h3 mb-0">
+            <span class="material-symbols-outlined align-middle me-2" style="color:#10b981;">payments</span>
+            คืนเงินประกัน @booking.BookingId
+        </h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="section-card p-4">
+
+            <dl class="row mb-3" style="font-size:0.9rem;">
+                <dt class="col-5">ลูกค้า</dt><dd class="col-7">@booking.CustomerName</dd>
+                <dt class="col-5">ห้อง</dt><dd class="col-7">@booking.RoomId, @booking.Zone</dd>
+                <dt class="col-5">สัญญา</dt><dd class="col-7">@booking.Period</dd>
+                <dt class="col-5">เงินประกัน</dt><dd class="col-7 fw-bold">฿@booking.Deposit.ToString("N0")</dd>
+            </dl>
+
+            @if (!booking.IsEnded)
+            {
+                <div class="alert alert-warning">
+                    ยังไม่ครบสัญญา (สิ้นสุด @booking.EndDateText) ถ้าคืนเงินตอนนี้ การจองจะสิ้นสุดทันทีและห้องจะกลับมาว่าง
+                </div>
+            }
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
+            }
+
+            <form asp-controller="Accounting" asp-action="RefundDeposit" method="post"
+                  onsubmit="return confirm('ยืนยันคืนเงินประกันและปิดการจอง @booking.BookingId ?');">
+                <input type="hidden" asp-for="BookingId" />
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="Deduction">หักค่าเสียหาย (บาท)</label>
+                    <input type="number" class="form-control" asp-for="Deduction" min="0" max="@booking.Deposit" step="1" />
+                    <small class="text-muted" style="font-size:0.75rem;">ใส่ 0 ถ้าคืนเต็มจำนวน</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="DeductionReason">เหตุผลที่หัก (ถ้ามี)</label>
+                    <input type="text" class="form-control" asp-for="DeductionReason" maxlength="150" placeholder="เช่น ซ่อมพื้นห้อง" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="Method">วิธีคืนเงิน</label>
+                    <select class="form-select" asp-for="Method">
+                        @foreach (var m in Naphat_6507_L005.Controllers.AccountingController.RefundMethods)
+                        {
+                            <option value="@m">@m</option>
+                        }
+                    </select>
+                </div>
+
+                <p class="mb-3" style="font-size:0.95rem;">
+                    ยอดคืน <strong id="refundTotal">฿@((booking.Deposit - Model.Deduction).ToString("N0"))</strong>
+                </p>
+
+                <div class="d-flex gap-2 pt-2 border-top">
+                    <button type="submit" class="btn flex-fill" style="background:#10b981; color:#fff; border:none; border-radius:10px; padding:0.6rem; font-weight:600;">
+                        <span class="material-symbols-outlined align-middle me-1" style="font-size:1.1rem;">task_alt</span> บันทึกการคืนเงิน
+                    </button>
+                    <a asp-controller="Accounting" asp-action="Refunds" class="btn btn-outline-secondary" style="border-radius:10px; padding:0.6rem 1.25rem;">ยกเลิก</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // แสดงยอดคืนให้ดูก่อนกดบันทึก (ยอดจริงคิดที่ AccountingController.RefundDeposit)
+    const deposit = @booking.Deposit;
+    const deductionInput = document.getElementById('Deduction');
+    deductionInput.addEventListener('input', function () {
+        const deduction = parseFloat(deductionInput.value) || 0;
+        document.getElementById('refundTotal').textContent = '฿' + Math.max(deposit - deduction, 0).toLocaleString('th-TH');
+    });
+</script>
+}

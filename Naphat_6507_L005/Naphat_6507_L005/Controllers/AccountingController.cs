@@ -398,4 +398,261 @@ public class AccountingController : Controller
 
     // ข้อความนำหน้าเหตุผลที่ปฏิเสธใน booking.Note (CustomerController ใช้หาเหตุผลมาแสดง)
     public const string RejectNotePrefix = "[ปฏิเสธการชำระ ";
+
+    // ===================== สรุปรายรับ =====================
+
+    // รายรับรายวันในช่วงวันที่ (ค่าเริ่มต้น: วันที่ 1 ของเดือนนี้ ถึงวันนี้)
+    // รายรับ = การชำระที่อนุมัติแล้ว นับตามวันที่อนุมัติ / คืนเงิน = ตาราง refund ตามวันที่คืน
+    public IActionResult DailySummary(DateTime? from, DateTime? to)
+    {
+        if (!IsAccounting)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        SetUserBag();
+
+        var start = (from ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1)).Date;
+        var end = (to ?? DateTime.Today).Date;
+        if (end < start)
+        {
+            TempData["Error"] = "วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่ม";
+            end = start;
+        }
+        var endExclusive = end.AddDays(1);
+        ViewBag.From = start.ToString("yyyy-MM-dd");
+        ViewBag.To = end.ToString("yyyy-MM-dd");
+        ViewBag.RangeText = start.ToString("d MMM yyyy", _th) + " – " + end.ToString("d MMM yyyy", _th);
+
+        // การชำระที่อนุมัติในช่วง + ยอดค่าเช่าจากใบแจ้งหนี้ (ถ้ายังไม่มีใบแจ้งหนี้ ใช้ยอดชำระ − เงินประกัน)
+        var payments = (from p in _db.Payments
+                        join b in _db.Bookings on p.BookingId equals b.BookingId
+                        where p.PaymentStatus == "Approved" && p.VerifiedAt >= start && p.VerifiedAt < endExclusive
+                        select new
+                        {
+                            Date = p.VerifiedAt!.Value,
+                            p.Amount,
+                            b.Deposit,
+                            InvoiceRent = (from i in _db.Invoices where i.BookingId == b.BookingId select (decimal?)i.RentAmount).FirstOrDefault()
+                        }).ToList();
+
+        var refunds = (from rf in _db.Refunds
+                       where rf.RefundStatus == "Completed" && rf.RefundDate >= start && rf.RefundDate < endExclusive
+                       select new { Date = rf.RefundDate!.Value, rf.RefundAmount }).ToList();
+
+        // รวมเป็นรายวัน
+        Dictionary<DateTime, DailySummaryRowViewModel> days = new();
+        DailySummaryRowViewModel GetDay(DateTime d)
+        {
+            if (!days.ContainsKey(d.Date))
+            {
+                DailySummaryRowViewModel row = new();
+                row.Date = d.Date;
+                row.DateText = d.ToString("ddd d MMM yyyy", _th);
+                days[d.Date] = row;
+            }
+            return days[d.Date];
+        }
+
+        foreach (var p in payments)
+        {
+            var rent = p.InvoiceRent ?? Math.Max(p.Amount - p.Deposit, 0);
+            var day = GetDay(p.Date);
+            day.Count++;
+            day.Rent += rent;
+            day.Deposit += p.Amount - rent;
+        }
+        foreach (var rf in refunds)
+        {
+            GetDay(rf.Date).Refund += rf.RefundAmount;
+        }
+
+        var list = days.Values.OrderByDescending(d => d.Date).ToList();
+        ViewBag.TotalRent = list.Sum(d => d.Rent);
+        ViewBag.TotalDeposit = list.Sum(d => d.Deposit);
+        ViewBag.TotalRefund = list.Sum(d => d.Refund);
+        ViewBag.TotalNet = list.Sum(d => d.Net);
+        ViewBag.TotalCount = list.Sum(d => d.Count);
+        return View(list);
+    }
+
+    // ===================== การคืนเงิน =====================
+
+    // วิธีคืนเงินที่ให้เลือก
+    public static readonly List<string> RefundMethods = new() { "โอนเข้าบัญชีเดิม", "โอนบัญชีอื่น", "เงินสด" };
+
+    // การจองที่ใช้งานอยู่ (คืนเงินประกันได้) + ข้อมูลที่ใช้แสดง
+    private List<RefundBookingViewModel> GetActiveBookings(string? bookingId)
+    {
+        var rows = (from b in _db.Bookings
+                    join r in _db.Rooms on b.RoomId equals r.RoomId
+                    join u in _db.Users on b.UserId equals u.UserId
+                    where b.BookingStatus == "Active" && (bookingId == null || b.BookingId == bookingId)
+                    orderby b.EndDate
+                    select new { b, r, u }).ToList();
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        List<RefundBookingViewModel> list = new();
+        foreach (var row in rows)
+        {
+            RefundBookingViewModel item = new();
+            item.BookingId = row.b.BookingId;
+            item.RoomId = row.r.RoomId;
+            item.Zone = row.r.Zone ?? "";
+            item.CustomerName = string.IsNullOrEmpty(row.u.CompanyName) ? row.u.Fullname : row.u.CompanyName;
+            item.Period = row.b.StartDate.ToString("d MMM yyyy", _th) + " – " + row.b.EndDate.ToString("d MMM yyyy", _th);
+            item.EndDateText = row.b.EndDate.ToString("d MMM yyyy", _th);
+            item.IsEnded = row.b.EndDate < today;
+            item.Deposit = row.b.Deposit;
+            list.Add(item);
+        }
+        return list;
+    }
+
+    // หน้ารวม: การจองที่คืนเงินประกันได้ + ประวัติการคืนเงิน
+    public IActionResult Refunds()
+    {
+        if (!IsAccounting)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        SetUserBag();
+
+        var history = (from rf in _db.Refunds
+                       join p in _db.Payments on rf.PaymentId equals p.PaymentId
+                       join b in _db.Bookings on p.BookingId equals b.BookingId
+                       join u in _db.Users on b.UserId equals u.UserId
+                       join s in _db.Users on rf.ProcessedBy equals s.UserId
+                       orderby rf.RefundDate descending
+                       select new { rf, b, u, s }).ToList();
+
+        List<RefundHistoryViewModel> list = new();
+        foreach (var row in history)
+        {
+            RefundHistoryViewModel item = new();
+            item.RefundId = row.rf.RefundId;
+            item.BookingId = row.b.BookingId;
+            item.RoomId = row.b.RoomId;
+            item.CustomerName = string.IsNullOrEmpty(row.u.CompanyName) ? row.u.Fullname : row.u.CompanyName;
+            item.Amount = row.rf.RefundAmount;
+            item.Reason = row.rf.RefundReason;
+            item.Method = row.rf.RefundMethod;
+            item.DateText = row.rf.RefundDate?.ToString("d MMM yyyy", _th) ?? "-";
+            item.StaffName = row.s.Fullname;
+            list.Add(item);
+        }
+        ViewBag.History = list;
+
+        return View(GetActiveBookings(null));
+    }
+
+    // หน้าคืนเงินประกัน (GET)
+    [HttpGet]
+    public IActionResult RefundDeposit(string id)
+    {
+        if (!IsAccounting)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        SetUserBag();
+
+        var booking = GetActiveBookings(id).FirstOrDefault();
+        if (booking == null)
+        {
+            TempData["Error"] = "คืนเงินประกันได้เฉพาะการจองที่ใช้งานอยู่";
+            return RedirectToAction("Refunds");
+        }
+        ViewBag.Booking = booking;
+
+        RefundFormViewModel data = new();
+        data.BookingId = booking.BookingId;
+        data.Method = RefundMethods[0];
+        return View(data);
+    }
+
+    // บันทึกการคืนเงินประกัน (POST): ลงตาราง refund, การจองสิ้นสุดสัญญา, ห้องกลับมาว่าง
+    [HttpPost]
+    public IActionResult RefundDeposit(RefundFormViewModel data)
+    {
+        if (!IsAccounting)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        SetUserBag();
+
+        var info = GetActiveBookings(data.BookingId).FirstOrDefault();
+        if (info == null)
+        {
+            TempData["Error"] = "คืนเงินประกันได้เฉพาะการจองที่ใช้งานอยู่";
+            return RedirectToAction("Refunds");
+        }
+        ViewBag.Booking = info;
+
+        var staff = GetCurrentStaff();
+        if (staff == null)
+        {
+            ViewBag.Error = "บัญชีนี้ไม่มีในตาราง user กรุณาเข้าสู่ระบบด้วยบัญชีพนักงานบัญชีในฐานข้อมูล (เช่น acc01)";
+            return View(data);
+        }
+
+        if (data.Deduction < 0 || data.Deduction > info.Deposit)
+        {
+            ViewBag.Error = "ยอดหักต้องอยู่ระหว่าง 0 ถึง ฿" + info.Deposit.ToString("N0");
+            return View(data);
+        }
+
+        if (data.Deduction > 0 && string.IsNullOrWhiteSpace(data.DeductionReason))
+        {
+            ViewBag.Error = "กรุณาใส่เหตุผลที่หักเงินประกัน";
+            return View(data);
+        }
+
+        if (!RefundMethods.Contains(data.Method))
+        {
+            ViewBag.Error = "กรุณาเลือกวิธีคืนเงิน";
+            return View(data);
+        }
+
+        // การชำระที่อนุมัติล่าสุดของการจองนี้ (ตาราง refund ผูกกับ PaymentId)
+        var payment = (from p in _db.Payments
+                       where p.BookingId == data.BookingId && p.PaymentStatus == "Approved"
+                       orderby p.VerifiedAt descending
+                       select p).FirstOrDefault();
+        if (payment == null)
+        {
+            ViewBag.Error = "การจองนี้ยังไม่มีการชำระที่อนุมัติ จึงคืนเงินประกันไม่ได้";
+            return View(data);
+        }
+
+        var reason = "คืนเงินประกันสิ้นสุดสัญญา";
+        if (data.Deduction > 0)
+        {
+            reason += ", หัก ฿" + data.Deduction.ToString("N0") + " " + data.DeductionReason!.Trim();
+        }
+        if (reason.Length > 255)
+        {
+            reason = reason.Substring(0, 255);
+        }
+
+        Refund refund = new();
+        refund.RefundId = NewDocumentId("REF-" + DateTime.Now.Year + "-", (from rf in _db.Refunds select rf.RefundId).ToList());
+        refund.PaymentId = payment.PaymentId;
+        refund.RefundAmount = info.Deposit - data.Deduction;
+        refund.RefundReason = reason;
+        refund.RefundMethod = data.Method;
+        refund.RefundStatus = "Completed";
+        refund.RefundDate = DateTime.Now;
+        refund.ProcessedBy = staff.UserId;
+        _db.Refunds.Add(refund);
+
+        // การจองสิ้นสุดสัญญา / ห้องกลับมาว่างให้จองต่อได้
+        var booking = (from b in _db.Bookings where b.BookingId == data.BookingId select b).First();
+        var room = (from r in _db.Rooms where r.RoomId == booking.RoomId select r).First();
+        booking.BookingStatus = "Ended";
+        room.Status = "Available";
+        _db.SaveChanges();
+
+        TempData["Success"] = "คืนเงินประกัน " + refund.RefundId + " ฿" + refund.RefundAmount.ToString("N0")
+                              + " แล้ว การจอง " + booking.BookingId + " สิ้นสุดสัญญา ห้อง " + room.RoomId + " กลับมาว่าง";
+        return RedirectToAction("Refunds");
+    }
 }

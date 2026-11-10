@@ -500,8 +500,28 @@ public class CustomerController : Controller
                                  : row.p.PaymentStatus == "Approved" ? " (อนุมัติแล้ว)"
                                  : row.p.PaymentStatus == "Rejected" ? " (ถูกปฏิเสธ)" : "");
                 item.ReceiptId = row.ReceiptId;
+                item.Date = row.p.PaymentDate ?? DateTime.MinValue;
                 payments.Add(item);
             }
+
+            // การคืนเงินจากตาราง refund (แสดงเป็นยอดติดลบ)
+            var refundRows = (from rf in _db.Refunds
+                              join p in _db.Payments on rf.PaymentId equals p.PaymentId
+                              join b in _db.Bookings on p.BookingId equals b.BookingId
+                              where b.UserId == user.UserId && rf.RefundStatus == "Completed"
+                              select new { rf, b }).ToList();
+            foreach (var row in refundRows)
+            {
+                PaymentHistoryViewModel item = new();
+                item.No = row.rf.RefundId;
+                item.Title = "คืนเงินประกัน " + row.b.RoomId;
+                item.Amount = (int)row.rf.RefundAmount;
+                item.Detail = (row.rf.RefundDate?.ToString("d MMM yyyy", _th) ?? "-") + ", " + (row.rf.RefundMethod ?? "-");
+                item.IsRefund = true;
+                item.Date = row.rf.RefundDate ?? DateTime.MinValue;
+                payments.Add(item);
+            }
+            payments = payments.OrderByDescending(x => x.Date).ToList();
         }
         ViewBag.Payments = payments;
 
