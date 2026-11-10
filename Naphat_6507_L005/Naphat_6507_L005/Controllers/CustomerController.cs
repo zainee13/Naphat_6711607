@@ -43,7 +43,7 @@ public class CustomerController : Controller
     };
 
     // ชื่อวิธีชำระเงินที่แสดงในประวัติ
-    private static readonly Dictionary<string, string> _payMethodText = new()
+    public static readonly Dictionary<string, string> _payMethodText = new()
     {
         { "transfer", "โอนผ่าน SCB" },
         { "qr", "พร้อมเพย์ QR" },
@@ -482,7 +482,12 @@ public class CustomerController : Controller
                         join b in _db.Bookings on p.BookingId equals b.BookingId
                         where b.UserId == user.UserId
                         orderby p.PaymentDate descending
-                        select new { p, b }).ToList();
+                        select new
+                        {
+                            p,
+                            b,
+                            ReceiptId = (from r in _db.Receipts where r.PaymentId == p.PaymentId select r.ReceiptId).FirstOrDefault()
+                        }).ToList();
             foreach (var row in rows)
             {
                 PaymentHistoryViewModel item = new();
@@ -491,7 +496,10 @@ public class CustomerController : Controller
                 item.Amount = (int)row.p.Amount;
                 item.Detail = (row.p.PaymentDate?.ToString("d MMM yyyy", _th) ?? "-") + ", "
                               + (_payMethodText.ContainsKey(row.p.PaymentMethod) ? _payMethodText[row.p.PaymentMethod] : row.p.PaymentMethod)
-                              + (row.p.PaymentStatus == "Pending" ? " (รอตรวจสอบ)" : "");
+                              + (row.p.PaymentStatus == "Pending" ? " (รอตรวจสอบ)"
+                                 : row.p.PaymentStatus == "Approved" ? " (อนุมัติแล้ว)"
+                                 : row.p.PaymentStatus == "Rejected" ? " (ถูกปฏิเสธ)" : "");
+                item.ReceiptId = row.ReceiptId;
                 payments.Add(item);
             }
         }
@@ -508,6 +516,14 @@ public class CustomerController : Controller
             ViewBag.DueDeposit = due.Rate * depositMonths;
             ViewBag.DueTotal = due.Rate + due.Rate * depositMonths;
             ViewBag.DueDate = due.BookedDate.AddDays(7).ToString("d MMM yyyy", _th);
+
+            // ถ้าฝ่ายบัญชีเคยปฏิเสธการชำระของการจองนี้ ให้แสดงเหตุผลล่าสุด (เก็บไว้ใน booking.Note)
+            var note = (from b in _db.Bookings where b.BookingId == due.Id select b.Note).FirstOrDefault() ?? "";
+            var rejectLine = note.Split('\n').LastOrDefault(l => l.StartsWith(AccountingController.RejectNotePrefix));
+            if (rejectLine != null)
+            {
+                ViewBag.RejectReason = rejectLine.Substring(rejectLine.IndexOf(']') + 1).Trim();
+            }
         }
 
         // ข้อมูลส่วนตัวจากตาราง user
@@ -632,6 +648,30 @@ public class CustomerController : Controller
 
         TempData["Success"] = "บันทึกข้อมูลแล้ว";
         return RedirectToAction("Profile", new { tab = "info" });
+    }
+
+    // ใบเสร็จสำหรับพิมพ์ (ลูกค้าเปิดได้เฉพาะของตัวเอง)
+    public IActionResult Receipt(string id)
+    {
+        if (!IsLoggedIn)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var user = GetCurrentUser();
+        var isMine = user != null && (from r in _db.Receipts
+                                      join p in _db.Payments on r.PaymentId equals p.PaymentId
+                                      join b in _db.Bookings on p.BookingId equals b.BookingId
+                                      where r.ReceiptId == id && b.UserId == user.UserId
+                                      select r).Any();
+        var doc = isMine ? AccountingController.BuildReceiptDocument(_db, id) : null;
+        if (doc == null)
+        {
+            TempData["Error"] = "ไม่พบใบเสร็จนี้";
+            return RedirectToAction("Profile", new { tab = "payment" });
+        }
+        doc.BackUrl = Url.Action("Profile", "Customer", new { tab = "payment" })!;
+        return View("ReceiptDocument", doc);
     }
 
     public IActionResult MyBookings()

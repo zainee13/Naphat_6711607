@@ -1,0 +1,111 @@
+@model Naphat_6507_L005.ViewModels.AccountingPaymentViewModel
+@{
+    ViewData["Title"] = "ตรวจสอบการชำระ " + Model.No;
+    Layout = "_Layout";
+
+    var depositMonths = Naphat_6507_L005.Controllers.CustomerController.GetDepositMonths(Model.Months);
+    var statusText = Model.Status == "Pending" ? "รอตรวจสอบ" : Model.Status == "Approved" ? "อนุมัติแล้ว" : "ถูกปฏิเสธ";
+}
+
+<div class="page-header mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <a asp-controller="Accounting" asp-action="Dashboard" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
+            <span class="material-symbols-outlined align-middle" style="font-size:1rem;">arrow_back</span> ย้อนกลับ
+        </a>
+        <h1 class="h3 mb-0">
+            <span class="material-symbols-outlined align-middle me-2" style="color:#10b981;">fact_check</span>
+            ตรวจสอบการชำระ @Model.No
+        </h1>
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+}
+
+<div class="row g-4">
+
+    <!-- ซ้าย: รายละเอียด -->
+    <div class="col-12 col-lg-7">
+        <div class="section-card p-4">
+            <h2 class="h6 fw-bold mb-3">การชำระเงิน <span class="badge bg-warning text-dark ms-1">@statusText</span></h2>
+            <dl class="row mb-0" style="font-size:0.9rem;">
+                <dt class="col-5">ยอดที่แจ้งชำระ</dt><dd class="col-7 fw-bold">฿@Model.Amount.ToString("N0")</dd>
+                <dt class="col-5">วิธีชำระ</dt><dd class="col-7">@Model.MethodText</dd>
+                <dt class="col-5">วันที่แจ้ง</dt><dd class="col-7">@Model.PaidDate</dd>
+                <dt class="col-5">กำหนดชำระ</dt><dd class="col-7">@Model.DueDate</dd>
+            </dl>
+
+            <hr />
+            <h2 class="h6 fw-bold mb-3">การจอง @Model.BookingId</h2>
+            <dl class="row mb-0" style="font-size:0.9rem;">
+                <dt class="col-5">ห้อง</dt><dd class="col-7">@Model.RoomId, @Model.Zone</dd>
+                <dt class="col-5">ระยะสัญญา</dt><dd class="col-7">@Model.Period (@Model.Months เดือน)</dd>
+                <dt class="col-5">ค่าเช่าเดือนแรก</dt><dd class="col-7">฿@Model.MonthlyRate.ToString("N0")</dd>
+                <dt class="col-5">เงินประกัน @depositMonths เดือน</dt><dd class="col-7">฿@Model.Deposit.ToString("N0")</dd>
+                <dt class="col-5">ยอดที่ต้องได้รับ</dt><dd class="col-7 fw-bold">฿@((Model.MonthlyRate + Model.Deposit).ToString("N0"))</dd>
+            </dl>
+            @if (Model.Amount != Model.MonthlyRate + Model.Deposit)
+            {
+                <div class="alert alert-warning mt-2 mb-0">ยอดที่แจ้งชำระไม่ตรงกับยอดที่ต้องได้รับ</div>
+            }
+
+            <hr />
+            <h2 class="h6 fw-bold mb-3">ลูกค้า</h2>
+            <dl class="row mb-0" style="font-size:0.9rem;">
+                <dt class="col-5">ชื่อ</dt><dd class="col-7">@Model.CustomerName</dd>
+                <dt class="col-5">บริษัท</dt><dd class="col-7">@(Model.Company ?? "-")</dd>
+                <dt class="col-5">เลขผู้เสียภาษี</dt><dd class="col-7">@(Model.TaxId ?? "-")</dd>
+                <dt class="col-5">เบอร์โทร</dt><dd class="col-7">@(Model.Phone ?? "-")</dd>
+                <dt class="col-5">อีเมล</dt><dd class="col-7">@(Model.Email ?? "-")</dd>
+                <dt class="col-5">ที่อยู่</dt><dd class="col-7">@(Model.Address ?? "-")</dd>
+            </dl>
+
+            @if (!string.IsNullOrEmpty(Model.Note))
+            {
+                <hr />
+                <h2 class="h6 fw-bold mb-2">หมายเหตุการจอง</h2>
+                <p class="mb-0" style="font-size:0.85rem; white-space:pre-line; color:#4b5563;">@Model.Note</p>
+            }
+        </div>
+    </div>
+
+    <!-- ขวา: สลิป + ปุ่มอนุมัติ/ปฏิเสธ -->
+    <div class="col-12 col-lg-5">
+        <div class="section-card p-4 mb-4">
+            <h2 class="h6 fw-bold mb-3">สลิปการโอน</h2>
+            @if (!string.IsNullOrEmpty(Model.SlipUrl))
+            {
+                <a href="@Model.SlipUrl" target="_blank" rel="noopener">
+                    <img src="@Model.SlipUrl" alt="สลิปโอนเงิน @Model.No" style="width:100%; border-radius:8px; border:1px solid #e5e7eb;" />
+                </a>
+            }
+            else
+            {
+                <p class="mb-0" style="color:#6c757d; font-size:0.85rem;">ไม่มีสลิป (ชำระด้วย @(Model.MethodText)) ตรวจยอดเข้าจากระบบธนาคาร</p>
+            }
+        </div>
+
+        @if (Model.Status == "Pending")
+        {
+            <div class="section-card p-4">
+                <form asp-controller="Accounting" asp-action="Approve" asp-route-id="@Model.PaymentId" method="post" class="mb-3">
+                    <button type="submit" class="btn w-100" style="background:#10b981; color:#fff; border:none; border-radius:10px; padding:0.6rem; font-weight:600;"
+                            onclick="return confirm('ยืนยันอนุมัติการชำระ @Model.No ?');">
+                        <span class="material-symbols-outlined align-middle me-1" style="font-size:1.1rem;">task_alt</span> อนุมัติการชำระ
+                    </button>
+                </form>
+
+                <form asp-controller="Accounting" asp-action="Reject" method="post">
+                    <input type="hidden" name="PaymentId" value="@Model.PaymentId" />
+                    <label class="form-label fw-semibold" style="font-size:0.875rem;" for="Reason">เหตุผลที่ปฏิเสธ (ลูกค้าจะเห็นข้อความนี้)</label>
+                    <textarea class="form-control mb-2" id="Reason" name="Reason" rows="2" required placeholder="เช่น ยอดโอนไม่ตรง, สลิปไม่ชัด"></textarea>
+                    <button type="submit" class="btn btn-outline-danger w-100" style="border-radius:10px; padding:0.6rem; font-weight:600;">
+                        <span class="material-symbols-outlined align-middle me-1" style="font-size:1.1rem;">block</span> ปฏิเสธ ให้ลูกค้าชำระใหม่
+                    </button>
+                </form>
+            </div>
+        }
+    </div>
+</div>

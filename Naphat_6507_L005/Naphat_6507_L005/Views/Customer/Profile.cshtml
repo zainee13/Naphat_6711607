@@ -124,6 +124,12 @@
 
                 <!-- ยอดที่ต้องชำระ -->
                 <h2 class="cu-h2">ยอดที่ต้องชำระ</h2>
+                @if (ViewBag.RejectReason != null)
+                {
+                    <p class="cu-alert cu-alert--error" role="alert">
+                        การชำระครั้งก่อนถูกปฏิเสธ: @ViewBag.RejectReason กรุณาชำระใหม่อีกครั้ง
+                    </p>
+                }
                 <div class="pf-bill">
                     <div class="pf-bill-head">
                         <div>
@@ -261,6 +267,10 @@
                                 <span>@(isRefund ? "−" : "")฿@payment.Amount.ToString("N0")</span>
                             </div>
                             <span class="pf-history-meta">@payment.No, @payment.Detail</span>
+                            @if (payment.ReceiptId != null)
+                            {
+                                <a class="pf-history-meta" asp-controller="Customer" asp-action="Receipt" asp-route-id="@payment.ReceiptId" target="_blank">ดูใบเสร็จ @payment.ReceiptId</a>
+                            }
                         </li>
                     }
                 </ul>

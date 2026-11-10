@@ -1,0 +1,108 @@
+@model Naphat_6507_L005.ViewModels.ReceiptDocumentViewModel
+@{
+    // หน้าเอกสารสำหรับพิมพ์ ไม่ใช้ layout ของเว็บ (ไม่มี sidebar)
+    // ใช้ร่วมกันระหว่าง AccountingController.Document และ CustomerController.Receipt
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ใบเสร็จ @Model.ReceiptId - LogiManage</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" />
+    <style>
+        body { margin: 0; background: #eef0f2; font-family: 'Sarabun', sans-serif; color: #1f2933; font-size: 15px; }
+        .toolbar { max-width: 800px; margin: 1rem auto; padding: 0 16px; display: flex; justify-content: space-between; gap: 0.5rem; }
+        .toolbar a, .toolbar button { font: inherit; padding: 0.45rem 1rem; border-radius: 6px; border: 1px solid #c7ccd1; background: #fff; color: #1f2933; text-decoration: none; cursor: pointer; }
+        .toolbar button { background: #10b981; border-color: #10b981; color: #fff; font-weight: 600; }
+        .doc { max-width: 800px; margin: 0 auto 2rem; background: #fff; padding: 2.5rem; box-sizing: border-box; }
+        .doc-head { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 2px solid #1f2933; padding-bottom: 1rem; margin-bottom: 1.25rem; }
+        .doc-head h1 { margin: 0; font-size: 1.5rem; }
+        .doc-head .seller { font-weight: 700; font-size: 1.1rem; }
+        .doc-no { text-align: right; font-size: 0.9rem; line-height: 1.7; }
+        .parties { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.25rem; font-size: 0.92rem; line-height: 1.6; }
+        .parties h2 { margin: 0 0 0.25rem; font-size: 0.85rem; color: #6b7280; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        th, td { padding: 0.55rem 0.5rem; border-bottom: 1px solid #e5e7eb; text-align: left; }
+        th { background: #f3f4f6; font-size: 0.85rem; }
+        td.num, th.num { text-align: right; white-space: nowrap; }
+        .total td { font-weight: 700; border-top: 2px solid #1f2933; border-bottom: none; }
+        .paid { font-size: 0.92rem; line-height: 1.7; padding: 0.75rem 1rem; background: #f0fdf4; border-left: 4px solid #10b981; }
+        .sign { margin-top: 3rem; display: flex; justify-content: flex-end; }
+        .sign div { text-align: center; min-width: 220px; border-top: 1px solid #9ca3af; padding-top: 0.4rem; font-size: 0.9rem; }
+        @@media (max-width: 600px) {
+            .doc { padding: 1.25rem; }
+            .doc-head, .parties { display: block; }
+            .doc-no { text-align: left; margin-top: 0.5rem; }
+            .parties > div + div { margin-top: 1rem; }
+        }
+        @@media print {
+            body { background: #fff; }
+            .toolbar { display: none; }
+            .doc { margin: 0; padding: 0; max-width: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <a href="@Model.BackUrl">← ย้อนกลับ</a>
+        <button type="button" onclick="window.print()">พิมพ์</button>
+    </div>
+
+    <main class="doc">
+        <div class="doc-head">
+            <div>
+                <div class="seller">บริษัท โลจิแมเนจ จำกัด</div>
+                <h1>ใบแจ้งหนี้ / ใบเสร็จรับเงิน</h1>
+            </div>
+            <div class="doc-no">
+                เลขที่ใบเสร็จ <strong>@Model.ReceiptId</strong><br />
+                วันที่ @Model.ReceiptDate<br />
+                อ้างอิงใบแจ้งหนี้ @Model.InvoiceId (@Model.InvoiceDate)
+            </div>
+        </div>
+
+        <div class="parties">
+            <div>
+                <h2>ลูกค้า</h2>
+                <strong>@(string.IsNullOrEmpty(Model.Company) ? Model.CustomerName : Model.Company)</strong><br />
+                @if (!string.IsNullOrEmpty(Model.Company))
+                {
+                    <span>ผู้ติดต่อ @Model.CustomerName</span><br />
+                }
+                เลขผู้เสียภาษี @(Model.TaxId ?? "-")<br />
+                @(Model.Address ?? "-")<br />
+                โทร @(Model.Phone ?? "-"), @(Model.Email ?? "-")
+            </div>
+            <div>
+                <h2>การจอง</h2>
+                เลขที่ @Model.BookingId<br />
+                ห้อง @Model.RoomId, @Model.Zone<br />
+                สัญญา @Model.Period (@Model.Months เดือน)
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr><th>รายการ</th><th class="num">จำนวนเงิน (บาท)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>ค่าเช่าห้อง @Model.RoomId เดือนแรก</td><td class="num">@Model.RentAmount.ToString("N2")</td></tr>
+                <tr><td>เงินประกัน (คืนเมื่อสิ้นสุดสัญญา)</td><td class="num">@Model.DepositAmount.ToString("N2")</td></tr>
+                <tr><td>ภาษีมูลค่าเพิ่ม</td><td class="num">@Model.VatAmount.ToString("N2")</td></tr>
+                <tr class="total"><td>รวมทั้งสิ้น</td><td class="num">@Model.TotalAmount.ToString("N2")</td></tr>
+            </tbody>
+        </table>
+
+        <div class="paid">
+            ได้รับชำระแล้ว <strong>฿@Model.PaidAmount.ToString("N2")</strong>
+            ผ่าน @Model.MethodText เมื่อ @Model.PaidDate (อ้างอิง @Model.PaymentNo)
+        </div>
+
+        <div class="sign">
+            <div>@Model.IssuedByName<br />ผู้รับเงิน</div>
+        </div>
+    </main>
+</body>
+</html>

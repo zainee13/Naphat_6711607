@@ -8,4 +8,5 @@ public class PaymentHistoryViewModel
     public int Amount { get; set; }
     public string Detail { get; set; }
     public bool IsRefund { get; set; }
+    public string? ReceiptId { get; set; }   // มีใบเสร็จแล้ว ลูกค้ากดดูได้
 }

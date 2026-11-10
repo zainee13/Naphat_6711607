@@ -1,0 +1,96 @@
+@model List<Naphat_6507_L005.ViewModels.AccountingPaymentViewModel>
+@{
+    ViewData["Title"] = "ภาพรวมฝ่ายบัญชี";
+    Layout = "_Layout";
+
+    // ตัวเลขสรุปส่งมาจาก AccountingController.Dashboard
+    int pendingCount = ViewBag.PendingCount;
+    decimal pendingAmount = ViewBag.PendingAmount;
+    decimal approvedToday = ViewBag.ApprovedToday;
+    int rejectedToday = ViewBag.RejectedToday;
+}
+
+<div class="page-header">
+    <div>
+        <h1><span class="material-symbols-outlined align-middle me-2" style="color:#10b981;">account_balance_wallet</span>ภาพรวมฝ่ายบัญชี</h1>
+        <p>ตรวจสอบการชำระเงินของลูกค้า อนุมัติหรือปฏิเสธ</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" role="status">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+}
+
+<!-- ตัวเลขสรุป -->
+<div class="row g-3 mb-4">
+    @foreach (var s in new[] {
+        ("pending_actions", "รอตรวจสอบ", pendingCount.ToString("N0") + " รายการ", "#f59e0b"),
+        ("payments", "ยอดรอตรวจ", "฿" + pendingAmount.ToString("N0"), "#3b82f6"),
+        ("task_alt", "อนุมัติวันนี้", "฿" + approvedToday.ToString("N0"), "#10b981"),
+        ("block", "ปฏิเสธวันนี้", rejectedToday.ToString("N0") + " รายการ", "#ef4444"),
+    })
+    {
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card" style="padding:1rem;">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="material-symbols-outlined" style="font-size:1.75rem; color:@s.Item4;">@s.Item1</span>
+                    <div>
+                        <div class="kpi-value" style="font-size:1.3rem;">@s.Item3</div>
+                        <div class="kpi-label" style="font-size:0.72rem;">@s.Item2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- รายการรอตรวจ -->
+<div class="section-card">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#10b981;">receipt_long</span> การชำระที่รอตรวจสอบ</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom w-100">
+            <thead>
+                <tr><th>เลขที่</th><th>การจอง / ห้อง</th><th>ลูกค้า</th><th>ยอด</th><th>วิธีชำระ</th><th>วันที่แจ้ง</th><th>ดำเนินการ</th></tr>
+            </thead>
+            <tbody>
+                @if (Model.Count > 0)
+                {
+                    foreach (var p in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold" style="font-size:0.875rem; color:#10b981;">@p.No</td>
+                            <td style="font-size:0.85rem;">
+                                @p.BookingId<br />
+                                <span style="color:#6c757d; font-size:0.78rem;">ห้อง @p.RoomId, @p.Zone</span>
+                            </td>
+                            <td style="font-size:0.85rem;">
+                                @(string.IsNullOrEmpty(p.Company) ? p.CustomerName : p.Company)<br />
+                                <span style="color:#6c757d; font-size:0.78rem;">@(p.Phone ?? "-")</span>
+                            </td>
+                            <td class="fw-semibold" style="font-size:0.875rem;">฿@p.Amount.ToString("N0")</td>
+                            <td style="font-size:0.8rem;">@p.MethodText</td>
+                            <td style="font-size:0.78rem; color:#6c757d;">@p.PaidDate</td>
+                            <td>
+                                <a class="btn btn-sm" style="background:#ecfdf5; color:#065f46; border:none; border-radius:6px; font-size:0.78rem;"
+                                   asp-controller="Accounting" asp-action="VerifyPayment" asp-route-id="@p.PaymentId">
+                                    <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">fact_check</span> ตรวจสอบ
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:2rem;">ไม่มีรายการที่รอตรวจสอบ</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
