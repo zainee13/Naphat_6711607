@@ -94,3 +94,6 @@
     .rd-layout { grid-template-columns: 1fr; }
     .rd-book { position: static; grid-row: 1; }
 }
+
+/* ฟอร์มในกล่องจอง ให้จัดวางเหมือนไม่มี form ครอบ */
+.rd-book form { display: contents; }

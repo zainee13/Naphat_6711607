@@ -1,45 +1,10 @@
+@model Naphat_6507_L005.ViewModels.BookingViewModel
 @{
-    var roomId = ViewBag.RoomId as string ?? "M-01";
-
-    // รหัสห้องแบบเก่า (บางหน้ายังลิงก์ด้วยรหัสนี้) แปลงเป็นรหัสใหม่
-    var oldRoomIds = new Dictionary<string, string>
-    {
-        { "BN-A01", "M-01" },
-        { "WN-B12", "L-01" },
-        { "LC-C05", "CR-05" },
-        { "LK-D03", "L-02" },
-        { "BN-A07", "S-02" },
-        { "WN-E01", "XL-01" },
-    };
-    if (oldRoomIds.ContainsKey(roomId))
-    {
-        roomId = oldRoomIds[roomId];
-    }
-
-    // ข้อมูลห้องทั้งหมด (ตอนต่อฐานข้อมูล ให้ดึงจากตาราง Rooms แทน)
-    var rooms = new[]
-    {
-        new { Id = "S-01",  Free = true,  Price = 12000,  Size = "60 ตร.ม.",    Zone = "โซน A1 (ชั้น 1)",        Img = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=80" },
-        new { Id = "S-02",  Free = true,  Price = 15000,  Size = "80 ตร.ม.",    Zone = "โซน A2 (SME)",           Img = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80" },
-        new { Id = "M-01",  Free = true,  Price = 25000,  Size = "150 ตร.ม.",   Zone = "โซน B1 (มาตรฐาน)",       Img = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80" },
-        new { Id = "M-02",  Free = true,  Price = 38000,  Size = "250 ตร.ม.",   Zone = "โซน B2 (พาเลท)",         Img = "https://images.unsplash.com/photo-1553413077-190dd305871c?w=400&q=80" },
-        new { Id = "L-01",  Free = true,  Price = 75000,  Size = "500 ตร.ม.",   Zone = "โซน C1 (มี Dock)",       Img = "https://images.unsplash.com/photo-1553413077-190dd305871c?w=400&q=80" },
-        new { Id = "L-02",  Free = false, Price = 55000,  Size = "350 ตร.ม.",   Zone = "โซน C2 (สินค้าปลอดภัย)", Img = "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=400&q=80" },
-        new { Id = "XL-01", Free = true,  Price = 180000, Size = "1,200 ตร.ม.", Zone = "โซน D1 (เมกะ)",          Img = "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=400&q=80" },
-        new { Id = "CR-05", Free = true,  Price = 40000,  Size = "200 ตร.ม.",   Zone = "โซนห้องเย็น",             Img = "https://images.unsplash.com/photo-1553413077-190dd305871c?w=400&q=80" },
-    };
-
-    // หาห้องตามรหัส ถ้าไม่เจอให้ใช้ M-01
-    var room = rooms.FirstOrDefault(r => r.Id == roomId) ?? rooms.First(r => r.Id == "M-01");
+    var room = (Naphat_6507_L005.ViewModels.RoomViewModel)ViewBag.Room;
+    var isCompany = Model.TenantType != "person";
 
     ViewData["Title"] = "จองห้อง " + room.Id;
     Layout = "_Layout";
-
-    // ชื่อผู้ติดต่อ: ถ้าล็อกอินอยู่ใส่ชื่อให้เลย
-    var contactName = ViewBag.IsLoggedIn == true ? ViewBag.FullName as string : "";
-
-    // จองเสร็จแล้วไปหน้าชำระเงิน (ตอนนี้ใช้เลขการจองตัวอย่าง)
-    var paymentUrl = Url.Action("Profile", "Customer", new { tab = "payment", bookingId = "BK-2026-002" });
 }
 
 @section Styles {
@@ -77,7 +42,8 @@
     }
     else
     {
-        <form class="bk-layout" id="bookingForm" novalidate>
+        <form class="bk-layout" id="bookingForm" asp-controller="Customer" asp-action="BookRoom" method="post">
+            <input type="hidden" asp-for="RoomId" />
 
             <div class="bk-main">
 
@@ -87,39 +53,39 @@
 
                     <div class="bk-type" role="radiogroup" aria-label="ประเภทผู้เช่า">
                         <label>
-                            <input type="radio" name="tenantType" value="corp" checked />
+                            <input type="radio" asp-for="TenantType" value="corp" />
                             <span>บริษัท / นิติบุคคล</span>
                         </label>
                         <label>
-                            <input type="radio" name="tenantType" value="person" />
+                            <input type="radio" asp-for="TenantType" value="person" />
                             <span>บุคคลธรรมดา</span>
                         </label>
                     </div>
 
                     <div class="bk-grid">
-                        <label class="cu-field bk-span-2" id="companyField">
+                        <label class="cu-field bk-span-2" id="companyField" hidden="@(!isCompany)">
                             <span>ชื่อบริษัท</span>
-                            <input type="text" id="companyName" autocomplete="organization" placeholder="เช่น บจก. ไทยซัพพลาย" required />
+                            <input type="text" asp-for="CompanyName" autocomplete="organization" placeholder="เช่น บจก. ไทยซัพพลาย" required="@isCompany" />
                         </label>
                         <label class="cu-field">
-                            <span id="taxIdLabel">เลขผู้เสียภาษี 13 หลัก</span>
-                            <input type="text" id="taxId" inputmode="numeric" pattern="\d{13}" maxlength="13" placeholder="ตัวเลข 13 หลัก ไม่ต้องมีขีด" required />
+                            <span id="taxIdLabel">@(isCompany ? "เลขผู้เสียภาษี 13 หลัก" : "เลขบัตรประชาชน 13 หลัก")</span>
+                            <input type="text" asp-for="TaxId" inputmode="numeric" pattern="\d{13}" maxlength="13" placeholder="ตัวเลข 13 หลัก ไม่ต้องมีขีด" required />
                         </label>
                         <label class="cu-field">
                             <span>ชื่อผู้ติดต่อ</span>
-                            <input type="text" id="contactName" autocomplete="name" value="@contactName" required />
+                            <input type="text" asp-for="ContactName" autocomplete="name" required />
                         </label>
                         <label class="cu-field">
                             <span>เบอร์โทร</span>
-                            <input type="tel" id="phone" autocomplete="tel" inputmode="tel" pattern="0\d{8,9}" placeholder="0812345678" required />
+                            <input type="tel" asp-for="Phone" autocomplete="tel" inputmode="tel" pattern="0\d{8,9}" placeholder="0812345678" required />
                         </label>
                         <label class="cu-field">
                             <span>อีเมลรับสัญญาและใบแจ้งหนี้</span>
-                            <input type="email" id="email" autocomplete="email" placeholder="name@company.com" required />
+                            <input type="email" asp-for="Email" autocomplete="email" placeholder="name@company.com" required />
                         </label>
                         <label class="cu-field bk-span-2">
                             <span>ที่อยู่ออกใบกำกับภาษี</span>
-                            <textarea id="address" rows="2" autocomplete="street-address" required></textarea>
+                            <textarea asp-for="Address" rows="2" autocomplete="street-address" required></textarea>
                         </label>
                     </div>
                 </fieldset>
@@ -131,14 +97,14 @@
                     <div class="bk-grid">
                         <label class="cu-field">
                             <span>วันเริ่มเช่า</span>
-                            <input type="date" id="startDate" required />
+                            <input type="date" asp-for="StartDate" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
                         </label>
                         <label class="cu-field">
                             <span>ระยะสัญญา</span>
-                            <select id="duration">
+                            <select asp-for="Months">
                                 <option value="1">1 เดือน</option>
                                 <option value="3">3 เดือน</option>
-                                <option value="6" selected>6 เดือน</option>
+                                <option value="6">6 เดือน</option>
                                 <option value="12">12 เดือน</option>
                             </select>
                         </label>
@@ -146,7 +112,7 @@
 
                         <label class="cu-field">
                             <span>สินค้าที่จะเก็บ</span>
-                            <select id="goodsType">
+                            <select asp-for="GoodsType">
                                 <option>สินค้าอุปโภคบริโภคทั่วไป</option>
                                 <option>อาหารและเครื่องดื่ม</option>
                                 <option>ชิ้นส่วนอุตสาหกรรม / อะไหล่</option>
@@ -157,7 +123,7 @@
                         </label>
                         <label class="cu-field">
                             <span>บริการวันย้ายเข้า (ไม่บังคับ)</span>
-                            <select id="moveInService">
+                            <select asp-for="MoveInService">
                                 <option>ไม่ต้องการ</option>
                                 <option>โฟล์คลิฟต์ยกพาเลท (ฟรี)</option>
                                 <option>ติดตั้ง Racking เพิ่ม</option>
@@ -165,7 +131,7 @@
                         </label>
                         <label class="cu-field bk-span-2">
                             <span>หมายเหตุ (ไม่บังคับ)</span>
-                            <textarea id="note" rows="2" placeholder="เช่น ขนาดรถที่จะเข้าเทียบ หรือวันขนของเข้าครั้งแรก"></textarea>
+                            <textarea asp-for="Note" rows="2" placeholder="เช่น ขนาดรถที่จะเข้าเทียบ หรือวันขนของเข้าครั้งแรก"></textarea>
                         </label>
                     </div>
                 </fieldset>
@@ -176,10 +142,10 @@
                 <h2 id="summaryTitle" class="visually-hidden">สรุปยอด</h2>
 
                 <div class="bk-room">
-                    <img src="@room.Img" alt="" />
+                    <img src="@(room.Img)?w=400&q=80" alt="" />
                     <div>
                         <strong>@room.Id</strong>
-                        <span>@room.Zone, @room.Size</span>
+                        <span>@room.Zone, @room.Area ตร.ม.</span>
                     </div>
                 </div>
 
@@ -208,7 +174,7 @@
                     <div class="cu-field">
                         <label for="promoInput">โค้ดส่วนลด</label>
                         <div class="cu-promo-row">
-                            <input type="text" id="promoInput" autocomplete="off" placeholder="เช่น MEGA35START" />
+                            <input type="text" id="promoInput" name="PromoCode" value="@Model.PromoCode" autocomplete="off" placeholder="เช่น MEGA35START" />
                             <button type="button" class="cu-btn" id="promoButton">ใช้โค้ด</button>
                         </div>
                     </div>
@@ -216,11 +182,14 @@
                 </div>
 
                 <label class="bk-agree">
-                    <input type="checkbox" id="agreeTerms" required />
+                    <input type="checkbox" asp-for="AgreeTerms" required />
                     <span>ฉันอ่านและยอมรับ<a href="#" id="termsLink">เงื่อนไขสัญญาเช่า</a>แล้ว</span>
                 </label>
 
-                <p class="bk-error" id="errorMessage" role="alert" hidden></p>
+                @if (ViewBag.Error != null)
+                {
+                    <p class="bk-error" role="alert">@ViewBag.Error</p>
+                }
 
                 <button type="submit" class="cu-btn cu-btn--primary bk-submit" id="submitButton">ยืนยันการจองและไปชำระเงิน</button>
             </aside>
@@ -230,8 +199,9 @@
 
 @section Scripts {
 <script>
+    // JS ใช้แค่แสดงผลบนหน้าจอ (คำนวณยอดให้ดูก่อนกดจอง)
+    // การตรวจข้อมูลและบันทึกการจองทำที่ CustomerController.BookRoom (POST)
     const monthlyRate = @room.Price;   // ค่าเช่าต่อเดือน
-    const paymentUrl = @Json.Serialize(paymentUrl);
     const bookingForm = document.getElementById('bookingForm');
 
     // แปลงตัวเลขเป็นข้อความเงินบาท เช่น 25000 -> ฿25,000
@@ -239,15 +209,15 @@
         return '฿' + Math.round(amount).toLocaleString('th-TH');
     }
 
-    // จำนวนเดือนของเงินประกัน: สัญญา 1–3 เดือน = 1 เดือน, 6 เดือน = 2 เดือน, 12 เดือน = 3 เดือน
+    // จำนวนเดือนของเงินประกัน (กฎเดียวกับ CustomerController.GetDepositMonths)
     function getDepositMonths(months) {
         if (months >= 12) return 3;
         if (months >= 6) return 2;
         return 1;
     }
 
-    // วันสิ้นสุดสัญญา = วันก่อนวันที่เดียวกันของเดือนปลายทาง (เริ่ม 1 ธ.ค. สัญญา 6 เดือน = 31 พ.ค.)
-    // ถ้าเดือนปลายทางไม่มีวันที่นั้น (เริ่ม 31 ม.ค. สัญญา 1 เดือน) ให้จบวันสุดท้ายของเดือนนั้น (28 ก.พ.)
+    // วันสิ้นสุดสัญญา = วันก่อนวันที่เดียวกันของเดือนปลายทาง
+    // ถ้าเดือนปลายทางไม่มีวันที่นั้น ให้จบวันสุดท้ายของเดือนนั้น
     function getEndDate(startDate, months) {
         const year = startDate.getFullYear();
         const endMonth = startDate.getMonth() + months;
@@ -262,7 +232,7 @@
 
     // คำนวณยอดและวันสิ้นสุดสัญญา
     function calculatePrice() {
-        const months = parseInt(document.getElementById('duration').value) || 1;
+        const months = parseInt(document.getElementById('Months').value) || 1;
         const depositMonths = getDepositMonths(months);
         const deposit = monthlyRate * depositMonths;
 
@@ -279,7 +249,7 @@
             nextText.hidden = true;
         }
 
-        const startDate = document.getElementById('startDate').valueAsDate;
+        const startDate = document.getElementById('StartDate').valueAsDate;
         if (startDate) {
             const endDate = getEndDate(startDate, months);
             document.getElementById('endDateText').textContent =
@@ -289,80 +259,28 @@
 
     // ประเภทผู้เช่า: บุคคลธรรมดาไม่ต้องกรอกชื่อบริษัท และใช้เลขบัตรประชาชนแทน
     function changeTenantType() {
-        const type = bookingForm.querySelector('input[name=tenantType]:checked').value;
+        const type = bookingForm.querySelector('input[name=TenantType]:checked').value;
         const isCompany = (type === 'corp');
 
         document.getElementById('companyField').hidden = !isCompany;
-        document.getElementById('companyName').required = isCompany;
-
-        if (isCompany) {
-            document.getElementById('taxIdLabel').textContent = 'เลขผู้เสียภาษี 13 หลัก';
-        } else {
-            document.getElementById('taxIdLabel').textContent = 'เลขบัตรประชาชน 13 หลัก';
-        }
+        document.getElementById('CompanyName').required = isCompany;
+        document.getElementById('taxIdLabel').textContent = isCompany ? 'เลขผู้เสียภาษี 13 หลัก' : 'เลขบัตรประชาชน 13 หลัก';
     }
 
-    // โค้ดส่วนลด: ยังไม่ทำระบบ แสดงข้อความแจ้งเฉยๆ
+    // โค้ดส่วนลด: ยังไม่มีระบบส่วนลด แสดงข้อความแจ้งเฉยๆ
     function applyPromo() {
         const code = document.getElementById('promoInput').value.trim();
         const message = document.getElementById('promoMessage');
-
-        if (code === '') {
-            message.textContent = 'พิมพ์โค้ดส่วนลดก่อนกดใช้โค้ด';
-        } else {
-            message.textContent = 'ยังใช้โค้ดส่วนลดไม่ได้ในตอนนี้';
-        }
+        message.textContent = (code === '') ? 'พิมพ์โค้ดส่วนลดก่อนกดใช้โค้ด' : 'ยังใช้โค้ดส่วนลดไม่ได้ในตอนนี้';
         message.hidden = false;
-    }
-
-    // หาช่องแรกที่กรอกไม่ครบหรือผิดรูปแบบ (ข้ามช่องที่ซ่อนอยู่)
-    function findFirstInvalidField() {
-        const fields = bookingForm.querySelectorAll('input, select, textarea');
-        for (const field of fields) {
-            const isHidden = field.closest('[hidden]') !== null;
-            if (!isHidden && !field.checkValidity()) {
-                return field;
-            }
-        }
-        return null;
-    }
-
-    // ส่งฟอร์ม: ตรวจข้อมูลก่อน ถ้าครบไปหน้าชำระเงิน (ยังไม่บันทึกลงฐานข้อมูล)
-    function submitBooking(event) {
-        event.preventDefault();
-        const errorMessage = document.getElementById('errorMessage');
-        const invalidField = findFirstInvalidField();
-
-        if (invalidField) {
-            bookingForm.classList.add('was-checked');   // ให้ CSS แสดงกรอบแดงช่องที่ผิด
-            if (invalidField.id === 'agreeTerms') {
-                errorMessage.textContent = 'กรุณายอมรับเงื่อนไขสัญญาเช่าก่อนยืนยัน';
-            } else {
-                errorMessage.textContent = 'กรอกข้อมูลที่ยังไม่ครบหรือไม่ถูกต้อง (ช่องที่มีกรอบสีแดง)';
-            }
-            errorMessage.hidden = false;
-            invalidField.focus();
-            return;
-        }
-
-        errorMessage.hidden = true;
-        const submitButton = document.getElementById('submitButton');
-        submitButton.disabled = true;
-        submitButton.textContent = 'กำลังสร้างการจอง...';
-        window.location.href = paymentUrl;
     }
 
     // ห้องมีผู้เช่าแล้วจะไม่มีฟอร์ม ไม่ต้องทำอะไรต่อ
     if (bookingForm) {
-        // วันเริ่มเช่าเริ่มที่วันนี้ และเลือกวันย้อนหลังไม่ได้
-        const startInput = document.getElementById('startDate');
-        startInput.valueAsDate = new Date();
-        startInput.min = startInput.value;
+        document.getElementById('StartDate').addEventListener('change', calculatePrice);
+        document.getElementById('Months').addEventListener('change', calculatePrice);
 
-        startInput.addEventListener('change', calculatePrice);
-        document.getElementById('duration').addEventListener('change', calculatePrice);
-
-        bookingForm.querySelectorAll('input[name=tenantType]').forEach(function (radio) {
+        bookingForm.querySelectorAll('input[name=TenantType]').forEach(function (radio) {
             radio.addEventListener('change', changeTenantType);
         });
 
@@ -379,7 +297,6 @@
             event.preventDefault();
         });
 
-        bookingForm.addEventListener('submit', submitBooking);
         calculatePrice();
     }
 </script>

@@ -95,3 +95,7 @@
 @media (prefers-reduced-motion: reduce) {
     .cu * { transition: none !important; }
 }
+
+/* ข้อความแจ้งผลจาก Controller (TempData / ViewBag) */
+.cu-alert { margin: 0 0 0.9rem; padding: 0.6rem 0.85rem; border-left: 4px solid #14632f; background: #eef7f1; color: #14632f; font-size: 0.9rem; }
+.cu-alert--error { border-left-color: #c62828; background: #fdf1f1; color: #8e1c1c; }

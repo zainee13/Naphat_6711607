@@ -1,69 +1,9 @@
+@model List<Naphat_6507_L005.ViewModels.RoomViewModel>
 @{
     ViewData["Title"] = "ค้นหาห้องคลังสินค้า";
     Layout = "_Layout";
 
-    // ข้อมูลห้องทั้งหมด (ตอนต่อฐานข้อมูล ให้ดึงจากตาราง Rooms แทน)
-    // Grid = ตำแหน่งห้องบนผัง (ผังแบ่ง 12 คอลัมน์ x 6 แถว) เขียนแบบ "แถวเริ่ม / คอลัมน์เริ่ม / แถวจบ / คอลัมน์จบ"
-    var rooms = new[]
-    {
-        new {
-            Id = "XL-01", Kind = "xl", Free = true, Grid = "1 / 1 / 6 / 6",
-            Area = "1,200", Ceil = "12 ม.", Truck = "คอนเทนเนอร์ทุกขนาด", Power = "หม้อแปลงแยก",
-            Zone = "โซน D1 (เมกะ)", Note = "คลังโล่งขนาดใหญ่พิเศษ",
-            Price = 180000, OldPrice = 210000, Rating = "5.0",
-            Img = "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=600&q=80"
-        },
-        new {
-            Id = "L-01", Kind = "l", Free = true, Grid = "1 / 6 / 4 / 10",
-            Area = "500", Ceil = "10 ม.", Truck = "18 ล้อ / ตู้ 40ft", Power = "3 เฟส 380V",
-            Zone = "โซน C1 (มี Dock)", Note = "มี Dock Leveler เทียบตู้คอนเทนเนอร์",
-            Price = 75000, OldPrice = 85000, Rating = "4.6",
-            Img = "https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80"
-        },
-        new {
-            Id = "L-02", Kind = "l", Free = false, Grid = "1 / 10 / 4 / 13",
-            Area = "350", Ceil = "10 ม.", Truck = "10 ล้อ / เทรลเลอร์", Power = "3 เฟส 380V",
-            Zone = "โซน C2 (สินค้าปลอดภัย)", Note = "ควบคุมการเข้าออกเฉพาะบุคคล",
-            Price = 55000, OldPrice = 0, Rating = "4.5",
-            Img = "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80"
-        },
-        new {
-            Id = "M-02", Kind = "m", Free = true, Grid = "4 / 6 / 7 / 9",
-            Area = "250", Ceil = "8 ม.", Truck = "10 ล้อ", Power = "3 เฟส 380V",
-            Zone = "โซน B2 (พาเลท)", Note = "Racking 3 ชั้น วางได้ 120 พาเลท",
-            Price = 38000, OldPrice = 0, Rating = "4.8",
-            Img = "https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80"
-        },
-        new {
-            Id = "M-01", Kind = "m", Free = true, Grid = "4 / 9 / 7 / 11",
-            Area = "150", Ceil = "8 ม.", Truck = "6 ล้อ / 10 ล้อ", Power = "3 เฟส 380V",
-            Zone = "โซน B1 (มาตรฐาน)", Note = "พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม.",
-            Price = 25000, OldPrice = 29000, Rating = "4.8",
-            Img = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80"
-        },
-        new {
-            Id = "CR-05", Kind = "cold", Free = true, Grid = "4 / 11 / 7 / 13",
-            Area = "200", Ceil = "7 ม.", Truck = "10 ล้อตู้เย็น", Power = "ไฟสำรองคู่",
-            Zone = "โซน Cold Chain", Note = "ควบคุม −18°C ถึง +5°C ดูอุณหภูมิผ่านมือถือ",
-            Price = 40000, OldPrice = 48000, Rating = "4.9",
-            Img = "https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80"
-        },
-        new {
-            Id = "S-01", Kind = "s", Free = true, Grid = "6 / 1 / 7 / 3",
-            Area = "60", Ceil = "6 ม.", Truck = "กระบะ / 4 ล้อ", Power = "220V",
-            Zone = "โซน A1 (ชั้น 1)", Note = "ชั้น 1 เข้าถึงง่าย",
-            Price = 12000, OldPrice = 0, Rating = "4.7",
-            Img = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80"
-        },
-        new {
-            Id = "S-02", Kind = "s", Free = true, Grid = "6 / 3 / 7 / 6",
-            Area = "80", Ceil = "6 ม.", Truck = "กระบะ / 4 ล้อ", Power = "220V / 380V",
-            Zone = "โซน A2 (SME)", Note = "ประตูม้วนไฟฟ้า",
-            Price = 15000, OldPrice = 18000, Rating = "4.3",
-            Img = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80"
-        },
-    };
-
+    var rooms = Model;
     var freeCount = rooms.Count(r => r.Free);
 
     // ห้องที่เลือกไว้ตอนเปิดหน้า
@@ -87,7 +27,7 @@
     <!-- หัวข้อ -->
     <header class="cu-head">
         <h1>ค้นหาห้องคลังสินค้า</h1>
-        <p>ว่าง <strong>@freeCount</strong> จาก @rooms.Length ห้อง แตะห้องบนผังเพื่อดูรายละเอียดและจอง</p>
+        <p>ว่าง <strong>@freeCount</strong> จาก @rooms.Count ห้อง แตะห้องบนผังเพื่อดูรายละเอียดและจอง</p>
     </header>
 
     <div class="fp-board">
@@ -111,8 +51,8 @@
                             data-free="@(room.Free ? "1" : "0")"
                             data-kind="@room.Kind"
                             data-area="@room.Area"
-                            data-ceil="@room.Ceil"
-                            data-truck="@room.Truck"
+                            data-ceil="@room.Height"
+                            data-truck="@room.Vehicle"
                             data-power="@room.Power"
                             data-price="@room.Price.ToString("N0")"
                             data-zone="@room.Zone"
@@ -143,8 +83,8 @@
 
             <dl class="fp-spec">
                 <div><dt>พื้นที่</dt><dd><span id="detailArea">@firstRoom.Area</span> ตร.ม.</dd></div>
-                <div><dt>เพดานสูง</dt><dd id="detailCeil">@firstRoom.Ceil</dd></div>
-                <div><dt>รถที่เข้าได้</dt><dd id="detailTruck">@firstRoom.Truck</dd></div>
+                <div><dt>เพดานสูง</dt><dd id="detailCeil">@firstRoom.Height</dd></div>
+                <div><dt>รถที่เข้าได้</dt><dd id="detailTruck">@firstRoom.Vehicle</dd></div>
                 <div><dt>ไฟฟ้า</dt><dd id="detailPower">@firstRoom.Power</dd></div>
             </dl>
 
@@ -176,7 +116,7 @@
             {
                 <li class="sr-card @(room.Free ? "" : "is-taken")">
                     <div class="sr-card-img">
-                        <img src="@room.Img" alt="" loading="lazy" />
+                        <img src="@(room.Img)?w=600&q=80" alt="" loading="lazy" />
                         @if (!room.Free)
                         {
                             <span class="sr-card-flag">มีผู้เช่าแล้ว</span>
@@ -188,7 +128,7 @@
                             <h3><a href="@detailUrl/@room.Id">@room.Id</a></h3>
                             <span class="sr-rating" aria-label="คะแนน @room.Rating จาก 5">★ @room.Rating</span>
                         </div>
-                        <p class="sr-card-spec">@room.Area ตร.ม., เพดาน @room.Ceil</p>
+                        <p class="sr-card-spec">@room.Area ตร.ม., เพดาน @room.Height</p>
                         <p class="sr-card-zone">@room.Zone, @room.Note</p>
                         <p class="sr-card-price">
                             <strong>฿@room.Price.ToString("N0")</strong> ต่อเดือน

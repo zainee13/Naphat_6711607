@@ -32,6 +32,7 @@ a.pf-room-code:hover { text-decoration: underline; }
 .pf-status { display: inline-block; justify-self: start; font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 999px; white-space: nowrap; }
 .pf-status--pending { background: #fdecea; color: #a12020; }
 .pf-status--active { background: #e5f3e9; color: #14632f; }
+.pf-status--checking { background: #fff4e0; color: #8a5300; }
 .pf-status--ended { background: #eceeed; color: #4a525a; }
 .pf-status--cancelled { background: #eceeed; color: #4a525a; }
 

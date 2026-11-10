@@ -1,92 +1,7 @@
+@model Naphat_6507_L005.ViewModels.RoomViewModel
 @{
-    var roomId = ViewBag.RoomId as string ?? "M-01";
-
-    // รหัสห้องแบบเก่า (บางหน้ายังลิงก์ด้วยรหัสนี้) แปลงเป็นรหัสใหม่
-    var oldRoomIds = new Dictionary<string, string>
-    {
-        { "BN-A01", "M-01" },
-        { "WN-B12", "L-01" },
-        { "LC-C05", "CR-05" },
-        { "LK-D03", "L-02" },
-        { "BN-A07", "S-02" },
-        { "WN-E01", "XL-01" },
-    };
-    if (oldRoomIds.ContainsKey(roomId))
-    {
-        roomId = oldRoomIds[roomId];
-    }
-
-    // ข้อมูลห้องทั้งหมด (ตอนต่อฐานข้อมูล ให้ดึงจากตาราง Rooms แทน)
-    var rooms = new[]
-    {
-        new {
-            Id = "S-01", Free = true, Price = 12000,
-            Size = "60 ตร.ม.", Height = "6 ม.", Zone = "โซน A1 (ชั้น 1)",
-            Vehicle = "กระบะ / 4 ล้อ", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "1.5 ตัน/ตร.ม.", Dock = "ทางลาดเทียบรถกระบะ", Power = "220V 1 เฟส",
-            Desc = "ห้องไซส์เล็กชั้น 1 ประตูม้วนกว้าง 3.5 ม. เหมาะกับเอกสารและสต็อกสินค้าพร้อมส่ง",
-            Img = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80"
-        },
-        new {
-            Id = "S-02", Free = true, Price = 15000,
-            Size = "80 ตร.ม.", Height = "6 ม.", Zone = "โซน A2 (SME)",
-            Vehicle = "4 ล้อ / 6 ล้อ", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "2 ตัน/ตร.ม.", Dock = "ทางลาดโหลดสินค้าในร่ม", Power = "220V / 380V",
-            Desc = "ห้องกะทัดรัด ประตูม้วนไฟฟ้า เหมาะกับธุรกิจ SME และร้านค้าออนไลน์",
-            Img = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80"
-        },
-        new {
-            Id = "M-01", Free = true, Price = 25000,
-            Size = "150 ตร.ม.", Height = "8 ม.", Zone = "โซน B1 (มาตรฐาน)",
-            Vehicle = "6 ล้อ / 10 ล้อ", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "3 ตัน/ตร.ม.", Dock = "ชานชาลาพร้อมทางลาด", Power = "3 เฟส 380V (50A)",
-            Desc = "พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม. โฟล์คลิฟต์เข้าได้ วางพาเลทได้ 60–120 ตัว",
-            Img = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80"
-        },
-        new {
-            Id = "M-02", Free = true, Price = 38000,
-            Size = "250 ตร.ม.", Height = "8 ม.", Zone = "โซน B2 (พาเลท)",
-            Vehicle = "10 ล้อ", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "3.5 ตัน/ตร.ม.", Dock = "ชานชาลาสูง 1.2 ม.", Power = "3 เฟส 380V (100A)",
-            Desc = "ติดตั้ง Racking ได้ 3 ชั้น วางพาเลทได้ 120 ตัว มีระบบระบายอากาศ 24 ชม.",
-            Img = "https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&q=80"
-        },
-        new {
-            Id = "L-01", Free = true, Price = 75000,
-            Size = "500 ตร.ม.", Height = "10 ม.", Zone = "โซน C1 (มี Dock)",
-            Vehicle = "รถพ่วง 18 ล้อ / ตู้ 40ft", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "5 ตัน/ตร.ม.", Dock = "Dock Leveler 2 ช่อง", Power = "3 เฟส 380V (200A)",
-            Desc = "รถพ่วง 18 ล้อเข้าได้ มี Dock Leveler ปรับระดับอัตโนมัติ 2 ช่องสำหรับเทียบตู้คอนเทนเนอร์",
-            Img = "https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&q=80"
-        },
-        new {
-            Id = "L-02", Free = false, Price = 55000,
-            Size = "350 ตร.ม.", Height = "10 ม.", Zone = "โซน C2 (สินค้าปลอดภัย)",
-            Vehicle = "10 ล้อ / เทรลเลอร์", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "4 ตัน/ตร.ม.", Dock = "Dock Leveler 1 ช่อง", Power = "3 เฟส 380V (150A)",
-            Desc = "สำหรับสินค้ามูลค่าสูง ประตูนิรภัย 2 ชั้น กล้องบันทึกภาพย้อนหลัง 90 วัน",
-            Img = "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=900&q=80"
-        },
-        new {
-            Id = "XL-01", Free = true, Price = 180000,
-            Size = "1,200 ตร.ม.", Height = "12 ม.", Zone = "โซน D1 (เมกะ)",
-            Vehicle = "คอนเทนเนอร์ทุกขนาด", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "5 ตัน/ตร.ม.", Dock = "Dock Leveler 4 ช่อง", Power = "หม้อแปลงแยก 250 kVA",
-            Desc = "คลังโล่งขนาดใหญ่พิเศษ เพดานสูง 12 ม. หลังคา Solar Roof",
-            Img = "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?w=900&q=80"
-        },
-        new {
-            Id = "CR-05", Free = true, Price = 40000,
-            Size = "200 ตร.ม.", Height = "7 ม.", Zone = "โซนห้องเย็น",
-            Vehicle = "10 ล้อตู้เย็น", Temp = "−18°C ถึง +5°C",
-            FloorLoad = "3 ตัน/ตร.ม.", Dock = "Air Lock Loading Bay", Power = "3 เฟส + ไฟสำรอง",
-            Desc = "ห้องเย็นฉนวน PIR หนา 100 มม. ไฟสำรองคู่ แจ้งเตือนเมื่ออุณหภูมิผิดปกติทาง SMS",
-            Img = "https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&q=80"
-        },
-    };
-
-    // หาห้องตามรหัส ถ้าไม่เจอให้แสดง M-01
-    var room = rooms.FirstOrDefault(r => r.Id == roomId) ?? rooms.First(r => r.Id == "M-01");
+    var room = Model;
+    var reviews = ViewBag.Reviews as List<Naphat_6507_L005.ViewModels.ReviewViewModel> ?? new();
 
     ViewData["Title"] = "ห้อง " + room.Id;
     Layout = "_Layout";
@@ -94,7 +9,7 @@
     // สเปกห้อง (ชื่อ, ค่า)
     var specs = new[]
     {
-        ("พื้นที่", room.Size),
+        ("พื้นที่", room.Area + " ตร.ม."),
         ("เพดานสูง", room.Height),
         ("รับน้ำหนักพื้น", room.FloorLoad),
         ("รถที่เข้าได้", room.Vehicle),
@@ -102,16 +17,6 @@
         ("ไฟฟ้า", room.Power),
         ("อุณหภูมิ", room.Temp),
     };
-
-    // รีวิว (ชื่อผู้รีวิว, ดาว, วันที่, ข้อความ)
-    var reviews = new[]
-    {
-        ("บริษัท สยาม โลจิสติกส์ โซลูชั่นส์", 5, "ม.ค. 2569", "ห้องสะอาด พื้นเรียบ โฟล์คลิฟต์วิ่งคล่อง เทียบตู้คอนเทนเนอร์สะดวก"),
-        ("บจก. นำเจริญ ซัพพลาย", 5, "ธ.ค. 2568", "เก็บพาเลทสินค้านำเข้าได้พอดี เจ้าหน้าที่ช่วยเรื่องเอกสารเร็ว"),
-        ("SuperShop Thailand", 5, "พ.ย. 2568", "ทำสัญญาออนไลน์ง่าย ประตูม้วนไฟฟ้าใช้สะดวก รถเข้าส่งของได้ง่าย"),
-    };
-
-    var userName = ViewBag.FullName as string ?? "คุณ";
 }
 
 @section Styles {
@@ -146,7 +51,7 @@
 
         <!-- ซ้าย: รูป สเปก รีวิว -->
         <div class="rd-main">
-            <img class="rd-photo @(room.Free ? "" : "is-taken")" src="@room.Img" alt="ภายในห้อง @room.Id" />
+            <img class="rd-photo @(room.Free ? "" : "is-taken")" src="@(room.Img)?w=900&q=80" alt="ภายในห้อง @room.Id" />
 
             <!-- สเปกห้อง -->
             <section class="rd-section" aria-labelledby="specTitle">
@@ -169,19 +74,28 @@
             <section class="rd-section" aria-labelledby="reviewTitle">
                 <div class="rd-reviews-head">
                     <h2 id="reviewTitle" class="cu-h2">รีวิว</h2>
-                    <p class="rd-score"><strong>★ 4.8</strong> จาก <span id="reviewCount">14</span> รีวิว</p>
+                    <p class="rd-score"><strong>★ @room.Rating</strong> จาก @reviews.Count รีวิว</p>
                 </div>
 
-                <ul class="rd-review-list" id="reviewList">
+                @if (TempData["Success"] != null)
+                {
+                    <p class="cu-alert" role="status">@TempData["Success"]</p>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <p class="cu-alert cu-alert--error" role="alert">@TempData["Error"]</p>
+                }
+
+                <ul class="rd-review-list">
                     @foreach (var review in reviews)
                     {
                         <li>
                             <div class="rd-review-top">
-                                <strong>@review.Item1</strong>
-                                <span class="rd-stars" aria-label="@review.Item2 ดาว">@(new string('★', review.Item2))</span>
+                                <strong>@review.Name</strong>
+                                <span class="rd-stars" aria-label="@review.Stars ดาว">@(new string('★', review.Stars))</span>
                             </div>
-                            <p>@review.Item4</p>
-                            <span class="rd-date">@review.Item3</span>
+                            <p>@review.Comment</p>
+                            <span class="rd-date">@review.Date</span>
                         </li>
                     }
                 </ul>
@@ -189,18 +103,19 @@
                 <!-- ฟอร์มเขียนรีวิว (กดปุ่มแล้วเปิดออก) -->
                 <details class="rd-write">
                     <summary class="cu-btn">เขียนรีวิว</summary>
-                    <form id="reviewForm">
+                    <form asp-controller="Customer" asp-action="AddReview" method="post">
+                        <input type="hidden" name="RoomId" value="@room.Id" />
                         <fieldset class="rd-star-input">
                             <legend>คะแนน</legend>
                             @for (int i = 5; i >= 1; i--)
                             {
-                                <input type="radio" name="stars" id="star@(i)" value="@i" @(i == 5 ? "checked" : "") />
+                                <input type="radio" name="Stars" id="star@(i)" value="@i" @(i == 5 ? "checked" : "") />
                                 <label for="star@(i)" title="@i ดาว">★</label>
                             }
                         </fieldset>
                         <label class="cu-field">
                             <span>ความคิดเห็น</span>
-                            <textarea id="reviewText" rows="3" required placeholder="เช่น ความสะดวกในการขนของ สภาพพื้น ความปลอดภัย"></textarea>
+                            <textarea name="Comment" rows="3" required placeholder="เช่น ความสะดวกในการขนของ สภาพพื้น ความปลอดภัย"></textarea>
                         </label>
                         <button type="submit" class="cu-btn cu-btn--primary">ส่งรีวิว</button>
                     </form>
@@ -214,13 +129,15 @@
 
             @if (room.Free)
             {
+                <!-- ส่งวันเริ่มเช่าและระยะสัญญาไปหน้า BookRoom -->
+                <form asp-controller="Customer" asp-action="BookRoom" asp-route-id="@room.Id" method="get">
                 <label class="cu-field">
                     <span>วันเริ่มเช่า</span>
-                    <input type="date" id="startDate" />
+                    <input type="date" id="startDate" name="startDate" />
                 </label>
                 <label class="cu-field">
                     <span>ระยะสัญญา</span>
-                    <select id="duration">
+                    <select id="duration" name="months">
                         <option value="1">1 เดือน</option>
                         <option value="3">3 เดือน</option>
                         <option value="6" selected>6 เดือน</option>
@@ -248,7 +165,8 @@
                 </dl>
                 <p class="cu-next" id="nextMonthsText"></p>
 
-                <a class="cu-btn cu-btn--primary rd-cta" asp-controller="Customer" asp-action="BookRoom" asp-route-id="@room.Id">จองห้องนี้</a>
+                <button type="submit" class="cu-btn cu-btn--primary rd-cta">จองห้องนี้</button>
+                </form>
             }
             else
             {
@@ -262,7 +180,6 @@
 @section Scripts {
 <script>
     const monthlyRate = @room.Price;   // ค่าเช่าต่อเดือน
-    const userName = @Json.Serialize(userName);
 
     // แปลงตัวเลขเป็นข้อความเงินบาท เช่น 25000 -> ฿25,000
     function toBaht(amount) {
@@ -307,47 +224,5 @@
         durationSelect.addEventListener('change', calculatePrice);
         calculatePrice();
     }
-
-    // ส่งรีวิว (ยังไม่บันทึกลงฐานข้อมูล แค่เพิ่มในหน้านี้)
-    const reviewForm = document.getElementById('reviewForm');
-    reviewForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-
-        const text = document.getElementById('reviewText').value.trim();
-        if (text === '') return;
-        const stars = parseInt(reviewForm.querySelector('input[name=stars]:checked').value);
-
-        // สร้างรายการรีวิวใหม่ (ใช้ textContent เพื่อไม่ให้ข้อความถูกแปลงเป็น HTML)
-        const item = document.createElement('li');
-        item.className = 'is-new';
-
-        const top = document.createElement('div');
-        top.className = 'rd-review-top';
-
-        const name = document.createElement('strong');
-        name.textContent = userName;
-
-        const starText = document.createElement('span');
-        starText.className = 'rd-stars';
-        starText.textContent = '★'.repeat(stars);
-
-        const comment = document.createElement('p');
-        comment.textContent = text;
-
-        const date = document.createElement('span');
-        date.className = 'rd-date';
-        date.textContent = 'เมื่อสักครู่';
-
-        top.append(name, starText);
-        item.append(top, comment, date);
-        document.getElementById('reviewList').prepend(item);
-
-        // เพิ่มจำนวนรีวิว
-        const count = document.getElementById('reviewCount');
-        count.textContent = parseInt(count.textContent) + 1;
-
-        reviewForm.reset();
-        reviewForm.closest('details').open = false;
-    });
 </script>
 }
