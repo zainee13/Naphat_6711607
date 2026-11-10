@@ -74,7 +74,14 @@
             <section class="rd-section" aria-labelledby="reviewTitle">
                 <div class="rd-reviews-head">
                     <h2 id="reviewTitle" class="cu-h2">รีวิว</h2>
-                    <p class="rd-score"><strong>★ @room.Rating</strong> จาก @reviews.Count รีวิว</p>
+                    @if (reviews.Count > 0)
+                    {
+                        <p class="rd-score"><strong>★ @room.Rating</strong> จาก @reviews.Count รีวิว</p>
+                    }
+                    else
+                    {
+                        <p class="rd-score">ยังไม่มีรีวิว</p>
+                    }
                 </div>
 
                 @if (TempData["Success"] != null)
@@ -100,7 +107,9 @@
                     }
                 </ul>
 
-                <!-- ฟอร์มเขียนรีวิว (กดปุ่มแล้วเปิดออก) -->
+                <!-- ฟอร์มเขียนรีวิว: เฉพาะคนที่เคยเช่าห้องนี้ (CustomerController ส่ง ViewBag.CanReview มา) -->
+                @if (ViewBag.CanReview == true)
+                {
                 <details class="rd-write">
                     <summary class="cu-btn">เขียนรีวิว</summary>
                     <form asp-controller="Customer" asp-action="AddReview" method="post">
@@ -120,6 +129,11 @@
                         <button type="submit" class="cu-btn cu-btn--primary">ส่งรีวิว</button>
                     </form>
                 </details>
+                }
+                else
+                {
+                    <p class="cu-sub">รีวิวได้หลังจากเช่าห้องนี้แล้ว</p>
+                }
             </section>
         </div>
 

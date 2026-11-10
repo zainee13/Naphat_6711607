@@ -126,7 +126,10 @@
                     <div class="sr-card-body">
                         <div class="sr-card-top">
                             <h3><a href="@detailUrl/@room.Id">@room.Id</a></h3>
-                            <span class="sr-rating" aria-label="คะแนน @room.Rating จาก 5">★ @room.Rating</span>
+                            @if (room.Rating != null)
+                            {
+                                <span class="sr-rating" aria-label="คะแนน @room.Rating จาก 5">★ @room.Rating</span>
+                            }
                         </div>
                         <p class="sr-card-spec">@room.Area ตร.ม., เพดาน @room.Height</p>
                         <p class="sr-card-zone">@room.Zone, @room.Note</p>

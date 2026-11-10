@@ -168,7 +168,7 @@
                         <p class="cu-promo-msg" id="promoMessage" role="status" hidden></p>
                     </form>
 
-                    <p class="pf-due">ชำระภายใน <strong>16 พ.ย. 2569, 23:59 น.</strong> ถ้าเลยกำหนด การจองจะถูกยกเลิก</p>
+                    <p class="pf-due">ชำระภายใน <strong>@ViewBag.DueDate, 23:59 น.</strong> ถ้าเลยกำหนด การจองจะถูกยกเลิก</p>
                 </div>
 
                 <!-- เลือกวิธีชำระเงิน -->
@@ -305,10 +305,10 @@
                 </div>
             </form>
 
-            <!-- ข้อมูลที่บันทึกล่าสุด (ตอนนี้เก็บใน Session รอต่อตาราง user) -->
+            <!-- ข้อมูลที่บันทึกไว้ในตาราง user -->
             <aside class="pf-saved-card" aria-labelledby="savedTitle">
                 <h3 id="savedTitle">ข้อมูลที่บันทึกไว้</h3>
-                @if (Model.SavedAt == "")
+                @if (Model.Phone == "" && Model.Email == "" && Model.Address == "")
                 {
                     <p class="pf-saved-empty">ยังไม่ได้บันทึกข้อมูล กรอกฟอร์มแล้วกดบันทึก ข้อมูลจะแสดงที่นี่</p>
                 }
@@ -330,7 +330,6 @@
                             <div><dt>@row.Item1</dt><dd class="@(isEmpty ? "is-empty" : "")">@(isEmpty ? "-" : row.Item2)</dd></div>
                         }
                     </dl>
-                    <p class="pf-saved-time">บันทึกล่าสุด <strong>@Model.SavedAt</strong></p>
                 }
             </aside>
         </div>

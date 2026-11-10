@@ -1,96 +1,34 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
+using Naphat_6507_L005.Models;
 using Naphat_6507_L005.ViewModels;
 
 namespace Naphat_6507_L005.Controllers;
 
 public class CustomerController : Controller
 {
-    // ===================== ข้อมูลตัวอย่าง (ยังไม่ต่อฐานข้อมูล) =====================
-    // ตอนต่อฐานข้อมูล ให้เปลี่ยนไปดึงจากตาราง rooms / bookings / payments / reviews แทน
+    private readonly Csi402dbContext _db;
+    private readonly IWebHostEnvironment _env;
 
-    public static readonly List<RoomViewModel> _rooms = new()
+    public CustomerController(Csi402dbContext db, IWebHostEnvironment env)
     {
-        new RoomViewModel {
-            Id = "XL-01", Kind = "xl", Free = true, Grid = "1 / 1 / 6 / 6",
-            Area = "1,200", Height = "12 ม.", Zone = "โซน D1 (เมกะ)",
-            Vehicle = "คอนเทนเนอร์ทุกขนาด", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "5 ตัน/ตร.ม.", Dock = "Dock Leveler 4 ช่อง", Power = "หม้อแปลงแยก 250 kVA",
-            Note = "คลังโล่งขนาดใหญ่พิเศษ",
-            Desc = "คลังโล่งขนาดใหญ่พิเศษ เพดานสูง 12 ม. หลังคา Solar Roof",
-            Price = 180000, OldPrice = 210000, Rating = "5.0",
-            Img = "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d"
-        },
-        new RoomViewModel {
-            Id = "L-01", Kind = "l", Free = true, Grid = "1 / 6 / 4 / 10",
-            Area = "500", Height = "10 ม.", Zone = "โซน C1 (มี Dock)",
-            Vehicle = "รถพ่วง 18 ล้อ / ตู้ 40ft", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "5 ตัน/ตร.ม.", Dock = "Dock Leveler 2 ช่อง", Power = "3 เฟส 380V (200A)",
-            Note = "มี Dock Leveler เทียบตู้คอนเทนเนอร์",
-            Desc = "รถพ่วง 18 ล้อเข้าได้ มี Dock Leveler ปรับระดับอัตโนมัติ 2 ช่องสำหรับเทียบตู้คอนเทนเนอร์",
-            Price = 75000, OldPrice = 85000, Rating = "4.6",
-            Img = "https://images.unsplash.com/photo-1553413077-190dd305871c"
-        },
-        new RoomViewModel {
-            Id = "L-02", Kind = "l", Free = false, Grid = "1 / 10 / 4 / 13",
-            Area = "350", Height = "10 ม.", Zone = "โซน C2 (สินค้าปลอดภัย)",
-            Vehicle = "10 ล้อ / เทรลเลอร์", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "4 ตัน/ตร.ม.", Dock = "Dock Leveler 1 ช่อง", Power = "3 เฟส 380V (150A)",
-            Note = "ควบคุมการเข้าออกเฉพาะบุคคล",
-            Desc = "สำหรับสินค้ามูลค่าสูง ประตูนิรภัย 2 ชั้น กล้องบันทึกภาพย้อนหลัง 90 วัน",
-            Price = 55000, OldPrice = 0, Rating = "4.5",
-            Img = "https://images.unsplash.com/photo-1494412685616-a5d310fbb07d"
-        },
-        new RoomViewModel {
-            Id = "M-02", Kind = "m", Free = true, Grid = "4 / 6 / 7 / 9",
-            Area = "250", Height = "8 ม.", Zone = "โซน B2 (พาเลท)",
-            Vehicle = "10 ล้อ", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "3.5 ตัน/ตร.ม.", Dock = "ชานชาลาสูง 1.2 ม.", Power = "3 เฟส 380V (100A)",
-            Note = "Racking 3 ชั้น วางได้ 120 พาเลท",
-            Desc = "ติดตั้ง Racking ได้ 3 ชั้น วางพาเลทได้ 120 ตัว มีระบบระบายอากาศ 24 ชม.",
-            Price = 38000, OldPrice = 0, Rating = "4.8",
-            Img = "https://images.unsplash.com/photo-1553413077-190dd305871c"
-        },
-        new RoomViewModel {
-            Id = "M-01", Kind = "m", Free = true, Grid = "4 / 9 / 7 / 11",
-            Area = "150", Height = "8 ม.", Zone = "โซน B1 (มาตรฐาน)",
-            Vehicle = "6 ล้อ / 10 ล้อ", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "3 ตัน/ตร.ม.", Dock = "ชานชาลาพร้อมทางลาด", Power = "3 เฟส 380V (50A)",
-            Note = "พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม.",
-            Desc = "พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม. โฟล์คลิฟต์เข้าได้ วางพาเลทได้ 60–120 ตัว",
-            Price = 25000, OldPrice = 29000, Rating = "4.8",
-            Img = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d"
-        },
-        new RoomViewModel {
-            Id = "CR-05", Kind = "cold", Free = true, Grid = "4 / 11 / 7 / 13",
-            Area = "200", Height = "7 ม.", Zone = "โซนห้องเย็น",
-            Vehicle = "10 ล้อตู้เย็น", Temp = "−18°C ถึง +5°C",
-            FloorLoad = "3 ตัน/ตร.ม.", Dock = "Air Lock Loading Bay", Power = "3 เฟส + ไฟสำรอง",
-            Note = "ควบคุม −18°C ถึง +5°C ดูอุณหภูมิผ่านมือถือ",
-            Desc = "ห้องเย็นฉนวน PIR หนา 100 มม. ไฟสำรองคู่ แจ้งเตือนเมื่ออุณหภูมิผิดปกติทาง SMS",
-            Price = 40000, OldPrice = 48000, Rating = "4.9",
-            Img = "https://images.unsplash.com/photo-1553413077-190dd305871c"
-        },
-        new RoomViewModel {
-            Id = "S-01", Kind = "s", Free = true, Grid = "6 / 1 / 7 / 3",
-            Area = "60", Height = "6 ม.", Zone = "โซน A1 (ชั้น 1)",
-            Vehicle = "กระบะ / 4 ล้อ", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "1.5 ตัน/ตร.ม.", Dock = "ทางลาดเทียบรถกระบะ", Power = "220V 1 เฟส",
-            Note = "ชั้น 1 เข้าถึงง่าย",
-            Desc = "ห้องไซส์เล็กชั้น 1 ประตูม้วนกว้าง 3.5 ม. เหมาะกับเอกสารและสต็อกสินค้าพร้อมส่ง",
-            Price = 12000, OldPrice = 0, Rating = "4.7",
-            Img = "https://images.unsplash.com/photo-1504307651254-35680f356dfd"
-        },
-        new RoomViewModel {
-            Id = "S-02", Kind = "s", Free = true, Grid = "6 / 3 / 7 / 6",
-            Area = "80", Height = "6 ม.", Zone = "โซน A2 (SME)",
-            Vehicle = "4 ล้อ / 6 ล้อ", Temp = "อุณหภูมิปกติ",
-            FloorLoad = "2 ตัน/ตร.ม.", Dock = "ทางลาดโหลดสินค้าในร่ม", Power = "220V / 380V",
-            Note = "ประตูม้วนไฟฟ้า",
-            Desc = "ห้องกะทัดรัด ประตูม้วนไฟฟ้า เหมาะกับธุรกิจ SME และร้านค้าออนไลน์",
-            Price = 15000, OldPrice = 18000, Rating = "4.3",
-            Img = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d"
-        },
+        _db = db;
+        _env = env;
+    }
+
+    // ===================== ข้อมูลเสริมของห้อง =====================
+    // ตาราง room ยังไม่มีคอลัมน์เหล่านี้ (ตำแหน่งบนผัง, สเปก, ราคาเดิม) จึงเก็บไว้ที่นี่ก่อน
+    // ข้อมูลหลักของห้อง (ขนาด, ราคา, สถานะ, รูป) ดึงจากตาราง room
+    private static readonly Dictionary<string, RoomViewModel> _roomExtras = new()
+    {
+        { "XL-01", new RoomViewModel { Grid = "1 / 1 / 6 / 6",   Vehicle = "คอนเทนเนอร์ทุกขนาด",       Temp = "อุณหภูมิปกติ",   FloorLoad = "5 ตัน/ตร.ม.",   Dock = "Dock Leveler 4 ช่อง",     Power = "หม้อแปลงแยก 250 kVA", Note = "คลังโล่งขนาดใหญ่พิเศษ",                   OldPrice = 210000 } },
+        { "L-01",  new RoomViewModel { Grid = "1 / 6 / 4 / 10",  Vehicle = "รถพ่วง 18 ล้อ / ตู้ 40ft", Temp = "อุณหภูมิปกติ",   FloorLoad = "5 ตัน/ตร.ม.",   Dock = "Dock Leveler 2 ช่อง",     Power = "3 เฟส 380V (200A)",   Note = "มี Dock Leveler เทียบตู้คอนเทนเนอร์",     OldPrice = 85000 } },
+        { "L-02",  new RoomViewModel { Grid = "1 / 10 / 4 / 13", Vehicle = "10 ล้อ / เทรลเลอร์",       Temp = "อุณหภูมิปกติ",   FloorLoad = "4 ตัน/ตร.ม.",   Dock = "Dock Leveler 1 ช่อง",     Power = "3 เฟส 380V (150A)",   Note = "ควบคุมการเข้าออกเฉพาะบุคคล",              OldPrice = 0 } },
+        { "M-02",  new RoomViewModel { Grid = "4 / 6 / 7 / 9",   Vehicle = "10 ล้อ",                   Temp = "อุณหภูมิปกติ",   FloorLoad = "3.5 ตัน/ตร.ม.", Dock = "ชานชาลาสูง 1.2 ม.",       Power = "3 เฟส 380V (100A)",   Note = "Racking 3 ชั้น วางได้ 120 พาเลท",          OldPrice = 0 } },
+        { "M-01",  new RoomViewModel { Grid = "4 / 9 / 7 / 11",  Vehicle = "6 ล้อ / 10 ล้อ",           Temp = "อุณหภูมิปกติ",   FloorLoad = "3 ตัน/ตร.ม.",   Dock = "ชานชาลาพร้อมทางลาด",      Power = "3 เฟส 380V (50A)",    Note = "พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม.",      OldPrice = 29000 } },
+        { "CR-05", new RoomViewModel { Grid = "4 / 11 / 7 / 13", Vehicle = "10 ล้อตู้เย็น",             Temp = "−18°C ถึง +5°C", FloorLoad = "3 ตัน/ตร.ม.",   Dock = "Air Lock Loading Bay",    Power = "3 เฟส + ไฟสำรอง",     Note = "ควบคุม −18°C ถึง +5°C ดูอุณหภูมิผ่านมือถือ", OldPrice = 48000 } },
+        { "S-01",  new RoomViewModel { Grid = "6 / 1 / 7 / 3",   Vehicle = "กระบะ / 4 ล้อ",            Temp = "อุณหภูมิปกติ",   FloorLoad = "1.5 ตัน/ตร.ม.", Dock = "ทางลาดเทียบรถกระบะ",      Power = "220V 1 เฟส",          Note = "ชั้น 1 เข้าถึงง่าย",                       OldPrice = 0 } },
+        { "S-02",  new RoomViewModel { Grid = "6 / 3 / 7 / 6",   Vehicle = "4 ล้อ / 6 ล้อ",            Temp = "อุณหภูมิปกติ",   FloorLoad = "2 ตัน/ตร.ม.",   Dock = "ทางลาดโหลดสินค้าในร่ม",   Power = "220V / 380V",         Note = "ประตูม้วนไฟฟ้า",                           OldPrice = 18000 } },
     };
 
     // รหัสห้องแบบเก่า (บางหน้ายังลิงก์ด้วยรหัสนี้) แปลงเป็นรหัสใหม่
@@ -104,29 +42,12 @@ public class CustomerController : Controller
         { "WN-E01", "XL-01" },
     };
 
-    // การจอง: Username = "" คือข้อมูลตัวอย่าง แสดงให้ทุกคน
-    public static readonly List<MyBookingViewModel> _bookings = new()
+    // ชื่อวิธีชำระเงินที่แสดงในประวัติ
+    private static readonly Dictionary<string, string> _payMethodText = new()
     {
-        new MyBookingViewModel { Id = "BK-2026-002", Username = "", Room = "L-01",  Zone = "โซน C1",     Period = "1 ธ.ค. 2569 – 31 พ.ค. 2570", Months = 6, Rate = 75000, Status = "pending",   BookedOn = "9 พ.ย. 2569" },
-        new MyBookingViewModel { Id = "BK-2026-001", Username = "", Room = "M-01",  Zone = "โซน B1",     Period = "1 ก.ค. – 31 ธ.ค. 2569",      Months = 6, Rate = 25000, Status = "active",    BookedOn = "15 มิ.ย. 2569" },
-        new MyBookingViewModel { Id = "BK-2025-018", Username = "", Room = "CR-05", Zone = "โซนห้องเย็น", Period = "1 ก.ค. – 31 ธ.ค. 2568",      Months = 6, Rate = 40000, Status = "ended",     BookedOn = "20 มิ.ย. 2568" },
-        new MyBookingViewModel { Id = "BK-2025-009", Username = "", Room = "M-01",  Zone = "โซน B1",     Period = "1 ม.ค. – 30 มิ.ย. 2568",     Months = 6, Rate = 25000, Status = "cancelled", BookedOn = "10 ธ.ค. 2567" },
-    };
-
-    public static readonly List<PaymentHistoryViewModel> _payments = new()
-    {
-        new PaymentHistoryViewModel { No = "INV-2026-011", Title = "M-01 ค่าเช่า พ.ย. 2569", Amount = 25000, Detail = "1 พ.ย. 2569, โอนผ่าน SCB" },
-        new PaymentHistoryViewModel { No = "INV-2026-010", Title = "M-01 ค่าเช่า ต.ค. 2569", Amount = 25000, Detail = "1 ต.ค. 2569, โอนผ่าน SCB" },
-        new PaymentHistoryViewModel { No = "INV-2026-005", Title = "M-01 ค่าเช่าเดือนแรกและเงินประกัน", Amount = 75000, Detail = "15 มิ.ย. 2569, โอนผ่าน SCB" },
-        new PaymentHistoryViewModel { No = "REF-2026-001", Title = "คืนเงินประกัน CR-05", Amount = 80000, Detail = "15 ม.ค. 2569, โอนคืนบัญชีเดิม", IsRefund = true },
-    };
-
-    // รีวิว: RoomId = "" คือรีวิวตัวอย่าง แสดงทุกห้อง
-    public static readonly List<ReviewViewModel> _reviews = new()
-    {
-        new ReviewViewModel { RoomId = "", Name = "บริษัท สยาม โลจิสติกส์ โซลูชั่นส์", Stars = 5, Date = "ม.ค. 2569", Comment = "ห้องสะอาด พื้นเรียบ โฟล์คลิฟต์วิ่งคล่อง เทียบตู้คอนเทนเนอร์สะดวก" },
-        new ReviewViewModel { RoomId = "", Name = "บจก. นำเจริญ ซัพพลาย", Stars = 5, Date = "ธ.ค. 2568", Comment = "เก็บพาเลทสินค้านำเข้าได้พอดี เจ้าหน้าที่ช่วยเรื่องเอกสารเร็ว" },
-        new ReviewViewModel { RoomId = "", Name = "SuperShop Thailand", Stars = 5, Date = "พ.ย. 2568", Comment = "ทำสัญญาออนไลน์ง่าย ประตูม้วนไฟฟ้าใช้สะดวก รถเข้าส่งของได้ง่าย" },
+        { "transfer", "โอนผ่าน SCB" },
+        { "qr", "พร้อมเพย์ QR" },
+        { "card", "บัตรเครดิต / เดบิต" },
     };
 
     private static readonly CultureInfo _th = new("th-TH");
@@ -144,15 +65,69 @@ public class CustomerController : Controller
         ViewBag.Role = HttpContext.Session.GetString("Role") ?? "Guest";
     }
 
-    // หาห้องตามรหัส (รองรับรหัสเก่า) ถ้าไม่เจอให้ใช้ M-01
-    private RoomViewModel FindRoom(string id)
+    // ผู้ใช้ที่ล็อกอินอยู่ (จากตาราง user) บัญชีพนักงานตัวอย่างจะไม่มีในตาราง ได้ null
+    private User? GetCurrentUser()
     {
+        var username = HttpContext.Session.GetString("Username");
+        return (from u in _db.Users where u.Username == username select u).FirstOrDefault();
+    }
+
+    // แปลงข้อมูลจากตาราง room เป็น RoomViewModel แล้วเติมข้อมูลเสริม
+    private RoomViewModel ToRoomViewModel(Room r, string? rating)
+    {
+        RoomViewModel room = new();
+        room.Id = r.RoomId;
+        room.Kind = r.SizeCat;
+        room.Free = r.Status == "Available";
+        room.Area = (r.Size ?? 0).ToString("N0");
+        room.Height = r.Height ?? "-";
+        room.Zone = r.Zone ?? "";
+        room.Desc = r.Description ?? "";
+        room.Price = (int)r.MonthlyRate;
+        room.Img = r.ImageUrl ?? "";
+        room.Rating = rating;
+
+        if (_roomExtras.ContainsKey(r.RoomId))
+        {
+            var extra = _roomExtras[r.RoomId];
+            room.Grid = extra.Grid;
+            room.Vehicle = extra.Vehicle;
+            room.Temp = extra.Temp;
+            room.FloorLoad = extra.FloorLoad;
+            room.Dock = extra.Dock;
+            room.Power = extra.Power;
+            room.Note = extra.Note;
+            room.OldPrice = extra.OldPrice;
+        }
+        else
+        {
+            room.Grid = "auto";
+            room.Vehicle = room.Temp = room.FloorLoad = room.Dock = room.Power = "-";
+            room.Note = "";
+        }
+        return room;
+    }
+
+    // คะแนนเฉลี่ยรีวิวของห้อง (null = ยังไม่มีรีวิว)
+    private string? GetRating(string roomId)
+    {
+        var stars = (from rv in _db.Reviews
+                     join b in _db.Bookings on rv.BookingId equals b.BookingId
+                     where b.RoomId == roomId
+                     select rv.OverallRating).ToList();
+        return stars.Count == 0 ? null : stars.Average().ToString("0.0");
+    }
+
+    // หาห้องตามรหัส (รองรับรหัสเก่า) ถ้าไม่เจอให้ใช้ M-01
+    private Room? FindRoom(string? id)
+    {
+        id ??= "M-01";
         if (_oldRoomIds.ContainsKey(id))
         {
             id = _oldRoomIds[id];
         }
-        var room = (from r in _rooms where r.Id == id select r).FirstOrDefault();
-        return room ?? (from r in _rooms where r.Id == "M-01" select r).First();
+        var room = (from r in _db.Rooms where r.RoomId == id select r).FirstOrDefault();
+        return room ?? (from r in _db.Rooms where r.RoomId == "M-01" select r).FirstOrDefault();
     }
 
     // จำนวนเดือนของเงินประกัน: สัญญา 1–3 เดือน = 1 เดือน, 6 เดือน = 2 เดือน, 12 เดือน = 3 เดือน
@@ -176,14 +151,49 @@ public class CustomerController : Controller
         return endMonth.AddDays(start.Day - 2);
     }
 
-    // การจองที่ผู้ใช้คนนี้เห็น (ข้อมูลตัวอย่าง + ที่ตัวเองจอง) ใหม่สุดขึ้นก่อน
-    private List<MyBookingViewModel> GetMyBookings()
+    // เลขการจองใหม่ เช่น BK-2026-001
+    private string NewBookingId()
     {
-        var username = HttpContext.Session.GetString("Username");
-        return (from b in _bookings
-                where b.Username == "" || b.Username == username
-                orderby b.Id descending
-                select b).ToList();
+        var prefix = "BK-" + DateTime.Now.Year + "-";
+        int no = (from b in _db.Bookings where b.BookingId.StartsWith(prefix) select b).Count() + 1;
+        while ((from b in _db.Bookings where b.BookingId == prefix + no.ToString("000") select b).Any())
+        {
+            no++;
+        }
+        return prefix + no.ToString("000");
+    }
+
+    // การจองของผู้ใช้ที่ล็อกอิน ใหม่สุดขึ้นก่อน
+    private List<MyBookingViewModel> GetMyBookings(User? user)
+    {
+        if (user == null)
+        {
+            return new List<MyBookingViewModel>();
+        }
+
+        var rows = (from b in _db.Bookings
+                    join r in _db.Rooms on b.RoomId equals r.RoomId
+                    where b.UserId == user.UserId
+                    orderby b.BookingDate descending
+                    select new { Booking = b, Room = r }).ToList();
+
+        List<MyBookingViewModel> list = new();
+        foreach (var row in rows)
+        {
+            int rate = (int)row.Room.MonthlyRate;
+            MyBookingViewModel item = new();
+            item.Id = row.Booking.BookingId;
+            item.Room = row.Room.RoomId;
+            item.Zone = row.Room.Zone ?? "";
+            item.Period = row.Booking.StartDate.ToString("d MMM yyyy", _th) + " – " + row.Booking.EndDate.ToString("d MMM yyyy", _th);
+            item.Months = rate > 0 ? (int)(row.Booking.TotalRent / rate) : 0;
+            item.Rate = rate;
+            item.Status = row.Booking.BookingStatus.ToLower();
+            item.BookedDate = row.Booking.BookingDate;
+            item.BookedOn = row.Booking.BookingDate.ToString("d MMM yyyy", _th);
+            list.Add(item);
+        }
+        return list;
     }
 
     // ===================== หน้า =====================
@@ -201,7 +211,14 @@ public class CustomerController : Controller
             return RedirectToAction("Login", "Account");
         }
         SetUserBag();
-        return View(_rooms);
+
+        var rooms = (from r in _db.Rooms select r).ToList();
+        List<RoomViewModel> model = new();
+        foreach (var r in rooms)
+        {
+            model.Add(ToRoomViewModel(r, GetRating(r.RoomId)));
+        }
+        return View(model);
     }
 
     public IActionResult RoomDetail(string id = "M-01")
@@ -211,11 +228,44 @@ public class CustomerController : Controller
             return RedirectToAction("Login", "Account");
         }
         SetUserBag();
+
         var room = FindRoom(id);
-        ViewBag.Reviews = (from r in _reviews
-                           where r.RoomId == "" || r.RoomId == room.Id
-                           select r).Reverse().ToList();
-        return View(room);
+        if (room == null)
+        {
+            return RedirectToAction("Search");
+        }
+
+        // รีวิวของห้องนี้ (รีวิวผูกกับการจอง จึงต้อง join booking และ user)
+        var reviews = (from rv in _db.Reviews
+                       join b in _db.Bookings on rv.BookingId equals b.BookingId
+                       join u in _db.Users on b.UserId equals u.UserId
+                       where b.RoomId == room.RoomId
+                       orderby rv.ReviewDate descending
+                       select new { rv, u }).ToList();
+
+        List<ReviewViewModel> reviewList = new();
+        foreach (var row in reviews)
+        {
+            ReviewViewModel item = new();
+            item.RoomId = room.RoomId;
+            item.Name = string.IsNullOrEmpty(row.u.CompanyName) ? row.u.Fullname : row.u.CompanyName;
+            item.Stars = row.rv.OverallRating;
+            item.Date = row.rv.ReviewDate.ToString("MMM yyyy", _th);
+            item.Comment = row.rv.Comment ?? "";
+            reviewList.Add(item);
+        }
+        ViewBag.Reviews = reviewList;
+
+        // เขียนรีวิวได้เมื่อเคยเช่าห้องนี้ (สัญญาใช้งานอยู่หรือสิ้นสุดแล้ว) และการจองนั้นยังไม่เคยรีวิว
+        var user = GetCurrentUser();
+        ViewBag.CanReview = user != null && (from b in _db.Bookings
+                                              where b.UserId == user.UserId && b.RoomId == room.RoomId
+                                                    && (b.BookingStatus == "Active" || b.BookingStatus == "Ended")
+                                                    && !_db.Reviews.Any(rv => rv.BookingId == b.BookingId)
+                                              select b).Any();
+
+        var rating = reviewList.Count == 0 ? null : reviewList.Average(r => r.Stars).ToString("0.0");
+        return View(ToRoomViewModel(room, rating));
     }
 
     [HttpPost]
@@ -226,22 +276,44 @@ public class CustomerController : Controller
             return RedirectToAction("Login", "Account");
         }
 
+        var room = FindRoom(data.RoomId);
+        if (room == null)
+        {
+            return RedirectToAction("Search");
+        }
+
         if (string.IsNullOrWhiteSpace(data.Comment))
         {
             TempData["Error"] = "กรุณาพิมพ์ความคิดเห็นก่อนส่งรีวิว";
-            return RedirectToAction("RoomDetail", new { id = data.RoomId });
+            return RedirectToAction("RoomDetail", new { id = room.RoomId });
         }
 
-        ReviewViewModel review = new();
-        review.RoomId = data.RoomId;
-        review.Name = HttpContext.Session.GetString("FullName") ?? "คุณ";
-        review.Stars = Math.Clamp(data.Stars, 1, 5);
-        review.Date = "เมื่อสักครู่";
+        // หาการจองห้องนี้ของผู้ใช้ที่ยังไม่เคยรีวิว
+        var user = GetCurrentUser();
+        var booking = user == null ? null :
+                      (from b in _db.Bookings
+                       where b.UserId == user.UserId && b.RoomId == room.RoomId
+                             && (b.BookingStatus == "Active" || b.BookingStatus == "Ended")
+                             && !_db.Reviews.Any(rv => rv.BookingId == b.BookingId)
+                       orderby b.BookingDate descending
+                       select b).FirstOrDefault();
+        if (booking == null)
+        {
+            TempData["Error"] = "รีวิวได้เฉพาะห้องที่เคยเช่า และรีวิวได้ 1 ครั้งต่อการจอง";
+            return RedirectToAction("RoomDetail", new { id = room.RoomId });
+        }
+
+        // บันทึกลงตาราง review
+        Review review = new();
+        review.BookingId = booking.BookingId;
+        review.OverallRating = Math.Clamp(data.Stars, 1, 5);
         review.Comment = data.Comment.Trim();
-        _reviews.Add(review);
+        review.ReviewDate = DateTime.Now;
+        _db.Reviews.Add(review);
+        _db.SaveChanges();
 
         TempData["Success"] = "ส่งรีวิวแล้ว ขอบคุณสำหรับความคิดเห็น";
-        return RedirectToAction("RoomDetail", new { id = data.RoomId });
+        return RedirectToAction("RoomDetail", new { id = room.RoomId });
     }
 
     [HttpGet]
@@ -252,18 +324,26 @@ public class CustomerController : Controller
             return RedirectToAction("Login", "Account");
         }
         SetUserBag();
-        var room = FindRoom(id);
-        ViewBag.Room = room;
 
-        // ค่าเริ่มต้นของฟอร์ม (วันเริ่มเช่าและระยะสัญญาอาจส่งมาจากหน้า RoomDetail)
+        var room = FindRoom(id);
+        if (room == null)
+        {
+            return RedirectToAction("Search");
+        }
+        ViewBag.Room = ToRoomViewModel(room, null);
+
+        // ค่าเริ่มต้นของฟอร์ม: ข้อมูลผู้เช่าจากตาราง user, วันเริ่มเช่าและระยะสัญญาอาจส่งมาจากหน้า RoomDetail
+        var user = GetCurrentUser();
         BookingViewModel data = new();
-        data.RoomId = room.Id;
+        data.RoomId = room.RoomId;
         data.StartDate = startDate != null && startDate.Value.Date >= DateTime.Today ? startDate.Value.Date : DateTime.Today;
         data.Months = months;
-        data.ContactName = HttpContext.Session.GetString("FullName");
-        data.Phone = HttpContext.Session.GetString("Phone");
-        data.Email = HttpContext.Session.GetString("Email");
-        data.Address = HttpContext.Session.GetString("Address");
+        data.ContactName = user?.Fullname ?? HttpContext.Session.GetString("FullName");
+        data.CompanyName = user?.CompanyName;
+        data.TaxId = user?.TaxId;
+        data.Phone = user?.Phone;
+        data.Email = user?.Email;
+        data.Address = user?.Address;
         return View(data);
     }
 
@@ -275,10 +355,22 @@ public class CustomerController : Controller
             return RedirectToAction("Login", "Account");
         }
         SetUserBag();
-        var room = FindRoom(data.RoomId ?? "M-01");
-        ViewBag.Room = room;
 
-        if (!room.Free)
+        var room = FindRoom(data.RoomId);
+        if (room == null)
+        {
+            return RedirectToAction("Search");
+        }
+        ViewBag.Room = ToRoomViewModel(room, null);
+
+        var user = GetCurrentUser();
+        if (user == null)
+        {
+            ViewBag.Error = "บัญชีนี้จองห้องไม่ได้ กรุณาเข้าสู่ระบบด้วยบัญชีลูกค้าที่สมัครสมาชิก";
+            return View(data);
+        }
+
+        if (room.Status != "Available")
         {
             ViewBag.Error = "ห้องนี้มีผู้เช่าแล้ว จองไม่ได้";
             return View(data);
@@ -319,24 +411,49 @@ public class CustomerController : Controller
             return View(data);
         }
 
-        // สร้างการจองใหม่ (เก็บในหน่วยความจำ ยังไม่บันทึกลงฐานข้อมูล)
+        // ข้อมูลผู้เช่าบันทึกลงตาราง user (ใช้ออกใบกำกับภาษี)
+        user.CompanyName = isCompany ? data.CompanyName!.Trim() : null;
+        user.TaxId = data.TaxId;
+        user.Phone = data.Phone!.Trim();
+        user.Email = data.Email!.Trim();
+        user.Address = data.Address!.Trim();
+
+        // หมายเหตุของการจอง: ผู้ติดต่อ + บริการวันย้ายเข้า + หมายเหตุที่ลูกค้าพิมพ์
+        var note = "ผู้ติดต่อ: " + data.ContactName!.Trim();
+        if (!string.IsNullOrEmpty(data.MoveInService) && data.MoveInService != "ไม่ต้องการ")
+        {
+            note += "\nบริการวันย้ายเข้า: " + data.MoveInService;
+        }
+        if (!string.IsNullOrWhiteSpace(data.Note))
+        {
+            note += "\n" + data.Note.Trim();
+        }
+
+        // บันทึกลงตาราง booking
         var start = data.StartDate.Date;
         var end = GetEndDate(start, data.Months);
 
-        MyBookingViewModel booking = new();
-        booking.Id = "BK-" + DateTime.Now.Year + "-" + (_bookings.Count + 1).ToString("000");
-        booking.Username = HttpContext.Session.GetString("Username")!;
-        booking.Room = room.Id;
-        booking.Zone = room.Zone;
-        booking.Period = start.ToString("d MMM yyyy", _th) + " – " + end.ToString("d MMM yyyy", _th);
-        booking.Months = data.Months;
-        booking.Rate = room.Price;
-        booking.Status = "pending";
-        booking.BookedOn = DateTime.Now.ToString("d MMM yyyy", _th);
-        _bookings.Add(booking);
+        Booking booking = new();
+        booking.BookingId = NewBookingId();
+        booking.UserId = user.UserId;
+        booking.RoomId = room.RoomId;
+        booking.BookingDate = DateTime.Now;
+        booking.StartDate = DateOnly.FromDateTime(start);
+        booking.EndDate = DateOnly.FromDateTime(end);
+        booking.TotalRent = room.MonthlyRate * data.Months;
+        booking.Deposit = room.MonthlyRate * GetDepositMonths(data.Months);
+        booking.PromoCode = string.IsNullOrWhiteSpace(data.PromoCode) ? null : data.PromoCode.Trim();
+        booking.GoodsCategory = data.GoodsType;
+        booking.Note = note;
+        booking.BookingStatus = "Pending";
+        _db.Bookings.Add(booking);
 
-        TempData["Success"] = "จองห้อง " + room.Id + " แล้ว (" + booking.Id + ") กรุณาชำระเงินเพื่อยืนยันการจอง";
-        return RedirectToAction("Profile", new { tab = "payment", bookingId = booking.Id });
+        // ห้องถูกจองแล้ว คนอื่นจองซ้ำไม่ได้
+        room.Status = "Booked";
+        _db.SaveChanges();
+
+        TempData["Success"] = "จองห้อง " + room.RoomId + " แล้ว (" + booking.BookingId + ") กรุณาชำระเงินเพื่อยืนยันการจอง";
+        return RedirectToAction("Profile", new { tab = "payment", bookingId = booking.BookingId });
     }
 
     public IActionResult Profile(string tab = "bookings", string? bookingId = null)
@@ -353,11 +470,34 @@ public class CustomerController : Controller
         }
         ViewBag.ActiveTab = tab;
 
-        var bookings = GetMyBookings();
+        var user = GetCurrentUser();
+        var bookings = GetMyBookings(user);
         ViewBag.Bookings = bookings;
-        ViewBag.Payments = _payments;
 
-        // การจองที่ต้องชำระ: ตามเลขที่ส่งมา ถ้าไม่มีใช้รายการรอชำระรายการแรก
+        // ประวัติการชำระจากตาราง payment
+        List<PaymentHistoryViewModel> payments = new();
+        if (user != null)
+        {
+            var rows = (from p in _db.Payments
+                        join b in _db.Bookings on p.BookingId equals b.BookingId
+                        where b.UserId == user.UserId
+                        orderby p.PaymentDate descending
+                        select new { p, b }).ToList();
+            foreach (var row in rows)
+            {
+                PaymentHistoryViewModel item = new();
+                item.No = "PAY-" + row.p.PaymentId.ToString("00000");
+                item.Title = row.b.RoomId + " ค่าเช่าเดือนแรกและเงินประกัน";
+                item.Amount = (int)row.p.Amount;
+                item.Detail = (row.p.PaymentDate?.ToString("d MMM yyyy", _th) ?? "-") + ", "
+                              + (_payMethodText.ContainsKey(row.p.PaymentMethod) ? _payMethodText[row.p.PaymentMethod] : row.p.PaymentMethod)
+                              + (row.p.PaymentStatus == "Pending" ? " (รอตรวจสอบ)" : "");
+                payments.Add(item);
+            }
+        }
+        ViewBag.Payments = payments;
+
+        // การจองที่ต้องชำระ: ตามเลขที่ส่งมา ถ้าไม่มีใช้รายการรอชำระล่าสุด
         var due = (from b in bookings where b.Id == bookingId && b.Status == "pending" select b).FirstOrDefault()
                   ?? (from b in bookings where b.Status == "pending" select b).FirstOrDefault();
         ViewBag.DueBooking = due;
@@ -367,17 +507,17 @@ public class CustomerController : Controller
             ViewBag.DueDepositMonths = depositMonths;
             ViewBag.DueDeposit = due.Rate * depositMonths;
             ViewBag.DueTotal = due.Rate + due.Rate * depositMonths;
+            ViewBag.DueDate = due.BookedDate.AddDays(7).ToString("d MMM yyyy", _th);
         }
 
-        // ข้อมูลส่วนตัวที่บันทึกไว้ใน Session
+        // ข้อมูลส่วนตัวจากตาราง user
         ProfileViewModel info = new();
-        info.Fullname = HttpContext.Session.GetString("FullName") ?? "";
-        info.Company = HttpContext.Session.GetString("Company") ?? "";
-        info.Phone = HttpContext.Session.GetString("Phone") ?? "";
-        info.Email = HttpContext.Session.GetString("Email") ?? "";
-        info.TaxId = HttpContext.Session.GetString("TaxId") ?? "";
-        info.Address = HttpContext.Session.GetString("Address") ?? "";
-        info.SavedAt = HttpContext.Session.GetString("ProfileSavedAt") ?? "";
+        info.Fullname = user?.Fullname ?? HttpContext.Session.GetString("FullName") ?? "";
+        info.Company = user?.CompanyName ?? "";
+        info.Phone = user?.Phone ?? "";
+        info.Email = user?.Email ?? "";
+        info.TaxId = user?.TaxId ?? "";
+        info.Address = user?.Address ?? "";
         return View(info);
     }
 
@@ -389,21 +529,65 @@ public class CustomerController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        var booking = (from b in GetMyBookings() where b.Id == data.BookingId select b).FirstOrDefault();
-        if (booking == null || booking.Status != "pending")
+        var user = GetCurrentUser();
+        var booking = user == null ? null :
+                      (from b in _db.Bookings
+                       where b.BookingId == data.BookingId && b.UserId == user.UserId
+                       select b).FirstOrDefault();
+        if (booking == null || booking.BookingStatus != "Pending")
         {
             TempData["Error"] = "ไม่พบรายการที่ต้องชำระ";
             return RedirectToAction("Profile", new { tab = "payment" });
         }
 
-        if (data.PayMethod == "transfer" && (data.Slip == null || data.Slip.Length == 0))
+        if (data.PayMethod != "transfer" && data.PayMethod != "qr" && data.PayMethod != "card")
         {
-            TempData["Error"] = "กรุณาแนบสลิปโอนเงิน";
-            return RedirectToAction("Profile", new { tab = "payment", bookingId = data.BookingId });
+            TempData["Error"] = "วิธีชำระเงินไม่ถูกต้อง";
+            return RedirectToAction("Profile", new { tab = "payment", bookingId = booking.BookingId });
         }
 
-        // ยังไม่ต่อระบบชำระเงินจริง: เปลี่ยนสถานะเป็นรอตรวจสอบ
-        booking.Status = "checking";
+        // โอนเงินต้องแนบสลิป เก็บไฟล์ไว้ที่ wwwroot/uploads/slips
+        string? slipUrl = null;
+        if (data.PayMethod == "transfer")
+        {
+            if (data.Slip == null || data.Slip.Length == 0)
+            {
+                TempData["Error"] = "กรุณาแนบสลิปโอนเงิน";
+                return RedirectToAction("Profile", new { tab = "payment", bookingId = booking.BookingId });
+            }
+
+            var ext = Path.GetExtension(data.Slip.FileName).ToLower();
+            if (ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".webp")
+            {
+                TempData["Error"] = "สลิปต้องเป็นไฟล์รูป (jpg, png, webp)";
+                return RedirectToAction("Profile", new { tab = "payment", bookingId = booking.BookingId });
+            }
+
+            var folder = Path.Combine(_env.WebRootPath, "uploads", "slips");
+            Directory.CreateDirectory(folder);
+            var fileName = booking.BookingId + "-" + DateTime.Now.ToString("yyyyMMddHHmmss") + ext;
+            using (var stream = new FileStream(Path.Combine(folder, fileName), FileMode.Create))
+            {
+                data.Slip.CopyTo(stream);
+            }
+            slipUrl = "/uploads/slips/" + fileName;
+        }
+
+        // บันทึกลงตาราง payment: ค่าเช่าเดือนแรก + เงินประกัน รอเจ้าหน้าที่ตรวจสอบ
+        var room = (from r in _db.Rooms where r.RoomId == booking.RoomId select r).First();
+        Payment payment = new();
+        payment.BookingId = booking.BookingId;
+        payment.Amount = room.MonthlyRate + booking.Deposit;
+        payment.PaymentMethod = data.PayMethod;
+        payment.PaymentDate = DateTime.Now;
+        payment.PaymentStatus = "Pending";
+        payment.SlipImageUrl = slipUrl;
+        payment.DueDate = booking.BookingDate.AddDays(7);
+        _db.Payments.Add(payment);
+
+        booking.BookingStatus = "Checking";
+        _db.SaveChanges();
+
         TempData["Success"] = "ได้รับแจ้งชำระเงินแล้ว เจ้าหน้าที่จะตรวจสอบและอัปเดตสถานะภายใน 15 นาที";
         return RedirectToAction("Profile", new { tab = "bookings" });
     }
@@ -416,20 +600,35 @@ public class CustomerController : Controller
             return RedirectToAction("Login", "Account");
         }
 
+        var user = GetCurrentUser();
+        if (user == null)
+        {
+            TempData["Error"] = "บัญชีนี้แก้ไขข้อมูลไม่ได้ กรุณาเข้าสู่ระบบด้วยบัญชีลูกค้าที่สมัครสมาชิก";
+            return RedirectToAction("Profile", new { tab = "info" });
+        }
+
         if (string.IsNullOrWhiteSpace(data.Fullname) || string.IsNullOrWhiteSpace(data.Phone) || string.IsNullOrWhiteSpace(data.Email))
         {
             TempData["Error"] = "กรุณากรอกชื่อ เบอร์โทร และอีเมล";
             return RedirectToAction("Profile", new { tab = "info" });
         }
 
-        // ยังไม่บันทึกลงตาราง user: เก็บไว้ใน Session ก่อน
-        HttpContext.Session.SetString("FullName", data.Fullname.Trim());
-        HttpContext.Session.SetString("Company", data.Company?.Trim() ?? "");
-        HttpContext.Session.SetString("Phone", data.Phone.Trim());
-        HttpContext.Session.SetString("Email", data.Email.Trim());
-        HttpContext.Session.SetString("TaxId", data.TaxId?.Trim() ?? "");
-        HttpContext.Session.SetString("Address", data.Address?.Trim() ?? "");
-        HttpContext.Session.SetString("ProfileSavedAt", DateTime.Now.ToString("d MMM yyyy HH:mm", _th) + " น.");
+        if (!string.IsNullOrWhiteSpace(data.TaxId) && (data.TaxId.Trim().Length != 13 || !data.TaxId.Trim().All(char.IsDigit)))
+        {
+            TempData["Error"] = "เลขผู้เสียภาษี / เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก";
+            return RedirectToAction("Profile", new { tab = "info" });
+        }
+
+        // บันทึกลงตาราง user (แบบเดียวกับ AdminController.EditUser)
+        user.Fullname = data.Fullname.Trim();
+        user.CompanyName = string.IsNullOrWhiteSpace(data.Company) ? null : data.Company.Trim();
+        user.Phone = data.Phone.Trim();
+        user.Email = data.Email.Trim();
+        user.TaxId = string.IsNullOrWhiteSpace(data.TaxId) ? null : data.TaxId.Trim();
+        user.Address = string.IsNullOrWhiteSpace(data.Address) ? null : data.Address.Trim();
+        _db.SaveChanges();
+
+        HttpContext.Session.SetString("FullName", user.Fullname);
 
         TempData["Success"] = "บันทึกข้อมูลแล้ว";
         return RedirectToAction("Profile", new { tab = "info" });
