@@ -115,11 +115,16 @@ body.hm {
     transition: background-color 0.2s ease, backdrop-filter 0.2s ease;
 }
 .hm-nav.is-scrolled,
-.hm-nav.is-open {
-    background: rgba(23, 23, 33, 0.78);
+.hm-nav.is-open,
+.hm-nav.is-solid {
+    background: rgba(23, 23, 33, 0.86);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
 }
+.hm-nav.is-solid { border-bottom: 1px solid var(--hm-hairline); }
+
+/* หน้าที่ไม่มี hero: เว้นที่ให้เมนูด้านบน */
+.hm-page { padding: 104px 0 112px; min-height: calc(100vh - 70px); }
 
 .hm-nav-inner {
     display: flex;
@@ -155,6 +160,7 @@ body.hm {
     transition: background-color 0.15s ease;
 }
 a.hm-nav-link:hover { background: rgba(237, 237, 243, 0.08); }
+.hm-nav-link[aria-current="page"] { background: var(--hm-raised); }
 .hm-nav-link:focus-visible { outline: 2px solid var(--hm-ivory); outline-offset: 2px; }
 .hm-nav-user { color: var(--hm-ash); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 

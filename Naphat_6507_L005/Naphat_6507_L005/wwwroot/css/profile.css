@@ -1,120 +1,128 @@
 /* =========================================================
    หน้าบัญชีของฉัน (Customer/Profile): การจอง ชำระเงิน ข้อมูลส่วนตัว
-   ใช้ตัวแปรสีจาก customer-ui.css
+   ธีมเข้มตาม DESIGN.md ใช้ตัวแปรสีจาก customer-ui.css
    ========================================================= */
-.pf { max-width: 1240px; }
 .pf [hidden] { display: none !important; }
 
-/* แท็บ */
-.pf-tabs { display: flex; flex-wrap: wrap; gap: 0.25rem; border-bottom: 2px solid var(--cu-line); margin-bottom: 1.5rem; }
+/* แท็บ: ปุ่มทรงแคปซูล */
+.pf-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border: 1px solid var(--cu-line); border-radius: 40px; width: fit-content; max-width: 100%; margin-bottom: 32px; }
 .pf-tabs a {
-    display: inline-flex; align-items: center; gap: 0.45rem;
-    min-height: 44px; padding: 0 1rem;
-    margin-bottom: -2px;
-    border-bottom: 3px solid transparent;
-    color: var(--cu-muted); font-weight: 600; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+    min-height: 40px; padding: 0 18px;
+    border-radius: 40px;
+    color: var(--cu-muted); text-decoration: none;
+    transition: background-color 0.15s ease;
 }
-.pf-tabs a:hover { color: var(--cu-blue); }
-.pf-tabs a[aria-selected="true"] { color: var(--cu-blue); border-bottom-color: var(--cu-orange); }
-.pf-tabs a:focus-visible { outline: 3px solid var(--cu-blue); outline-offset: -3px; }
-.pf-count { font-size: 0.75rem; background: #eceeed; color: var(--cu-text); padding: 0.05rem 0.45rem; border-radius: 999px; }
-.pf-count--due { background: #fdecea; color: #a12020; }
+.pf-tabs a:hover { color: var(--cu-text); background: var(--cu-slab); }
+.pf-tabs a[aria-selected="true"] { color: var(--cu-concrete); background: var(--cu-text); }
+.pf-tabs a:focus-visible { outline: 2px solid var(--cu-text); outline-offset: 2px; }
+.pf-count { font-size: 12px; background: var(--cu-slab); color: var(--cu-text); padding: 1px 8px; border-radius: 40px; }
+.pf-tabs a[aria-selected="true"] .pf-count { background: rgba(23, 23, 33, 0.12); color: var(--cu-concrete); }
+.pf-count--due { background: var(--cu-err-bg); color: var(--cu-err); }
 
-.pf-panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+.pf-panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
 .pf-panel-head .cu-h2 { margin: 0; }
 .pf-panel-head .cu-btn { flex: 0 0 auto; }
-.pf-h3 { font-size: 1rem; font-weight: 600; margin: 1.5rem 0 0.6rem; }
+.pf-h3 { font-size: 16px; font-weight: 500; margin: 32px 0 12px; }
 
-.pf-room-code { font-family: var(--cu-display); font-weight: 700; font-size: 1.35rem; color: var(--cu-blue); text-decoration: none; line-height: 1.1; }
+.pf-room-code { font-family: var(--cu-display); font-weight: 500; font-size: 21px; color: var(--cu-text); text-decoration: none; line-height: 1.1; }
 a.pf-room-code:hover { text-decoration: underline; }
 
-/* สถานะ */
-.pf-status { display: inline-block; justify-self: start; font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 999px; white-space: nowrap; }
-.pf-status--pending { background: #fdecea; color: #a12020; }
-.pf-status--active { background: #e5f3e9; color: #14632f; }
-.pf-status--checking { background: #fff4e0; color: #8a5300; }
-.pf-status--ended { background: #eceeed; color: #4a525a; }
-.pf-status--cancelled { background: #eceeed; color: #4a525a; }
+/* สถานะ: ป้ายทรงแคปซูล สีอ่อนบนพื้นเข้ม */
+.pf-status { display: inline-block; justify-self: start; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 40px; white-space: nowrap; border: 1px solid transparent; }
+.pf-status--pending { background: var(--cu-err-bg); color: var(--cu-err); border-color: rgba(242, 163, 163, 0.25); }
+.pf-status--active { background: var(--cu-ok-bg); color: var(--cu-ok); border-color: rgba(143, 214, 168, 0.25); }
+.pf-status--checking { background: var(--cu-warn-bg); color: var(--cu-warn); border-color: rgba(240, 194, 122, 0.25); }
+.pf-status--ended,
+.pf-status--cancelled { background: transparent; color: var(--cu-faint); border-color: var(--cu-line); }
 
 /* รายการจอง */
-.pf-bookings { list-style: none; margin: 0; padding: 0; background: #fff; border: 1px solid var(--cu-line); border-radius: 6px; }
+.pf-bookings { list-style: none; margin: 0; padding: 0; background: var(--cu-card); border-radius: 12px; }
 .pf-booking {
     display: grid;
-    grid-template-columns: 7rem minmax(0, 1fr) 9.5rem 10rem 7.5rem;
-    gap: 0.5rem 1rem;
+    grid-template-columns: 7rem minmax(0, 1fr) 10rem 10rem 7.5rem;
+    gap: 8px 16px;
     align-items: center;
-    padding: 0.9rem 1rem;
+    padding: 20px 28px;
     border-bottom: 1px solid var(--cu-line);
 }
 .pf-booking:last-child { border-bottom: 0; }
-.pf-booking.is-pending { box-shadow: inset 4px 0 0 var(--cu-orange); }
-.pf-booking.is-cancelled { color: var(--cu-muted); }
+.pf-booking.is-pending { box-shadow: inset 3px 0 0 var(--cu-text); }
+.pf-booking.is-cancelled { color: var(--cu-faint); }
 .pf-booking-room, .pf-booking-info, .pf-booking-amt { display: flex; flex-direction: column; min-width: 0; }
-.pf-booking-room span, .pf-booking-info span, .pf-booking-amt span { font-size: 0.82rem; color: var(--cu-muted); }
+.pf-booking-room span, .pf-booking-info span, .pf-booking-amt span { font-size: 13px; color: var(--cu-muted); }
+.pf-booking-info strong, .pf-booking-amt strong { font-weight: 500; }
 .pf-booking-amt { text-align: right; }
 .pf-booking-amt strong { font-variant-numeric: tabular-nums; }
 .pf-booking.is-cancelled .pf-booking-amt strong { text-decoration: line-through; font-weight: 400; }
 .pf-booking-act { display: flex; justify-content: flex-end; }
-.pf-booking-act .cu-btn { flex: 0 0 auto; min-height: 38px; padding: 0 0.9rem; }
+.pf-booking-act .cu-btn { flex: 0 0 auto; min-height: 38px; padding: 0 16px; }
 
 /* ชำระเงิน */
-.pf-pay-layout { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: 2rem; align-items: start; }
-.pf-pay-main { max-width: 40rem; }
+.pf-pay-layout { display: grid; grid-template-columns: minmax(0, 1fr) 22rem; gap: 24px; align-items: start; }
+.pf-pay-main { max-width: 42rem; }
 
-.pf-bill { background: #fff; border: 1px solid var(--cu-line); border-top: 6px solid var(--cu-orange); border-radius: 6px; padding: 1.1rem 1.25rem; }
-.pf-bill-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding-bottom: 0.75rem; margin-bottom: 0.6rem; border-bottom: 1px solid var(--cu-line); }
+.pf-bill { background: var(--cu-card); border-radius: 12px; padding: 28px; }
+.pf-bill-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding-bottom: 16px; margin-bottom: 12px; border-bottom: 1px solid var(--cu-line); }
 .pf-bill-head div { display: flex; flex-direction: column; }
-.pf-bill-head span:not(.pf-status) { font-size: 0.85rem; color: var(--cu-muted); }
+.pf-bill-head span:not(.pf-status) { font-size: 13px; color: var(--cu-muted); }
 .pf-calc { margin: 0; }
-.pf-calc div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.2rem 0; font-size: 0.92rem; }
+.pf-calc div { display: flex; justify-content: space-between; gap: 16px; padding: 4px 0; font-size: 14px; }
 .pf-calc dt { font-weight: 400; color: var(--cu-muted); }
 .pf-calc dd { margin: 0; font-variant-numeric: tabular-nums; }
-.pf-calc .pf-total { margin-top: 0.4rem; padding-top: 0.6rem; border-top: 1px solid var(--cu-line); }
-.pf-calc .pf-total dt { color: var(--cu-text); font-weight: 600; }
-.pf-calc .pf-total dd { font-family: var(--cu-display); font-weight: 700; font-size: 1.4rem; }
-.pf-due { margin: 0.75rem 0 0; font-size: 0.88rem; color: #8e1c1c; }
+.pf-calc .pf-total { margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--cu-line); }
+.pf-calc .pf-total dt { color: var(--cu-text); font-weight: 500; }
+.pf-calc .pf-total dd { font-family: var(--cu-display); font-weight: 500; font-size: 24px; }
+.pf-due { margin: 16px 0 0; font-size: 14px; color: var(--cu-warn); }
 
-.pf-methods { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+/* เลือกวิธีชำระ: ปุ่มทรงแคปซูล */
+.pf-methods { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .pf-methods label { position: relative; margin: 0; cursor: pointer; }
 .pf-methods input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.pf-methods span { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 44px; padding: 0 0.9rem; border: 1.5px solid var(--cu-line); border-radius: 4px; background: #fff; font-weight: 600; color: var(--cu-blue); }
+.pf-methods span { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border: 1px solid var(--cu-line); border-radius: 40px; color: var(--cu-muted); }
 .pf-methods i { font-style: normal; font-size: 1.2rem; }
-.pf-methods input:checked + span { border-color: var(--cu-blue); background: var(--cu-blue); color: #fff; }
-.pf-methods input:focus-visible + span { outline: 3px solid var(--cu-orange); outline-offset: 2px; }
+.pf-methods input:checked + span { border-color: var(--cu-text); background: var(--cu-text); color: var(--cu-concrete); }
+.pf-methods input:focus-visible + span { outline: 2px solid var(--cu-text); outline-offset: 2px; }
 
-.pf-bank { margin: 0 0 1rem; background: #fff; border: 1px solid var(--cu-line); border-radius: 6px; padding: 0.75rem 1rem; }
-.pf-bank div { display: flex; gap: 1rem; padding: 0.2rem 0; }
+.pf-method { background: var(--cu-card); border-radius: 12px; padding: 28px; }
+.pf-bank { margin: 0 0 20px; }
+.pf-bank div { display: flex; gap: 16px; padding: 6px 0; border-bottom: 1px solid var(--cu-line); }
 .pf-bank dt { width: 6rem; flex-shrink: 0; font-weight: 400; color: var(--cu-muted); }
-.pf-bank dd { margin: 0; font-weight: 600; }
-.pf-copy { margin-left: 0.5rem; border: 1px solid var(--cu-blue); background: #fff; color: var(--cu-blue); border-radius: 3px; font: inherit; font-size: 0.8rem; font-weight: 600; padding: 0.05rem 0.5rem; cursor: pointer; }
-.pf-copy:focus-visible { outline: 3px solid var(--cu-blue); outline-offset: 2px; }
-.pf-slip { max-height: 180px; border-radius: 4px; border: 1px solid var(--cu-line); margin: -0.25rem 0 1rem; }
-.pf-qr { display: flex; align-items: center; gap: 1.25rem; background: #fff; border: 1px solid var(--cu-line); border-radius: 6px; padding: 1rem; margin-bottom: 1rem; }
-.pf-qr img { flex-shrink: 0; }
-.pf-qr p { margin: 0; }
+.pf-bank dd { margin: 0; font-weight: 500; }
+.pf-copy { margin-left: 8px; border: 1px solid var(--cu-text); background: transparent; color: var(--cu-text); border-radius: 40px; font: inherit; font-size: 12px; padding: 2px 10px; cursor: pointer; }
+.pf-copy:focus-visible { outline: 2px solid var(--cu-text); outline-offset: 2px; }
+.pf-slip { max-height: 180px; border-radius: 8px; margin: -4px 0 16px; }
+.pf-qr { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
+.pf-qr img { flex-shrink: 0; border-radius: 8px; background: #fff; padding: 6px; }
+.pf-qr p { margin: 0; color: var(--cu-muted); }
+.pf-qr strong { color: var(--cu-text); font-weight: 500; }
 .pf-pay-btn { width: 100%; }
-.pf-done { padding: 0.75rem 1rem; border-left: 4px solid #14632f; background: #eef7f1; color: #14632f; }
+.pf-done { padding: 12px 16px; border-radius: 12px; background: var(--cu-ok-bg); color: var(--cu-ok); }
 
-.pf-history ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--cu-line); }
-.pf-history li { padding: 0.75rem 0; border-bottom: 1px solid var(--cu-line); }
-.pf-history-top { display: flex; justify-content: space-between; gap: 1rem; }
-.pf-history-top span { font-variant-numeric: tabular-nums; font-weight: 600; }
+.pf-history { background: var(--cu-card); border-radius: 12px; padding: 28px; }
+.pf-history ul { list-style: none; margin: 0; padding: 0; }
+.pf-history li { padding: 14px 0; border-bottom: 1px solid var(--cu-line); }
+.pf-history li:last-child { border-bottom: 0; padding-bottom: 0; }
+.pf-history-top { display: flex; justify-content: space-between; gap: 16px; }
+.pf-history-top strong { font-weight: 500; }
+.pf-history-top span { font-variant-numeric: tabular-nums; font-weight: 500; }
 .pf-history li.is-refund .pf-history-top span { color: var(--cu-muted); }
-.pf-history-meta { font-size: 0.82rem; color: var(--cu-muted); }
+.pf-history-meta { display: block; margin-top: 2px; font-size: 13px; color: var(--cu-muted); }
+a.pf-history-meta { color: var(--cu-text); text-decoration: underline; }
 
 /* ข้อมูลส่วนตัว */
-.pf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+.pf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
 .pf-span-2 { grid-column: 1 / -1; }
-.pf-info { max-width: 44rem; }
-.pf-info-actions { display: flex; align-items: center; gap: 1rem; }
+.pf-info { background: var(--cu-card); border-radius: 12px; padding: 28px; }
+.pf-info-actions { display: flex; align-items: center; gap: 16px; }
 .pf-info-actions .cu-btn { flex: 0 0 auto; }
-.pf-saved { margin: 0; color: #14632f; font-weight: 600; }
-.pf-help { margin: 2rem 0 0; color: var(--cu-muted); font-size: 0.92rem; }
-.pf-help a { color: var(--cu-blue); font-weight: 600; }
+.pf-saved { margin: 0; color: var(--cu-ok); font-weight: 500; }
+.pf-help { margin: 32px 0 0; color: var(--cu-muted); font-size: 14px; }
+.pf-help a { color: var(--cu-text); }
 
 @media (max-width: 1000px) {
     .pf-pay-layout { grid-template-columns: 1fr; }
-    .pf-booking { grid-template-columns: 6rem minmax(0, 1fr) auto; }
+    .pf-booking { grid-template-columns: 6rem minmax(0, 1fr) auto; padding: 20px; }
     .pf-booking-info { grid-column: 2 / 4; grid-row: 1; }
     .pf-status { grid-column: 1; }
     .pf-booking-amt { grid-column: 2; text-align: left; }
@@ -122,24 +130,24 @@ a.pf-room-code:hover { text-decoration: underline; }
 }
 @media (max-width: 600px) {
     .pf-grid { grid-template-columns: 1fr; }
-    .pf-tabs a { padding: 0 0.6rem; font-size: 0.92rem; }
+    .pf-tabs { width: 100%; }
+    .pf-tabs a { padding: 0 12px; font-size: 14px; }
     .pf-qr { flex-direction: column; text-align: center; }
+    .pf-bill, .pf-method, .pf-history, .pf-info, .pf-saved-card { padding: 24px; }
 }
 
-.pf-next { margin: 0.6rem 0 0; }
+.pf-next { margin: 12px 0 0; }
 
 /* ข้อมูลที่บันทึกไว้ */
-.pf-info-layout { display: grid; grid-template-columns: minmax(0, 44rem) 20rem; gap: 2rem; align-items: start; }
-.pf-saved-card { background: #fff; border: 1px solid var(--cu-line); border-top: 6px solid var(--cu-blue); border-radius: 6px; padding: 1rem 1.15rem; }
-.pf-saved-card h3 { font-size: 1rem; font-weight: 600; margin: 0 0 0.6rem; }
-.pf-saved-empty { margin: 0; color: var(--cu-muted); font-size: 0.9rem; }
+.pf-info-layout { display: grid; grid-template-columns: minmax(0, 44rem) 22rem; gap: 24px; align-items: start; }
+.pf-saved-card { background: var(--cu-card); border-radius: 12px; padding: 28px; }
+.pf-saved-card h3 { font-size: 16px; font-weight: 500; margin: 0 0 12px; }
+.pf-saved-empty { margin: 0; color: var(--cu-muted); font-size: 14px; }
 .pf-saved-list { margin: 0; }
-.pf-saved-list div { display: flex; gap: 0.75rem; padding: 0.3rem 0; border-bottom: 1px solid #eef0ee; font-size: 0.9rem; }
+.pf-saved-list div { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--cu-line); font-size: 14px; }
 .pf-saved-list dt { width: 6.5rem; flex-shrink: 0; font-weight: 400; color: var(--cu-muted); }
 .pf-saved-list dd { margin: 0; min-width: 0; overflow-wrap: anywhere; white-space: pre-line; }
-.pf-saved-list dd.is-empty { color: var(--cu-muted); }
-.pf-saved-time { margin: 0.7rem 0 0; font-size: 0.85rem; color: var(--cu-muted); }
-.pf-saved-time strong { color: var(--cu-text); font-weight: 600; }
+.pf-saved-list dd.is-empty { color: var(--cu-faint); }
 @media (max-width: 1000px) {
     .pf-info-layout { grid-template-columns: 1fr; }
 }

@@ -2,7 +2,7 @@
 @using Naphat_6507_L005.ViewModels
 @{
     ViewData["Title"] = "บัญชีของฉัน";
-    Layout = "_Layout";
+    Layout = "_PublicLayout";
 
     // ข้อมูลทั้งหมดส่งมาจาก CustomerController.Profile
     var activeTab = ViewBag.ActiveTab as string ?? "bookings";
@@ -27,7 +27,6 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap" />
     <link rel="stylesheet" href="~/css/customer-ui.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
 }

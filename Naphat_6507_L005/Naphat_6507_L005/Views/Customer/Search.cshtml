@@ -1,7 +1,7 @@
 @model List<Naphat_6507_L005.ViewModels.RoomViewModel>
 @{
     ViewData["Title"] = "ค้นหาห้องคลังสินค้า";
-    Layout = "_Layout";
+    Layout = "_PublicLayout";
 
     var rooms = Model;
     var freeCount = rooms.Count(r => r.Free);
@@ -17,7 +17,6 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap" />
     <link rel="stylesheet" href="~/css/customer-ui.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/search.css" asp-append-version="true" />
 }

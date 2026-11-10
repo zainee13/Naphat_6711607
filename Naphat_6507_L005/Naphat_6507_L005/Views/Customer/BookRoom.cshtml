@@ -4,11 +4,10 @@
     var isCompany = Model.TenantType != "person";
 
     ViewData["Title"] = "จองห้อง " + room.Id;
-    Layout = "_Layout";
+    Layout = "_PublicLayout";
 }
 
 @section Styles {
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap" />
     <link rel="stylesheet" href="~/css/customer-ui.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/book.css" asp-append-version="true" />
 }

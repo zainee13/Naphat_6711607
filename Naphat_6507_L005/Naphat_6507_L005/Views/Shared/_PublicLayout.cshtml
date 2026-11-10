@@ -1,10 +1,26 @@
-@* Layout ของหน้าหลักเท่านั้น: เมนูด้านบนโปร่งใสทับรูป hero ไม่มี sidebar (สไตล์ตาม DESIGN.md อยู่ใน wwwroot/css/home.css)
-   หน้าอื่นยังใช้ _Layout ที่มี sidebar เหมือนเดิม *@
+@* Layout ของหน้าฝั่งลูกค้าทั้งหมด (หน้าหลัก, ค้นหาห้อง, รายละเอียดห้อง, จองห้อง, บัญชีของฉัน)
+   เมนูด้านบน ไม่มี sidebar สไตล์ตาม DESIGN.md (wwwroot/css/home.css)
+   - หน้าหลักตั้ง ViewData["HeroNav"] = true: เมนูโปร่งใสทับรูป hero และเนื้อหาเต็มจอ
+   - หน้าอื่น: เมนูทึบ และเนื้อหาอยู่ในกรอบกว้างสุด 1200px
+   ฝั่งพนักงานยังใช้ _Layout ที่มี sidebar *@
 @{
     var sessionUser = Context.Session.GetString("Username");
     var role = Context.Session.GetString("Role") ?? "Guest";
     var fullName = Context.Session.GetString("FullName") ?? "";
     bool isLoggedIn = !string.IsNullOrEmpty(sessionUser);
+    bool heroNav = ViewData["HeroNav"] as bool? == true;
+
+    // เมนูที่ตรงกับหน้าปัจจุบัน
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var tab = Context.Request.Query["tab"].ToString();
+    bool inCustomer = controller == "Customer";
+    string Current(bool on) => on ? "page" : "false";
+    bool onHome = inCustomer && action == "Dashboard";
+    bool onSearch = inCustomer && (action == "Search" || action == "RoomDetail" || action == "BookRoom");
+    bool onBookings = inCustomer && action == "Profile" && (tab == "bookings" || tab == "");
+    bool onPayment = inCustomer && action == "Profile" && tab == "payment";
+    bool onInfo = inCustomer && action == "Profile" && tab == "info";
 }
 <!DOCTYPE html>
 <html lang="th">
@@ -21,12 +37,13 @@
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" />
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body class="hm">
 
     <!-- ===== เมนูด้านบน ===== -->
-    <header class="hm-nav" id="hmNav">
+    <header class="hm-nav @(heroNav ? "" : "is-solid")" id="hmNav">
         <div class="hm-nav-inner">
             <a asp-controller="Customer" asp-action="Dashboard" class="hm-brand">
                 <span class="hm-brand-mark" aria-hidden="true"></span>
@@ -39,12 +56,12 @@
 
             <div class="hm-nav-menu" id="hmNavMenu">
                 <nav class="hm-nav-links" aria-label="เมนูหลัก">
-                    <a asp-controller="Customer" asp-action="Dashboard" class="hm-nav-link" aria-current="page">หน้าหลัก</a>
-                    <a asp-controller="Customer" asp-action="Search" class="hm-nav-link">ค้นหาห้อง</a>
+                    <a asp-controller="Customer" asp-action="Dashboard" class="hm-nav-link" aria-current="@Current(onHome)">หน้าหลัก</a>
+                    <a asp-controller="Customer" asp-action="Search" class="hm-nav-link" aria-current="@Current(onSearch)">ค้นหาห้อง</a>
                     @if (isLoggedIn && role == "Customer")
                     {
-                        <a asp-controller="Customer" asp-action="Profile" asp-route-tab="bookings" class="hm-nav-link">การจองของฉัน</a>
-                        <a asp-controller="Customer" asp-action="Profile" asp-route-tab="payment" class="hm-nav-link">ชำระเงิน</a>
+                        <a asp-controller="Customer" asp-action="Profile" asp-route-tab="bookings" class="hm-nav-link" aria-current="@Current(onBookings)">การจองของฉัน</a>
+                        <a asp-controller="Customer" asp-action="Profile" asp-route-tab="payment" class="hm-nav-link" aria-current="@Current(onPayment)">ชำระเงิน</a>
                     }
                     else if (isLoggedIn)
                     {
@@ -62,7 +79,7 @@
                     {
                         @if (role == "Customer")
                         {
-                            <a asp-controller="Customer" asp-action="Profile" asp-route-tab="info" class="hm-nav-link hm-nav-user">
+                            <a asp-controller="Customer" asp-action="Profile" asp-route-tab="info" class="hm-nav-link hm-nav-user" aria-current="@Current(onInfo)">
                                 <span class="material-symbols-outlined" aria-hidden="true">account_circle</span> @fullName
                             </a>
                         }
@@ -79,9 +96,20 @@
         </div>
     </header>
 
-    <main>
-        @RenderBody()
-    </main>
+    @if (heroNav)
+    {
+        <main>
+            @RenderBody()
+        </main>
+    }
+    else
+    {
+        <main class="hm-page">
+            <div class="hm-container">
+                @RenderBody()
+            </div>
+        </main>
+    }
 
     <footer class="hm-footer">
         &copy; 2026 LogiManage — ระบบเช่าห้องคลังสินค้าออนไลน์
