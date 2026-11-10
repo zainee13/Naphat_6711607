@@ -126,3 +126,19 @@ a.pf-room-code:hover { text-decoration: underline; }
 }
 
 .pf-next { margin: 0.6rem 0 0; }
+
+/* ข้อมูลที่บันทึกไว้ */
+.pf-info-layout { display: grid; grid-template-columns: minmax(0, 44rem) 20rem; gap: 2rem; align-items: start; }
+.pf-saved-card { background: #fff; border: 1px solid var(--cu-line); border-top: 6px solid var(--cu-blue); border-radius: 6px; padding: 1rem 1.15rem; }
+.pf-saved-card h3 { font-size: 1rem; font-weight: 600; margin: 0 0 0.6rem; }
+.pf-saved-empty { margin: 0; color: var(--cu-muted); font-size: 0.9rem; }
+.pf-saved-list { margin: 0; }
+.pf-saved-list div { display: flex; gap: 0.75rem; padding: 0.3rem 0; border-bottom: 1px solid #eef0ee; font-size: 0.9rem; }
+.pf-saved-list dt { width: 6.5rem; flex-shrink: 0; font-weight: 400; color: var(--cu-muted); }
+.pf-saved-list dd { margin: 0; min-width: 0; overflow-wrap: anywhere; white-space: pre-line; }
+.pf-saved-list dd.is-empty { color: var(--cu-muted); }
+.pf-saved-time { margin: 0.7rem 0 0; font-size: 0.85rem; color: var(--cu-muted); }
+.pf-saved-time strong { color: var(--cu-text); font-weight: 600; }
+@media (max-width: 1000px) {
+    .pf-info-layout { grid-template-columns: 1fr; }
+}

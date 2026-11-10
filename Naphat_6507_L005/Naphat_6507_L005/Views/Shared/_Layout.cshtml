@@ -266,25 +266,7 @@
                 }
                 else
                 {
-                    <span class="badge rounded-pill px-3 py-2"
-                          style="background: @avatarColor; color:#fff; font-size:0.75rem;">
-                        @roleLabel
-                    </span>
-                    @if (role == "Customer")
-                    {
-                        <a asp-controller="Customer" asp-action="Profile" title="ดูโปรไฟล์" style="text-decoration:none;">
-                            <div class="avatar" style="background:@avatarColor; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem; cursor:pointer;" title="โปรไฟล์ของฉัน">
-                                @initial
-                            </div>
-                        </a>
-                    }
-                    else
-                    {
-                        <div class="avatar" style="background:@avatarColor; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem;">
-                            @initial
-                        </div>
-                    }
-                    <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-danger ms-2 d-inline-flex align-items-center gap-1" style="border-radius:8px; font-size:0.78rem;" title="ออกจากระบบ">
+                    <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1" style="border-radius:8px; font-size:0.78rem;" title="ออกจากระบบ">
                         <span class="material-symbols-outlined" style="font-size:1rem;">logout</span>
                         <span>ออกจากระบบ</span>
                     </a>

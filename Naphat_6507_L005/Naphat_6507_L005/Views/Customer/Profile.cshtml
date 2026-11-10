@@ -205,20 +205,39 @@
     <!-- ========== ข้อมูลส่วนตัว ========== -->
     <section class="pf-panel" id="panel-info" role="tabpanel" aria-labelledby="tab-info" @(activeTab == "info" ? "" : "hidden")>
         <h2 class="cu-h2">ข้อมูลส่วนตัวและที่อยู่ออกใบกำกับภาษี</h2>
-        <form class="pf-info" id="infoForm">
-            <div class="pf-grid">
-                <label class="cu-field"><span>ชื่อ-นามสกุล</span><input type="text" autocomplete="name" value="@fullName" required /></label>
-                <label class="cu-field"><span>ชื่อบริษัท (ไม่บังคับ)</span><input type="text" autocomplete="organization" /></label>
-                <label class="cu-field"><span>เบอร์โทร</span><input type="tel" autocomplete="tel" inputmode="tel" pattern="0\d{8,9}" placeholder="0812345678" required /></label>
-                <label class="cu-field"><span>อีเมล</span><input type="email" autocomplete="email" placeholder="name@company.com" required /></label>
-                <label class="cu-field"><span>เลขผู้เสียภาษี / เลขบัตรประชาชน</span><input type="text" inputmode="numeric" pattern="\d{13}" maxlength="13" placeholder="ตัวเลข 13 หลัก" /></label>
-                <label class="cu-field pf-span-2"><span>ที่อยู่ออกใบกำกับภาษี</span><textarea rows="3" autocomplete="street-address"></textarea></label>
-            </div>
-            <div class="pf-info-actions">
-                <button type="submit" class="cu-btn cu-btn--primary">บันทึกข้อมูล</button>
-                <p class="pf-saved" id="infoSaved" role="status" hidden>บันทึกข้อมูลแล้ว</p>
-            </div>
-        </form>
+        <div class="pf-info-layout">
+            <form class="pf-info" id="infoForm">
+                <div class="pf-grid">
+                    <label class="cu-field"><span>ชื่อ-นามสกุล</span><input type="text" name="name" autocomplete="name" value="@fullName" required /></label>
+                    <label class="cu-field"><span>ชื่อบริษัท (ไม่บังคับ)</span><input type="text" name="company" autocomplete="organization" /></label>
+                    <label class="cu-field"><span>เบอร์โทร</span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" pattern="0\d{8,9}" placeholder="0812345678" required /></label>
+                    <label class="cu-field"><span>อีเมล</span><input type="email" name="email" autocomplete="email" placeholder="name@company.com" required /></label>
+                    <label class="cu-field"><span>เลขผู้เสียภาษี / เลขบัตรประชาชน</span><input type="text" name="taxId" inputmode="numeric" pattern="\d{13}" maxlength="13" placeholder="ตัวเลข 13 หลัก" /></label>
+                    <label class="cu-field pf-span-2"><span>ที่อยู่ออกใบกำกับภาษี</span><textarea name="address" rows="3" autocomplete="street-address"></textarea></label>
+                </div>
+                <div class="pf-info-actions">
+                    <button type="submit" class="cu-btn cu-btn--primary">บันทึกข้อมูล</button>
+                    <p class="pf-saved" id="infoSaved" role="status" hidden>บันทึกข้อมูลแล้ว</p>
+                </div>
+            </form>
+
+            <!-- ข้อมูลที่บันทึกล่าสุด (ตอนนี้เก็บใน sessionStorage ของเบราว์เซอร์ชั่วคราว รอต่อตาราง Users) -->
+            <aside class="pf-saved-card" aria-labelledby="pfSavedTitle">
+                <h3 id="pfSavedTitle">ข้อมูลที่บันทึกไว้</h3>
+                <p class="pf-saved-empty" id="pfSavedEmpty">ยังไม่ได้บันทึกข้อมูล กรอกฟอร์มแล้วกดบันทึก ข้อมูลจะแสดงที่นี่</p>
+                <div id="pfSavedBody" hidden>
+                    <dl class="pf-saved-list">
+                        <div><dt>ชื่อ</dt><dd data-k="name"></dd></div>
+                        <div><dt>บริษัท</dt><dd data-k="company"></dd></div>
+                        <div><dt>เบอร์โทร</dt><dd data-k="phone"></dd></div>
+                        <div><dt>อีเมล</dt><dd data-k="email"></dd></div>
+                        <div><dt>เลขผู้เสียภาษี</dt><dd data-k="taxId"></dd></div>
+                        <div><dt>ที่อยู่</dt><dd data-k="address"></dd></div>
+                    </dl>
+                    <p class="pf-saved-time">บันทึกล่าสุด <strong id="pfSavedAt"></strong></p>
+                </div>
+            </aside>
+        </div>
         <p class="pf-help">ต้องการความช่วยเหลือ? โทร <a href="tel:021234567">02-123-4567</a> ทุกวัน 8:00–18:00</p>
     </section>
 </div>
@@ -290,10 +309,39 @@
         done.focus?.();
     }));
 
+    // ----- ข้อมูลส่วนตัว -----
+    // ยังไม่มี backend: เก็บข้อมูลที่บันทึกไว้ใน sessionStorage (อยู่จนปิดแท็บ) เพื่อแสดง "บันทึกล่าสุด"
+    // ตอนทำ backend ให้บันทึกลงตาราง Users แล้วแสดงข้อมูลจาก server แทน
     const info = document.getElementById('infoForm'), saved = document.getElementById('infoSaved');
+    const KEY = 'pfInfo';
+    const fields = ['name', 'company', 'phone', 'email', 'taxId', 'address'];
+
+    function renderSaved(data) {
+        document.getElementById('pfSavedEmpty').hidden = !!data;
+        document.getElementById('pfSavedBody').hidden = !data;
+        if (!data) return;
+        document.querySelectorAll('.pf-saved-list [data-k]').forEach(dd => {
+            const v = data[dd.dataset.k];
+            dd.textContent = v || '-';
+            dd.classList.toggle('is-empty', !v);
+        });
+        document.getElementById('pfSavedAt').textContent = new Date(data.savedAt).toLocaleString('th-TH', {
+            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        }) + ' น.';
+    }
+
+    let stored = null;
+    try { stored = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (e) { stored = null; }
+    if (stored) fields.forEach(k => { if (stored[k] != null) info.elements[k].value = stored[k]; });
+    renderSaved(stored);
+
     info.addEventListener('submit', e => {
         e.preventDefault();
         if (!info.reportValidity()) return;
+        const data = { savedAt: Date.now() };
+        fields.forEach(k => data[k] = info.elements[k].value.trim());
+        try { sessionStorage.setItem(KEY, JSON.stringify(data)); } catch (err) { /* เบราว์เซอร์ไม่ให้เก็บ: แสดงในหน้าอย่างเดียว */ }
+        renderSaved(data);
         saved.hidden = false;
         setTimeout(() => saved.hidden = true, 2500);
     });
