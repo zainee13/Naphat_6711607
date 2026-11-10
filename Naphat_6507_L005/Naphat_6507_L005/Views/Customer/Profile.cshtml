@@ -1,41 +1,57 @@
+@functions {
+    // จำนวนเดือนของเงินประกัน: สัญญา 1–3 เดือน = 1 เดือน, 6 เดือน = 2 เดือน, 12 เดือน = 3 เดือน
+    int GetDepositMonths(int months)
+    {
+        if (months >= 12) return 3;
+        if (months >= 6) return 2;
+        return 1;
+    }
+}
 @{
     ViewData["Title"] = "บัญชีของฉัน";
     Layout = "_Layout";
 
+    // แท็บที่เปิดอยู่ (bookings / payment / info)
     var activeTab = ViewBag.ActiveTab as string ?? "bookings";
-    if (activeTab != "bookings" && activeTab != "payment" && activeTab != "info") activeTab = "bookings";
+    if (activeTab != "bookings" && activeTab != "payment" && activeTab != "info")
+    {
+        activeTab = "bookings";
+    }
     var fullName = ViewBag.FullName as string ?? "";
 
     // การจองของผู้ใช้ (ตอนต่อฐานข้อมูล ให้ดึงจากตาราง Bookings ของ user ที่ล็อกอิน)
-    // คิดแบบคลังเช่าทั่วไป เหมือนหน้า RoomDetail/BookRoom: จ่ายค่าเช่ารายเดือน
-    // ก่อนเข้าใช้จ่ายค่าเช่าเดือนแรก + เงินประกัน (1–3 เดือน = 1, 6 เดือน = 2, 12 เดือน = 3) คืนเมื่อสิ้นสุดสัญญา
-    // ค่าเช่าอสังหาริมทรัพย์ได้รับยกเว้น VAT จึงไม่บวก VAT
-    var bookings = new[] {
-        new { Id="BK-2026-002", Room="L-01",  Zone="โซน C1",       Period="1 ธ.ค. 2569 – 31 พ.ค. 2570", Months=6, Rate=75000, Status="pending",   Booked="9 พ.ย. 2569" },
-        new { Id="BK-2026-001", Room="M-01",  Zone="โซน B1",       Period="1 ก.ค. – 31 ธ.ค. 2569",      Months=6, Rate=25000, Status="active",    Booked="15 มิ.ย. 2569" },
-        new { Id="BK-2025-018", Room="CR-05", Zone="โซนห้องเย็น",   Period="1 ก.ค. – 31 ธ.ค. 2568",      Months=6, Rate=40000, Status="ended",     Booked="20 มิ.ย. 2568" },
-        new { Id="BK-2025-009", Room="M-01",  Zone="โซน B1",       Period="1 ม.ค. – 30 มิ.ย. 2568",     Months=6, Rate=25000, Status="cancelled", Booked="10 ธ.ค. 2567" },
-    };
-    Func<int, int, (int DepMonths, int Deposit, int FirstPay)> calc = (rate, months) =>
+    // Status: pending = รอชำระ, active = ใช้งานอยู่, ended = สิ้นสุดสัญญา, cancelled = ยกเลิก
+    var bookings = new[]
     {
-        var depMonths = months >= 12 ? 3 : months >= 6 ? 2 : 1;
-        var deposit = rate * depMonths;
-        return (depMonths, deposit, rate + deposit);
-    };
-    var statusText = new Dictionary<string, string> {
-        ["pending"] = "รอชำระเงิน", ["active"] = "ใช้งานอยู่", ["ended"] = "สิ้นสุดสัญญา", ["cancelled"] = "ยกเลิก คืนเงินแล้ว"
+        new { Id = "BK-2026-002", Room = "L-01",  Zone = "โซน C1",     Period = "1 ธ.ค. 2569 – 31 พ.ค. 2570", Months = 6, Rate = 75000, Status = "pending",   BookedOn = "9 พ.ย. 2569" },
+        new { Id = "BK-2026-001", Room = "M-01",  Zone = "โซน B1",     Period = "1 ก.ค. – 31 ธ.ค. 2569",      Months = 6, Rate = 25000, Status = "active",    BookedOn = "15 มิ.ย. 2569" },
+        new { Id = "BK-2025-018", Room = "CR-05", Zone = "โซนห้องเย็น", Period = "1 ก.ค. – 31 ธ.ค. 2568",      Months = 6, Rate = 40000, Status = "ended",     BookedOn = "20 มิ.ย. 2568" },
+        new { Id = "BK-2025-009", Room = "M-01",  Zone = "โซน B1",     Period = "1 ม.ค. – 30 มิ.ย. 2568",     Months = 6, Rate = 25000, Status = "cancelled", BookedOn = "10 ธ.ค. 2567" },
     };
 
-    var due = bookings.First(b => b.Status == "pending");
-    var dueAmt = calc(due.Rate, due.Months);
+    var statusText = new Dictionary<string, string>
+    {
+        { "pending", "รอชำระเงิน" },
+        { "active", "ใช้งานอยู่" },
+        { "ended", "สิ้นสุดสัญญา" },
+        { "cancelled", "ยกเลิก คืนเงินแล้ว" },
+    };
+
     var pendingCount = bookings.Count(b => b.Status == "pending");
 
-    // ประวัติ: ค่าเช่ารายเดือน และการคืนเงินประกันเมื่อหมดสัญญา
-    var payments = new[] {
-        ("INV-2026-011", "M-01 ค่าเช่า พ.ย. 2569",            25000, "1 พ.ย. 2569, โอนผ่าน SCB", "paid"),
-        ("INV-2026-010", "M-01 ค่าเช่า ต.ค. 2569",            25000, "1 ต.ค. 2569, โอนผ่าน SCB", "paid"),
-        ("INV-2026-005", "M-01 ค่าเช่าเดือนแรกและเงินประกัน", calc(25000, 6).FirstPay, "15 มิ.ย. 2569, โอนผ่าน SCB", "paid"),
-        ("REF-2026-001", "คืนเงินประกัน CR-05",              calc(40000, 6).Deposit, "15 ม.ค. 2569, โอนคืนบัญชีเดิม", "refund"),
+    // การจองที่ต้องชำระ: ก่อนเข้าใช้จ่ายค่าเช่าเดือนแรก + เงินประกัน (ไม่มี VAT)
+    var dueBooking = bookings.First(b => b.Status == "pending");
+    var dueDepositMonths = GetDepositMonths(dueBooking.Months);
+    var dueDeposit = dueBooking.Rate * dueDepositMonths;
+    var dueTotal = dueBooking.Rate + dueDeposit;
+
+    // ประวัติการชำระ (เลขที่, รายการ, ยอด, วันที่และช่องทาง, เป็นการคืนเงินไหม)
+    var payments = new[]
+    {
+        ("INV-2026-011", "M-01 ค่าเช่า พ.ย. 2569", 25000, "1 พ.ย. 2569, โอนผ่าน SCB", false),
+        ("INV-2026-010", "M-01 ค่าเช่า ต.ค. 2569", 25000, "1 ต.ค. 2569, โอนผ่าน SCB", false),
+        ("INV-2026-005", "M-01 ค่าเช่าเดือนแรกและเงินประกัน", 75000, "15 มิ.ย. 2569, โอนผ่าน SCB", false),
+        ("REF-2026-001", "คืนเงินประกัน CR-05", 80000, "15 ม.ค. 2569, โอนคืนบัญชีเดิม", true),
     };
 }
 
@@ -47,50 +63,63 @@
 
 <div class="pf cu">
 
+    <!-- หัวข้อ -->
     <header class="cu-head">
         <h1>บัญชีของฉัน</h1>
-        <p>@(string.IsNullOrEmpty(fullName) ? "จัดการการจอง การชำระเงิน และข้อมูลออกใบกำกับภาษี" : fullName)</p>
+        @if (fullName == "")
+        {
+            <p>จัดการการจอง การชำระเงิน และข้อมูลออกใบกำกับภาษี</p>
+        }
+        else
+        {
+            <p>@fullName</p>
+        }
     </header>
 
-    <!-- แท็บ: เป็นลิงก์จริง (?tab=) และ JS สลับให้โดยไม่โหลดหน้าใหม่ -->
+    <!-- แท็บ: ลิงก์ ?tab= ใช้ได้ทั้งเปิดตรงและกดสลับ (JS สลับให้โดยไม่โหลดหน้าใหม่) -->
     <nav class="pf-tabs" role="tablist" aria-label="ส่วนของบัญชี">
-        <a role="tab" id="tab-bookings" href="?tab=bookings" data-tab="bookings" aria-controls="panel-bookings" aria-selected="@(activeTab == "bookings" ? "true" : "false")">
-            การจองของฉัน <span class="pf-count">@bookings.Length</span>
+        <a role="tab" href="?tab=bookings" data-tab="bookings" aria-selected="@(activeTab == "bookings" ? "true" : "false")">
+            การจองของฉัน
+            <span class="pf-count">@bookings.Length</span>
         </a>
-        <a role="tab" id="tab-payment" href="?tab=payment" data-tab="payment" aria-controls="panel-payment" aria-selected="@(activeTab == "payment" ? "true" : "false")">
-            ชำระเงิน @if (pendingCount > 0) { <span class="pf-count pf-count--due">@pendingCount รอชำระ</span> }
+        <a role="tab" href="?tab=payment" data-tab="payment" aria-selected="@(activeTab == "payment" ? "true" : "false")">
+            ชำระเงิน
+            @if (pendingCount > 0)
+            {
+                <span class="pf-count pf-count--due">@pendingCount รอชำระ</span>
+            }
         </a>
-        <a role="tab" id="tab-info" href="?tab=info" data-tab="info" aria-controls="panel-info" aria-selected="@(activeTab == "info" ? "true" : "false")">
+        <a role="tab" href="?tab=info" data-tab="info" aria-selected="@(activeTab == "info" ? "true" : "false")">
             ข้อมูลส่วนตัว
         </a>
     </nav>
 
-    <!-- ========== การจองของฉัน ========== -->
-    <section class="pf-panel" id="panel-bookings" role="tabpanel" aria-labelledby="tab-bookings" @(activeTab == "bookings" ? "" : "hidden")>
+    <!-- ========== แท็บ: การจองของฉัน ========== -->
+    <section class="pf-panel" id="panel-bookings" role="tabpanel" hidden="@(activeTab != "bookings")">
         <div class="pf-panel-head">
             <h2 class="cu-h2">การจองของฉัน</h2>
             <a class="cu-btn" asp-controller="Customer" asp-action="Search">จองห้องเพิ่ม</a>
         </div>
 
         <ul class="pf-bookings">
-            @foreach (var b in bookings)
+            @foreach (var booking in bookings)
             {
-                <li class="pf-booking is-@b.Status">
+                <li class="pf-booking is-@booking.Status">
                     <div class="pf-booking-room">
-                        <a class="pf-room-code" asp-controller="Customer" asp-action="RoomDetail" asp-route-id="@b.Room">@b.Room</a>
-                        <span>@b.Zone</span>
+                        <a class="pf-room-code" asp-controller="Customer" asp-action="RoomDetail" asp-route-id="@booking.Room">@booking.Room</a>
+                        <span>@booking.Zone</span>
                     </div>
                     <div class="pf-booking-info">
-                        <strong>@b.Period</strong>
-                        <span>@b.Id, จองเมื่อ @b.Booked</span>
+                        <strong>@booking.Period</strong>
+                        <span>@booking.Id, จองเมื่อ @booking.BookedOn</span>
                     </div>
-                    <span class="pf-status pf-status--@b.Status">@statusText[b.Status]</span>
+                    <span class="pf-status pf-status--@booking.Status">@statusText[booking.Status]</span>
                     <div class="pf-booking-amt">
-                        <strong>฿@b.Rate.ToString("N0") ต่อเดือน</strong>
-                        <span>สัญญา @b.Months เดือน</span>
+                        <strong>฿@booking.Rate.ToString("N0") ต่อเดือน</strong>
+                        <span>สัญญา @booking.Months เดือน</span>
                     </div>
                     <div class="pf-booking-act">
-                        @if (b.Status == "pending")
+                        @if (booking.Status == "pending")
                         {
                             <a class="cu-btn cu-btn--primary" href="?tab=payment" data-tab="payment">ชำระเงิน</a>
                         }
@@ -100,58 +129,88 @@
         </ul>
     </section>
 
-    <!-- ========== ชำระเงิน ========== -->
-    <section class="pf-panel" id="panel-payment" role="tabpanel" aria-labelledby="tab-payment" @(activeTab == "payment" ? "" : "hidden")>
+    <!-- ========== แท็บ: ชำระเงิน ========== -->
+    <section class="pf-panel" id="panel-payment" role="tabpanel" hidden="@(activeTab != "payment")">
         <div class="pf-pay-layout">
 
             <div class="pf-pay-main">
+
+                <!-- ยอดที่ต้องชำระ -->
                 <h2 class="cu-h2">ยอดที่ต้องชำระ</h2>
                 <div class="pf-bill">
                     <div class="pf-bill-head">
                         <div>
-                            <strong class="pf-room-code">@due.Room</strong>
-                            <span>@due.Id, @due.Period</span>
+                            <strong class="pf-room-code">@dueBooking.Room</strong>
+                            <span>@dueBooking.Id, @dueBooking.Period</span>
                         </div>
                         <span class="pf-status pf-status--pending">รอชำระเงิน</span>
                     </div>
-                    <dl class="pf-calc" id="payCalc" data-rate="@due.Rate" data-months="@due.Months">
-                        <div><dt>ค่าเช่าเดือนแรก</dt><dd>฿@due.Rate.ToString("N0")</dd></div>
-                        <div><dt>เงินประกัน @dueAmt.DepMonths เดือน<span class="cu-sub">คืนเมื่อสิ้นสุดสัญญา</span></dt><dd>฿@dueAmt.Deposit.ToString("N0")</dd></div>
-                        <div class="pf-total"><dt>ชำระก่อนเข้าใช้</dt><dd class="js-pay-total">฿@dueAmt.FirstPay.ToString("N0")</dd></div>
+
+                    <dl class="pf-calc">
+                        <div>
+                            <dt>ค่าเช่าเดือนแรก</dt>
+                            <dd>฿@dueBooking.Rate.ToString("N0")</dd>
+                        </div>
+                        <div>
+                            <dt>
+                                เงินประกัน @dueDepositMonths เดือน
+                                <span class="cu-sub">คืนเมื่อสิ้นสุดสัญญา</span>
+                            </dt>
+                            <dd>฿@dueDeposit.ToString("N0")</dd>
+                        </div>
+                        <div class="pf-total">
+                            <dt>ชำระก่อนเข้าใช้</dt>
+                            <dd>฿@dueTotal.ToString("N0")</dd>
+                        </div>
                     </dl>
-                    @if (due.Months > 1)
+
+                    @if (dueBooking.Months > 1)
                     {
-                        <p class="cu-next pf-next">เดือนที่ 2–@due.Months ชำระเดือนละ ฿@due.Rate.ToString("N0")</p>
+                        <p class="cu-next pf-next">เดือนที่ 2–@dueBooking.Months ชำระเดือนละ ฿@dueBooking.Rate.ToString("N0")</p>
                     }
 
-                    <!-- โค้ดส่วนลด -->
+                    <!-- โค้ดส่วนลด: มีแค่หน้าตา ยังไม่คิดส่วนลด -->
                     <form class="cu-promo" id="promoForm" novalidate>
                         <div class="cu-field">
                             <label for="promoInput">โค้ดส่วนลด</label>
                             <div class="cu-promo-row">
-                                <input type="text" id="promoInput" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="เช่น MEGA35START" aria-describedby="promoMsg" />
+                                <input type="text" id="promoInput" autocomplete="off" placeholder="เช่น MEGA35START" />
                                 <button type="submit" class="cu-btn">ใช้โค้ด</button>
                             </div>
                         </div>
-                        <p class="cu-promo-msg" id="promoMsg" role="status" hidden></p>
+                        <p class="cu-promo-msg" id="promoMessage" role="status" hidden></p>
                     </form>
+
                     <p class="pf-due">ชำระภายใน <strong>16 พ.ย. 2569, 23:59 น.</strong> ถ้าเลยกำหนด การจองจะถูกยกเลิก</p>
                 </div>
 
+                <!-- เลือกวิธีชำระเงิน -->
                 <h3 class="pf-h3">วิธีชำระเงิน</h3>
                 <div class="pf-methods" role="radiogroup" aria-label="วิธีชำระเงิน">
-                    <label><input type="radio" name="payMethod" value="transfer" checked /><span><i class="material-symbols-outlined" aria-hidden="true">account_balance</i>โอนเงิน</span></label>
-                    <label><input type="radio" name="payMethod" value="qr" /><span><i class="material-symbols-outlined" aria-hidden="true">qr_code_2</i>พร้อมเพย์ QR</span></label>
-                    <label><input type="radio" name="payMethod" value="card" /><span><i class="material-symbols-outlined" aria-hidden="true">credit_card</i>บัตรเครดิต / เดบิต</span></label>
+                    <label>
+                        <input type="radio" name="payMethod" value="transfer" checked />
+                        <span><i class="material-symbols-outlined" aria-hidden="true">account_balance</i>โอนเงิน</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="payMethod" value="qr" />
+                        <span><i class="material-symbols-outlined" aria-hidden="true">qr_code_2</i>พร้อมเพย์ QR</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="payMethod" value="card" />
+                        <span><i class="material-symbols-outlined" aria-hidden="true">credit_card</i>บัตรเครดิต / เดบิต</span>
+                    </label>
                 </div>
 
-                <!-- โอนเงิน -->
-                <form class="pf-method" data-method="transfer" id="payTransfer">
+                <!-- วิธีที่ 1: โอนเงิน -->
+                <form class="pf-method" id="method-transfer">
                     <dl class="pf-bank">
                         <div><dt>ธนาคาร</dt><dd>ไทยพาณิชย์ (SCB)</dd></div>
                         <div><dt>ชื่อบัญชี</dt><dd>บริษัท โลจิแมเนจ จำกัด</dd></div>
-                        <div><dt>เลขบัญชี</dt><dd><span id="bankNo">123-4-56789-0</span> <button type="button" class="pf-copy" data-copy="1234567890">คัดลอก</button></dd></div>
-                        <div><dt>ยอดโอน</dt><dd class="js-pay-total">฿@dueAmt.FirstPay.ToString("N0")</dd></div>
+                        <div>
+                            <dt>เลขบัญชี</dt>
+                            <dd>123-4-56789-0 <button type="button" class="pf-copy" id="copyButton">คัดลอก</button></dd>
+                        </div>
+                        <div><dt>ยอดโอน</dt><dd>฿@dueTotal.ToString("N0")</dd></div>
                     </dl>
                     <label class="cu-field">
                         <span>สลิปโอนเงิน</span>
@@ -161,40 +220,54 @@
                     <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">แจ้งชำระเงิน</button>
                 </form>
 
-                <!-- QR -->
-                <form class="pf-method" data-method="qr" hidden>
+                <!-- วิธีที่ 2: QR พร้อมเพย์ -->
+                <form class="pf-method" id="method-qr" hidden>
                     <div class="pf-qr">
-                        <img id="payQr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PROMPTPAY-@dueAmt.FirstPay" alt="QR พร้อมเพย์" width="160" height="160" />
-                        <p>สแกนด้วยแอปธนาคาร ยอด <strong class="js-pay-total">฿@dueAmt.FirstPay.ToString("N0")</strong></p>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PROMPTPAY-@dueTotal" alt="QR พร้อมเพย์" width="160" height="160" />
+                        <p>สแกนด้วยแอปธนาคาร ยอด <strong>฿@dueTotal.ToString("N0")</strong></p>
                     </div>
                     <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">ฉันชำระแล้ว</button>
                 </form>
 
-                <!-- บัตร -->
-                <form class="pf-method" data-method="card" hidden>
+                <!-- วิธีที่ 3: บัตรเครดิต -->
+                <form class="pf-method" id="method-card" hidden>
                     <div class="pf-grid">
-                        <label class="cu-field pf-span-2"><span>เลขบัตร</span><input type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000" required /></label>
-                        <label class="cu-field pf-span-2"><span>ชื่อบนบัตร</span><input type="text" autocomplete="cc-name" required /></label>
-                        <label class="cu-field"><span>หมดอายุ (ดด/ปป)</span><input type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="12/28" required /></label>
-                        <label class="cu-field"><span>CVV</span><input type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" required /></label>
+                        <label class="cu-field pf-span-2">
+                            <span>เลขบัตร</span>
+                            <input type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000" required />
+                        </label>
+                        <label class="cu-field pf-span-2">
+                            <span>ชื่อบนบัตร</span>
+                            <input type="text" autocomplete="cc-name" required />
+                        </label>
+                        <label class="cu-field">
+                            <span>หมดอายุ (ดด/ปป)</span>
+                            <input type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="12/28" required />
+                        </label>
+                        <label class="cu-field">
+                            <span>CVV</span>
+                            <input type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" required />
+                        </label>
                     </div>
-                    <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">ชำระ <span class="js-pay-total">฿@dueAmt.FirstPay.ToString("N0")</span></button>
+                    <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">ชำระ ฿@dueTotal.ToString("N0")</button>
                 </form>
 
                 <p class="pf-done" id="payDone" role="status" hidden>ได้รับแจ้งชำระเงินแล้ว เจ้าหน้าที่จะตรวจสอบและอัปเดตสถานะภายใน 15 นาที</p>
             </div>
 
-            <aside class="pf-history" aria-labelledby="pf-history-title">
-                <h2 class="cu-h2" id="pf-history-title">ประวัติการชำระ</h2>
+            <!-- ประวัติการชำระ -->
+            <aside class="pf-history" aria-labelledby="historyTitle">
+                <h2 class="cu-h2" id="historyTitle">ประวัติการชำระ</h2>
                 <ul>
-                    @foreach (var p in payments)
+                    @foreach (var payment in payments)
                     {
-                        <li class="@(p.Item5 == "refund" ? "is-refund" : "")">
+                        var isRefund = payment.Item5;
+                        <li class="@(isRefund ? "is-refund" : "")">
                             <div class="pf-history-top">
-                                <strong>@p.Item2</strong>
-                                <span>@(p.Item5 == "refund" ? "−" : "")฿@p.Item3.ToString("N0")</span>
+                                <strong>@payment.Item2</strong>
+                                <span>@(isRefund ? "−" : "")฿@payment.Item3.ToString("N0")</span>
                             </div>
-                            <span class="pf-history-meta">@p.Item1, @p.Item4</span>
+                            <span class="pf-history-meta">@payment.Item1, @payment.Item4</span>
                         </li>
                     }
                 </ul>
@@ -202,149 +275,214 @@
         </div>
     </section>
 
-    <!-- ========== ข้อมูลส่วนตัว ========== -->
-    <section class="pf-panel" id="panel-info" role="tabpanel" aria-labelledby="tab-info" @(activeTab == "info" ? "" : "hidden")>
+    <!-- ========== แท็บ: ข้อมูลส่วนตัว ========== -->
+    <section class="pf-panel" id="panel-info" role="tabpanel" hidden="@(activeTab != "info")">
         <h2 class="cu-h2">ข้อมูลส่วนตัวและที่อยู่ออกใบกำกับภาษี</h2>
+
         <div class="pf-info-layout">
             <form class="pf-info" id="infoForm">
                 <div class="pf-grid">
-                    <label class="cu-field"><span>ชื่อ-นามสกุล</span><input type="text" name="name" autocomplete="name" value="@fullName" required /></label>
-                    <label class="cu-field"><span>ชื่อบริษัท (ไม่บังคับ)</span><input type="text" name="company" autocomplete="organization" /></label>
-                    <label class="cu-field"><span>เบอร์โทร</span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" pattern="0\d{8,9}" placeholder="0812345678" required /></label>
-                    <label class="cu-field"><span>อีเมล</span><input type="email" name="email" autocomplete="email" placeholder="name@company.com" required /></label>
-                    <label class="cu-field"><span>เลขผู้เสียภาษี / เลขบัตรประชาชน</span><input type="text" name="taxId" inputmode="numeric" pattern="\d{13}" maxlength="13" placeholder="ตัวเลข 13 หลัก" /></label>
-                    <label class="cu-field pf-span-2"><span>ที่อยู่ออกใบกำกับภาษี</span><textarea name="address" rows="3" autocomplete="street-address"></textarea></label>
+                    <label class="cu-field">
+                        <span>ชื่อ-นามสกุล</span>
+                        <input type="text" name="name" autocomplete="name" value="@fullName" required />
+                    </label>
+                    <label class="cu-field">
+                        <span>ชื่อบริษัท (ไม่บังคับ)</span>
+                        <input type="text" name="company" autocomplete="organization" />
+                    </label>
+                    <label class="cu-field">
+                        <span>เบอร์โทร</span>
+                        <input type="tel" name="phone" autocomplete="tel" pattern="0\d{8,9}" placeholder="0812345678" required />
+                    </label>
+                    <label class="cu-field">
+                        <span>อีเมล</span>
+                        <input type="email" name="email" autocomplete="email" placeholder="name@company.com" required />
+                    </label>
+                    <label class="cu-field">
+                        <span>เลขผู้เสียภาษี / เลขบัตรประชาชน</span>
+                        <input type="text" name="taxId" inputmode="numeric" pattern="\d{13}" maxlength="13" placeholder="ตัวเลข 13 หลัก" />
+                    </label>
+                    <label class="cu-field pf-span-2">
+                        <span>ที่อยู่ออกใบกำกับภาษี</span>
+                        <textarea name="address" rows="3" autocomplete="street-address"></textarea>
+                    </label>
                 </div>
                 <div class="pf-info-actions">
                     <button type="submit" class="cu-btn cu-btn--primary">บันทึกข้อมูล</button>
-                    <p class="pf-saved" id="infoSaved" role="status" hidden>บันทึกข้อมูลแล้ว</p>
+                    <p class="pf-saved" id="savedMessage" role="status" hidden>บันทึกข้อมูลแล้ว</p>
                 </div>
             </form>
 
-            <!-- ข้อมูลที่บันทึกล่าสุด (ตอนนี้เก็บใน sessionStorage ของเบราว์เซอร์ชั่วคราว รอต่อตาราง Users) -->
-            <aside class="pf-saved-card" aria-labelledby="pfSavedTitle">
-                <h3 id="pfSavedTitle">ข้อมูลที่บันทึกไว้</h3>
-                <p class="pf-saved-empty" id="pfSavedEmpty">ยังไม่ได้บันทึกข้อมูล กรอกฟอร์มแล้วกดบันทึก ข้อมูลจะแสดงที่นี่</p>
-                <div id="pfSavedBody" hidden>
+            <!-- ข้อมูลที่บันทึกล่าสุด (ตอนนี้เก็บในเบราว์เซอร์ชั่วคราว รอต่อตาราง Users) -->
+            <aside class="pf-saved-card" aria-labelledby="savedTitle">
+                <h3 id="savedTitle">ข้อมูลที่บันทึกไว้</h3>
+                <p class="pf-saved-empty" id="savedEmpty">ยังไม่ได้บันทึกข้อมูล กรอกฟอร์มแล้วกดบันทึก ข้อมูลจะแสดงที่นี่</p>
+                <div id="savedBox" hidden>
                     <dl class="pf-saved-list">
-                        <div><dt>ชื่อ</dt><dd data-k="name"></dd></div>
-                        <div><dt>บริษัท</dt><dd data-k="company"></dd></div>
-                        <div><dt>เบอร์โทร</dt><dd data-k="phone"></dd></div>
-                        <div><dt>อีเมล</dt><dd data-k="email"></dd></div>
-                        <div><dt>เลขผู้เสียภาษี</dt><dd data-k="taxId"></dd></div>
-                        <div><dt>ที่อยู่</dt><dd data-k="address"></dd></div>
+                        <div><dt>ชื่อ</dt><dd id="saved-name"></dd></div>
+                        <div><dt>บริษัท</dt><dd id="saved-company"></dd></div>
+                        <div><dt>เบอร์โทร</dt><dd id="saved-phone"></dd></div>
+                        <div><dt>อีเมล</dt><dd id="saved-email"></dd></div>
+                        <div><dt>เลขผู้เสียภาษี</dt><dd id="saved-taxId"></dd></div>
+                        <div><dt>ที่อยู่</dt><dd id="saved-address"></dd></div>
                     </dl>
-                    <p class="pf-saved-time">บันทึกล่าสุด <strong id="pfSavedAt"></strong></p>
+                    <p class="pf-saved-time">บันทึกล่าสุด <strong id="savedTime"></strong></p>
                 </div>
             </aside>
         </div>
+
         <p class="pf-help">ต้องการความช่วยเหลือ? โทร <a href="tel:021234567">02-123-4567</a> ทุกวัน 8:00–18:00</p>
     </section>
 </div>
 
 @section Scripts {
 <script>
-(function () {
-    // ----- แท็บ -----
-    const tabs = document.querySelectorAll('.pf-tabs [role=tab]');
-    function show(name, push) {
-        tabs.forEach(t => t.setAttribute('aria-selected', t.dataset.tab === name ? 'true' : 'false'));
-        document.querySelectorAll('.pf-panel').forEach(p => p.hidden = p.id !== 'panel-' + name);
-        if (push) history.replaceState(null, '', '?tab=' + name);
-    }
-    document.querySelectorAll('[data-tab]').forEach(a => a.addEventListener('click', e => {
-        e.preventDefault();
-        show(a.dataset.tab, true);
-        if (!a.closest('.pf-tabs')) document.querySelector('.pf-tabs').scrollIntoView({ block: 'start' });
-    }));
-    // เดินด้วยลูกศรซ้ายขวาบนแท็บ
-    document.querySelector('.pf-tabs').addEventListener('keydown', e => {
-        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-        const list = [...tabs], i = list.indexOf(document.activeElement);
-        if (i < 0) return;
-        const next = list[(i + (e.key === 'ArrowRight' ? 1 : list.length - 1)) % list.length];
-        next.focus(); show(next.dataset.tab, true);
-    });
+    // ===================== แท็บ =====================
+    const tabLinks = document.querySelectorAll('.pf-tabs a');
 
-    // ----- โค้ดส่วนลด: มีแค่หน้าตา ยังไม่คิดส่วนลด (รอทำตอนต่อ backend) -----
-    const promoInput = document.getElementById('promoInput'), promoMsg = document.getElementById('promoMsg');
-    document.getElementById('promoForm').addEventListener('submit', e => {
-        e.preventDefault();
-        promoMsg.textContent = promoInput.value.trim()
-            ? 'ยังใช้โค้ดส่วนลดไม่ได้ในตอนนี้'
-            : 'พิมพ์โค้ดส่วนลดก่อนกดใช้โค้ด';
-        promoMsg.classList.remove('is-ok');
-        promoMsg.hidden = false;
-        promoInput.focus();
-    });
-
-    // ----- วิธีชำระเงิน -----
-    const done = document.getElementById('payDone');
-    document.querySelectorAll('input[name=payMethod]').forEach(r => r.addEventListener('change', () => {
-        document.querySelectorAll('.pf-method').forEach(f => f.hidden = f.dataset.method !== r.value);
-        done.hidden = true;
-    }));
-
-    document.querySelectorAll('.pf-copy').forEach(b => b.addEventListener('click', () => {
-        if (!navigator.clipboard) return;
-        navigator.clipboard.writeText(b.dataset.copy).then(() => {
-            b.textContent = 'คัดลอกแล้ว';
-            setTimeout(() => b.textContent = 'คัดลอก', 1800);
+    // เปิดแท็บตามชื่อ (bookings / payment / info) และเปลี่ยน ?tab= ใน URL
+    function showTab(tabName) {
+        tabLinks.forEach(function (link) {
+            const isActive = (link.dataset.tab === tabName);
+            link.setAttribute('aria-selected', isActive ? 'true' : 'false');
         });
-    }));
 
-    const slip = document.getElementById('slipInput'), preview = document.getElementById('slipPreview');
-    slip.addEventListener('change', () => {
-        const f = slip.files[0];
-        if (f) { preview.src = URL.createObjectURL(f); preview.hidden = false; }
-        else preview.hidden = true;
+        document.querySelectorAll('.pf-panel').forEach(function (panel) {
+            panel.hidden = (panel.id !== 'panel-' + tabName);
+        });
+
+        history.replaceState(null, '', '?tab=' + tabName);
+    }
+
+    // ลิงก์ที่มี data-tab (แท็บด้านบน และปุ่ม "ชำระเงิน" ในรายการจอง)
+    document.querySelectorAll('[data-tab]').forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            showTab(link.dataset.tab);
+        });
     });
 
-    // ยังไม่บันทึกลงฐานข้อมูล: แสดงข้อความยืนยันในหน้าเท่านั้น
-    document.querySelectorAll('.pf-method').forEach(f => f.addEventListener('submit', e => {
-        e.preventDefault();
-        if (!f.reportValidity()) return;
-        f.hidden = true;
-        done.hidden = false;
-        done.focus?.();
-    }));
+    // ===================== โค้ดส่วนลด =====================
+    // ยังไม่ทำระบบ แสดงข้อความแจ้งเฉยๆ
+    document.getElementById('promoForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const code = document.getElementById('promoInput').value.trim();
+        const message = document.getElementById('promoMessage');
 
-    // ----- ข้อมูลส่วนตัว -----
-    // ยังไม่มี backend: เก็บข้อมูลที่บันทึกไว้ใน sessionStorage (อยู่จนปิดแท็บ) เพื่อแสดง "บันทึกล่าสุด"
+        if (code === '') {
+            message.textContent = 'พิมพ์โค้ดส่วนลดก่อนกดใช้โค้ด';
+        } else {
+            message.textContent = 'ยังใช้โค้ดส่วนลดไม่ได้ในตอนนี้';
+        }
+        message.hidden = false;
+    });
+
+    // ===================== วิธีชำระเงิน =====================
+    const payDone = document.getElementById('payDone');
+
+    // เลือกวิธีชำระ แล้วแสดงฟอร์มของวิธีนั้น
+    document.querySelectorAll('input[name=payMethod]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            document.getElementById('method-transfer').hidden = (radio.value !== 'transfer');
+            document.getElementById('method-qr').hidden = (radio.value !== 'qr');
+            document.getElementById('method-card').hidden = (radio.value !== 'card');
+            payDone.hidden = true;
+        });
+    });
+
+    // ปุ่มคัดลอกเลขบัญชี
+    const copyButton = document.getElementById('copyButton');
+    copyButton.addEventListener('click', function () {
+        navigator.clipboard.writeText('1234567890').then(function () {
+            copyButton.textContent = 'คัดลอกแล้ว';
+            setTimeout(function () {
+                copyButton.textContent = 'คัดลอก';
+            }, 1800);
+        });
+    });
+
+    // แนบสลิปแล้วแสดงรูปตัวอย่าง
+    const slipInput = document.getElementById('slipInput');
+    const slipPreview = document.getElementById('slipPreview');
+    slipInput.addEventListener('change', function () {
+        const file = slipInput.files[0];
+        if (file) {
+            slipPreview.src = URL.createObjectURL(file);
+            slipPreview.hidden = false;
+        } else {
+            slipPreview.hidden = true;
+        }
+    });
+
+    // กดชำระ (ยังไม่บันทึกลงฐานข้อมูล แสดงข้อความยืนยันในหน้าเท่านั้น)
+    document.querySelectorAll('.pf-method').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            if (!form.reportValidity()) return;   // ยังกรอกไม่ครบ
+            form.hidden = true;
+            payDone.hidden = false;
+        });
+    });
+
+    // ===================== ข้อมูลส่วนตัว =====================
+    // ยังไม่มี backend: เก็บข้อมูลไว้ใน sessionStorage (อยู่จนปิดแท็บ)
     // ตอนทำ backend ให้บันทึกลงตาราง Users แล้วแสดงข้อมูลจาก server แทน
-    const info = document.getElementById('infoForm'), saved = document.getElementById('infoSaved');
-    const KEY = 'pfInfo';
-    const fields = ['name', 'company', 'phone', 'email', 'taxId', 'address'];
+    const infoForm = document.getElementById('infoForm');
+    const fieldNames = ['name', 'company', 'phone', 'email', 'taxId', 'address'];
 
-    function renderSaved(data) {
-        document.getElementById('pfSavedEmpty').hidden = !!data;
-        document.getElementById('pfSavedBody').hidden = !data;
-        if (!data) return;
-        document.querySelectorAll('.pf-saved-list [data-k]').forEach(dd => {
-            const v = data[dd.dataset.k];
-            dd.textContent = v || '-';
-            dd.classList.toggle('is-empty', !v);
+    // แสดงข้อมูลในกล่อง "ข้อมูลที่บันทึกไว้"
+    function showSavedInfo(data) {
+        if (!data) {
+            document.getElementById('savedEmpty').hidden = false;
+            document.getElementById('savedBox').hidden = true;
+            return;
+        }
+
+        document.getElementById('savedEmpty').hidden = true;
+        document.getElementById('savedBox').hidden = false;
+
+        fieldNames.forEach(function (name) {
+            const box = document.getElementById('saved-' + name);
+            const value = data[name];
+            box.textContent = value ? value : '-';
+            box.classList.toggle('is-empty', !value);
         });
-        document.getElementById('pfSavedAt').textContent = new Date(data.savedAt).toLocaleString('th-TH', {
+
+        const savedTime = new Date(data.savedAt).toLocaleString('th-TH', {
             day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-        }) + ' น.';
+        });
+        document.getElementById('savedTime').textContent = savedTime + ' น.';
     }
 
-    let stored = null;
-    try { stored = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (e) { stored = null; }
-    if (stored) fields.forEach(k => { if (stored[k] != null) info.elements[k].value = stored[k]; });
-    renderSaved(stored);
+    // เปิดหน้ามา: ถ้าเคยบันทึกไว้ ให้ใส่ข้อมูลกลับลงฟอร์มและแสดงในกล่อง
+    const savedText = sessionStorage.getItem('profileInfo');
+    const savedData = savedText ? JSON.parse(savedText) : null;
+    if (savedData) {
+        fieldNames.forEach(function (name) {
+            infoForm.elements[name].value = savedData[name] || '';
+        });
+    }
+    showSavedInfo(savedData);
 
-    info.addEventListener('submit', e => {
-        e.preventDefault();
-        if (!info.reportValidity()) return;
+    // กดบันทึก
+    infoForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        if (!infoForm.reportValidity()) return;   // ยังกรอกไม่ครบหรือผิดรูปแบบ
+
         const data = { savedAt: Date.now() };
-        fields.forEach(k => data[k] = info.elements[k].value.trim());
-        try { sessionStorage.setItem(KEY, JSON.stringify(data)); } catch (err) { /* เบราว์เซอร์ไม่ให้เก็บ: แสดงในหน้าอย่างเดียว */ }
-        renderSaved(data);
-        saved.hidden = false;
-        setTimeout(() => saved.hidden = true, 2500);
+        fieldNames.forEach(function (name) {
+            data[name] = infoForm.elements[name].value.trim();
+        });
+
+        sessionStorage.setItem('profileInfo', JSON.stringify(data));
+        showSavedInfo(data);
+
+        // แสดงข้อความ "บันทึกข้อมูลแล้ว" 2.5 วินาที
+        const savedMessage = document.getElementById('savedMessage');
+        savedMessage.hidden = false;
+        setTimeout(function () {
+            savedMessage.hidden = true;
+        }, 2500);
     });
-})();
 </script>
 }
