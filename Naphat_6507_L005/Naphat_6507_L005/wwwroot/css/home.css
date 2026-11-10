@@ -1,0 +1,396 @@
+/* ==========================================================================
+   หน้าหลัก (Customer/Dashboard + Views/Shared/_HomeLayout) — สไตล์ตาม DESIGN.md
+   พื้น onyx #171721 เต็มหน้า, การ์ด graphite #1e1e2a ไม่มีเงา, ตัวหนังสือ ivory,
+   cobalt #5266eb เฉพาะปุ่มหลัก, ปุ่ม/ช่องกรอกทรงแคปซูล,
+   เมนูด้านบนโปร่งใสทับ hero แล้วทึบ (blur) เมื่อเลื่อนลง, เนื้อหากว้างสุด 1200px
+   ========================================================================== */
+
+:root {
+    --hm-canvas: #171721;
+    --hm-card: #1e1e2a;
+    --hm-raised: #272735;
+    --hm-line: #70707d;
+    --hm-hairline: rgba(226, 227, 237, 0.14);
+    --hm-mist: #e2e3ed;
+    --hm-ash: #c3c3cc;
+    --hm-ivory: #ededf3;
+    --hm-cobalt: #5266eb;
+    --hm-cobalt-hover: #4255d6;
+    --hm-white: #ffffff;
+    --hm-font: 'Inter', 'IBM Plex Sans Thai', ui-sans-serif, system-ui, sans-serif;
+    --hm-max: 1200px;
+    --hm-gutter: 24px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body.hm {
+    margin: 0;
+    background: var(--hm-canvas);
+    color: var(--hm-ivory);
+    font-family: var(--hm-font);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.hm h1, .hm h2, .hm h3 { margin: 0; color: var(--hm-ivory); font-weight: 500; }
+.hm p { margin: 0; color: var(--hm-ash); }
+.hm a { color: inherit; text-decoration: none; }
+.hm ul { margin: 0; padding: 0; list-style: none; }
+.hm .material-symbols-outlined { font-size: 1.2rem; line-height: 1; }
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0);
+    white-space: nowrap; border: 0;
+}
+
+.hm-container { width: 100%; max-width: var(--hm-max); margin: 0 auto; padding: 0 var(--hm-gutter); }
+
+/* ---------- ป้ายเล็ก ---------- */
+.hm-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--hm-ash);
+}
+.hm-eyebrow--bright { color: var(--hm-ivory); }
+
+.hm-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--hm-ivory); box-shadow: 0 0 0 4px rgba(237, 237, 243, 0.15); }
+
+.hm-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border: 1px solid var(--hm-hairline);
+    border-radius: 40px;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    color: var(--hm-ivory);
+    vertical-align: middle;
+}
+
+/* ---------- ปุ่ม ---------- */
+.hm-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 22px;
+    border-radius: 32px;
+    border: 1px solid transparent;
+    font-family: var(--hm-font);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.hm-btn:focus-visible { outline: 2px solid var(--hm-ivory); outline-offset: 3px; }
+.hm-btn--primary { background: var(--hm-cobalt); color: var(--hm-white); }
+.hm-btn--primary:hover { background: var(--hm-cobalt-hover); }
+.hm-btn--ghost { background: transparent; border-color: var(--hm-ivory); color: var(--hm-ivory); border-radius: 40px; }
+.hm-btn--ghost:hover { background: var(--hm-raised); }
+.hm-btn--sm { min-height: 36px; padding: 8px 16px; font-size: 14px; }
+
+/* ---------- การ์ด ---------- */
+.hm-card { background: var(--hm-card); border-radius: 12px; padding: 32px; }
+
+/* ==========================================================================
+   เมนูด้านบน
+   ========================================================================== */
+.hm-nav {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    transition: background-color 0.2s ease, backdrop-filter 0.2s ease;
+}
+.hm-nav.is-scrolled,
+.hm-nav.is-open {
+    background: rgba(23, 23, 33, 0.78);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+}
+
+.hm-nav-inner {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px var(--hm-gutter);
+}
+
+.hm-brand { display: inline-flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 500; letter-spacing: 0.01em; color: var(--hm-ivory); }
+.hm-brand-mark {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--hm-ivory);
+    box-shadow: inset 0 0 0 4px var(--hm-canvas), inset 0 0 0 7px var(--hm-ivory);
+}
+
+.hm-nav-menu { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex: 1; }
+.hm-nav-links { display: flex; align-items: center; gap: 4px; margin: 0 auto; }
+.hm-nav-actions { display: flex; align-items: center; gap: 8px; }
+
+.hm-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 8px 18px;
+    border-radius: 40px;
+    color: var(--hm-ivory);
+    font-size: 16px;
+    transition: background-color 0.15s ease;
+}
+a.hm-nav-link:hover { background: rgba(237, 237, 243, 0.08); }
+.hm-nav-link:focus-visible { outline: 2px solid var(--hm-ivory); outline-offset: 2px; }
+.hm-nav-user { color: var(--hm-ash); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.hm-nav-toggle {
+    display: none;
+    margin-left: auto;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--hm-hairline);
+    border-radius: 40px;
+    background: transparent;
+    color: var(--hm-ivory);
+    cursor: pointer;
+}
+.hm-nav-toggle:focus-visible { outline: 2px solid var(--hm-ivory); outline-offset: 2px; }
+
+/* ==========================================================================
+   Hero เต็มจอ
+   ========================================================================== */
+.hm-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 112px var(--hm-gutter) 72px;
+    background:
+        linear-gradient(180deg, rgba(23, 23, 33, 0.82) 0%, rgba(23, 23, 33, 0.72) 45%, rgba(23, 23, 33, 0.94) 88%, var(--hm-canvas) 100%),
+        url('../images/login-warehouse.webp') center / cover no-repeat,
+        var(--hm-canvas);
+}
+
+.hm-hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    max-width: 720px;
+    text-align: center;
+}
+
+.hm-hero-title {
+    font-size: clamp(36px, 6vw, 65px);
+    line-height: 1.12;
+    letter-spacing: 0.01em;
+    color: var(--hm-white) !important;
+}
+
+.hm-hero-sub { max-width: 520px; font-size: 18px; line-height: 1.45; color: var(--hm-ivory) !important; }
+
+/* ฟอร์มค้นหา: ช่องเลือกทรงแคปซูล + ปุ่ม cobalt */
+.hm-search { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; width: 100%; max-width: 640px; margin-top: 8px; }
+.hm-search-field { flex: 1 1 200px; margin: 0; }
+.hm-search-field select {
+    appearance: none;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 44px 12px 20px;
+    border: 1px solid var(--hm-mist);
+    border-radius: 32px;
+    background: rgba(23, 23, 33, 0.55)
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23ededf3' stroke-width='1.5'/%3E%3C/svg%3E")
+        no-repeat right 20px center;
+    color: var(--hm-ivory);
+    font-family: var(--hm-font);
+    font-size: 16px;
+    cursor: pointer;
+}
+.hm-search-field select:focus-visible { outline: 2px solid var(--hm-ivory); outline-offset: 2px; }
+.hm-search-field select option { background: var(--hm-card); color: var(--hm-ivory); }
+.hm-search .hm-btn--primary { min-height: 48px; padding: 12px 28px; }
+
+.hm-hero-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 28px; font-size: 14px; color: var(--hm-ash); }
+.hm-hero-meta li { display: inline-flex; align-items: center; gap: 8px; }
+
+/* ==========================================================================
+   ส่วนเนื้อหา
+   ========================================================================== */
+.hm-section { padding: 72px 0 0; }
+.hm-section--tight { padding-top: 0; }
+main > .hm-section:last-child { padding-bottom: 112px; }
+
+.hm-section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
+.hm-section-head h2 { margin-top: 12px; font-size: clamp(28px, 3vw, 42px); line-height: 1.15; letter-spacing: 0.01em; }
+
+.hm-grid { display: grid; gap: 12px; }
+.hm-grid--4 { grid-template-columns: repeat(4, 1fr); }
+.hm-grid--3 { grid-template-columns: repeat(3, 1fr); }
+
+/* ตัวเลข */
+.hm-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.hm-stat { background: var(--hm-card); border-radius: 12px; padding: 28px 32px; }
+.hm-stat-value { font-size: 32px; line-height: 1.15; letter-spacing: 0.015em; font-weight: 500; color: var(--hm-ivory); }
+.hm-stat-label { margin-top: 8px; font-size: 14px; color: var(--hm-ash); }
+
+/* ห้องแนะนำ: การ์ดกว้าง 2 ฝั่ง */
+.hm-unit {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 40px;
+    align-items: center;
+    padding: 40px;
+    transition: background-color 0.15s ease;
+}
+.hm-unit:hover { background: var(--hm-raised); }
+.hm-unit:focus-visible { outline: 2px solid var(--hm-ivory); outline-offset: 3px; }
+.hm-unit-main { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.hm-unit-code { display: flex; align-items: center; gap: 16px; font-size: clamp(42px, 5vw, 65px); line-height: 1.05; font-weight: 500; letter-spacing: 0.01em; color: var(--hm-ivory); }
+.hm-unit-price small { font-size: 14px; color: var(--hm-ash); }
+.hm-unit-price strong { font-size: 28px; font-weight: 500; color: var(--hm-ivory); }
+.hm-unit-price small:first-child { display: block; margin-bottom: 2px; }
+.hm-unit-side { display: flex; flex-direction: column; gap: 24px; }
+
+.hm-unit-spec {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 0;
+    padding: 24px 0;
+    border-top: 1px solid var(--hm-hairline);
+    border-bottom: 1px solid var(--hm-hairline);
+}
+.hm-unit-spec dt { font-size: 12px; font-weight: 400; color: var(--hm-ash); }
+.hm-unit-spec dd { margin: 6px 0 0; font-size: 21px; font-weight: 500; color: var(--hm-ivory); }
+.hm-unit-occ-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--hm-ash); }
+.hm-unit-occ-row strong { color: var(--hm-ivory); font-weight: 500; }
+.hm-unit-bar { height: 6px; margin-top: 10px; border-radius: 40px; background: var(--hm-raised); overflow: hidden; }
+.hm-unit-bar i { display: block; height: 100%; border-radius: 40px; background: var(--hm-ivory); }
+
+/* ขนาดห้อง */
+.hm-size { display: flex; flex-direction: column; gap: 8px; transition: background-color 0.15s ease; }
+.hm-size:hover { background: var(--hm-raised); }
+.hm-size:focus-visible { outline: 2px solid var(--hm-ivory); outline-offset: 3px; }
+.hm-size-icon { font-size: 1.6rem !important; color: var(--hm-ash); }
+.hm-size-letter { display: flex; align-items: center; gap: 12px; margin-top: 16px; font-size: 42px; line-height: 1.1; font-weight: 500; color: var(--hm-ivory); }
+.hm-size-range { font-size: 14px; color: var(--hm-ash); }
+.hm-size h3 { margin-top: 16px; font-size: 18px; line-height: 1.35; }
+.hm-size p { font-size: 14px; }
+.hm-size-foot { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 24px; border-top: 1px solid var(--hm-hairline); }
+.hm-size p + .hm-size-foot { margin-top: 24px; }
+.hm-size-foot small { display: block; font-size: 12px; color: var(--hm-ash); }
+.hm-size-foot strong { font-size: 18px; font-weight: 500; color: var(--hm-ivory); }
+.hm-size-go { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 1px solid var(--hm-ivory); border-radius: 40px; }
+
+/* บริการ */
+.hm-service { display: flex; flex-direction: column; gap: 4px; }
+.hm-service .material-symbols-outlined { font-size: 1.6rem; color: var(--hm-ivory); margin-bottom: 16px; }
+.hm-service strong { font-size: 18px; font-weight: 500; color: var(--hm-ivory); }
+.hm-service span:last-child { font-size: 14px; color: var(--hm-ash); }
+
+/* เปรียบเทียบ + โปรโมชั่น */
+.hm-split { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; }
+.hm-compare-head,
+.hm-compare-row { display: grid; grid-template-columns: 1fr 40px 1.3fr; align-items: center; gap: 12px; }
+.hm-compare-head { padding-bottom: 16px; }
+.hm-compare-row { padding: 18px 0; border-top: 1px solid var(--hm-hairline); }
+.hm-compare-old { color: var(--hm-ash); text-decoration: line-through; text-decoration-color: var(--hm-line); }
+.hm-compare-arrow { color: var(--hm-line); justify-self: center; }
+.hm-compare-new { display: inline-flex; align-items: center; gap: 8px; color: var(--hm-ivory); }
+
+.hm-promo { display: flex; flex-direction: column; gap: 8px; }
+.hm-promo-big { margin-top: 8px; font-size: 65px; line-height: 1.05; font-weight: 500; color: var(--hm-ivory); }
+.hm-promo h3 { font-size: 21px; line-height: 1.35; }
+.hm-promo p { font-size: 14px; }
+.hm-promo-code { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: auto; padding: 6px 6px 6px 20px; border: 1px dashed var(--hm-line); border-radius: 40px; }
+.hm-promo-code code { color: var(--hm-ivory); font-size: 14px; letter-spacing: 0.06em; font-family: var(--hm-font); }
+
+/* ติดต่อ */
+.hm-cta { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+.hm-cta-text { display: flex; align-items: center; gap: 20px; }
+.hm-cta-icon { display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 40px; background: var(--hm-raised); font-size: 1.6rem !important; }
+.hm-cta h3 { font-size: 21px; line-height: 1.35; }
+.hm-cta p { font-size: 14px; }
+.hm-cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ท้ายหน้า */
+.hm-footer {
+    padding: 24px var(--hm-gutter);
+    border-top: 1px solid var(--hm-hairline);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--hm-ash);
+}
+
+/* ==========================================================================
+   จอเล็ก
+   ========================================================================== */
+@media (max-width: 1099.98px) {
+    .hm-grid--4 { grid-template-columns: repeat(2, 1fr); }
+    .hm-nav-links { margin: 0; }
+}
+
+@media (max-width: 959.98px) {
+    /* เมนูพับเก็บ */
+    .hm-nav-toggle { display: inline-flex; align-items: center; justify-content: center; }
+    .hm-nav-inner { flex-wrap: wrap; }
+    .hm-nav-menu { display: none; flex: 1 1 100%; flex-direction: column; align-items: stretch; gap: 12px; padding: 8px 0 16px; }
+    .hm-nav.is-open .hm-nav-menu { display: flex; }
+    .hm-nav.is-open { background: var(--hm-canvas); border-bottom: 1px solid var(--hm-hairline); }
+    .hm-nav-links { flex-direction: column; align-items: stretch; }
+    .hm-nav-actions { flex-direction: column; align-items: stretch; }
+    .hm-nav-link { padding: 10px 16px; }
+    .hm-nav-user { max-width: none; }
+
+    .hm-stats { grid-template-columns: repeat(2, 1fr); }
+    .hm-grid--3 { grid-template-columns: repeat(2, 1fr); }
+    .hm-unit { grid-template-columns: 1fr; gap: 24px; padding: 32px; }
+    .hm-split { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 599.98px) {
+    :root { --hm-gutter: 16px; }
+    .hm-hero { padding-top: 104px; }
+    .hm-hero-title { font-size: 30px; }
+    .hm-hero-sub { font-size: 16px; }
+    .hm-search .hm-btn--primary { width: 100%; }
+    .hm-section { padding-top: 56px; }
+    .hm-section--tight { padding-top: 0; }
+    .hm-card { padding: 24px; }
+    .hm-unit { padding: 24px; }
+    .hm-stat { padding: 20px; }
+    .hm-stat-value { font-size: 24px; }
+    .hm-grid--4,
+    .hm-grid--3 { grid-template-columns: 1fr; }
+    .hm-unit-spec dd { font-size: 18px; }
+    .hm-compare-head,
+    .hm-compare-row { grid-template-columns: 1fr 24px 1.2fr; gap: 8px; font-size: 14px; }
+    .hm-promo-big { font-size: 49px; }
+    .hm-cta-actions { width: 100%; }
+    .hm-cta-actions .hm-btn { flex: 1 1 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hm * { transition: none !important; }
+}

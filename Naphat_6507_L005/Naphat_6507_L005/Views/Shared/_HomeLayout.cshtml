@@ -1,0 +1,111 @@
+@* Layout ของหน้าหลักเท่านั้น: เมนูด้านบนโปร่งใสทับรูป hero ไม่มี sidebar (สไตล์ตาม DESIGN.md อยู่ใน wwwroot/css/home.css)
+   หน้าอื่นยังใช้ _Layout ที่มี sidebar เหมือนเดิม *@
+@{
+    var sessionUser = Context.Session.GetString("Username");
+    var role = Context.Session.GetString("Role") ?? "Guest";
+    var fullName = Context.Session.GetString("FullName") ?? "";
+    bool isLoggedIn = !string.IsNullOrEmpty(sessionUser);
+}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - LogiManage</title>
+    <meta name="description" content="ระบบเช่าห้องคลังสินค้าออนไลน์ LogiManage" />
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" />
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+</head>
+
+<body class="hm">
+
+    <!-- ===== เมนูด้านบน ===== -->
+    <header class="hm-nav" id="hmNav">
+        <div class="hm-nav-inner">
+            <a asp-controller="Customer" asp-action="Dashboard" class="hm-brand">
+                <span class="hm-brand-mark" aria-hidden="true"></span>
+                LogiManage
+            </a>
+
+            <button type="button" class="hm-nav-toggle" id="hmNavToggle" aria-expanded="false" aria-controls="hmNavMenu" aria-label="เปิดเมนู">
+                <span class="material-symbols-outlined" aria-hidden="true">menu</span>
+            </button>
+
+            <div class="hm-nav-menu" id="hmNavMenu">
+                <nav class="hm-nav-links" aria-label="เมนูหลัก">
+                    <a asp-controller="Customer" asp-action="Dashboard" class="hm-nav-link" aria-current="page">หน้าหลัก</a>
+                    <a asp-controller="Customer" asp-action="Search" class="hm-nav-link">ค้นหาห้อง</a>
+                    @if (isLoggedIn && role == "Customer")
+                    {
+                        <a asp-controller="Customer" asp-action="Profile" asp-route-tab="bookings" class="hm-nav-link">การจองของฉัน</a>
+                        <a asp-controller="Customer" asp-action="Profile" asp-route-tab="payment" class="hm-nav-link">ชำระเงิน</a>
+                    }
+                    else if (isLoggedIn)
+                    {
+                        <a asp-controller="@role" asp-action="Dashboard" class="hm-nav-link">หน้าทำงาน</a>
+                    }
+                </nav>
+
+                <div class="hm-nav-actions">
+                    @if (!isLoggedIn)
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="hm-nav-link">เข้าสู่ระบบ</a>
+                        <a asp-controller="Account" asp-action="Register" class="hm-btn hm-btn--primary">สมัครสมาชิก</a>
+                    }
+                    else
+                    {
+                        @if (role == "Customer")
+                        {
+                            <a asp-controller="Customer" asp-action="Profile" asp-route-tab="info" class="hm-nav-link hm-nav-user">
+                                <span class="material-symbols-outlined" aria-hidden="true">account_circle</span> @fullName
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="hm-nav-link hm-nav-user">
+                                <span class="material-symbols-outlined" aria-hidden="true">account_circle</span> @fullName
+                            </span>
+                        }
+                        <a asp-controller="Account" asp-action="Logout" class="hm-btn hm-btn--ghost">ออกจากระบบ</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="hm-footer">
+        &copy; 2026 LogiManage — ระบบเช่าห้องคลังสินค้าออนไลน์
+    </footer>
+
+    <script>
+        // เมนูด้านบน: ทึบขึ้นเมื่อเลื่อนลง และเปิด/ปิดเมนูบนจอมือถือ (เฉพาะหน้าตา)
+        (function () {
+            const nav = document.getElementById('hmNav');
+            const toggle = document.getElementById('hmNavToggle');
+
+            function updateNav() {
+                nav.classList.toggle('is-scrolled', window.scrollY > 24);
+            }
+            window.addEventListener('scroll', updateNav, { passive: true });
+            updateNav();
+
+            toggle.addEventListener('click', function () {
+                const open = nav.classList.toggle('is-open');
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                toggle.setAttribute('aria-label', open ? 'ปิดเมนู' : 'เปิดเมนู');
+            });
+        })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

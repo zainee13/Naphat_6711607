@@ -1,300 +1,237 @@
 @{
     ViewData["Title"] = "หน้าหลัก";
-    Layout = "_Layout";
+    Layout = "_HomeLayout";   // หน้าหลักใช้เมนูด้านบน ไม่มี sidebar
 }
 
-<!-- ===== Hero ===== -->
-<section class="lm-hero">
-    <div class="lm-hazard"></div>
-    <div class="lm-hero-inner">
-        <div class="row g-4 align-items-center">
-            <div class="col-12 col-xl-7">
-                <span class="lm-eyebrow"><span class="lm-dot"></span> ยูนิตว่างพร้อมส่งมอบ 7 ยูนิต</span>
-                <h1 class="lm-hero-title">
-                    พื้นที่คลังสินค้า<br />
-                    <span class="lm-hl">พร้อมใช้</span> ในไม่กี่คลิก
-                </h1>
-                <p class="lm-hero-sub">
-                    เลือกห้อง จอง และชำระเงินได้ในเว็บเดียว สัญญาเริ่มต้น 1 เดือน
-                </p>
+<!-- ===== Hero: รูปเต็มจอ ข้อความตรงกลาง ===== -->
+<section class="hm-hero">
+    <div class="hm-hero-inner">
+        <span class="hm-eyebrow"><span class="hm-dot"></span> ยูนิตว่างพร้อมส่งมอบ 7 ยูนิต</span>
+        <h1 class="hm-hero-title">พื้นที่คลังสินค้าพร้อมใช้<br />ในไม่กี่คลิก</h1>
+        <p class="hm-hero-sub">เลือกห้อง จอง และชำระเงินได้ในเว็บเดียว สัญญาเริ่มต้น 1 เดือน</p>
 
-                <form asp-controller="Customer" asp-action="Search" method="get" class="lm-search">
-                    <div class="lm-search-field">
-                        <label for="q-size">ขนาดห้อง</label>
-                        <select id="q-size" name="size">
-                            <option value="all">ทุกขนาด</option>
-                            <option value="s">S · 30–80 ตร.ม.</option>
-                            <option value="m">M · 100–250 ตร.ม.</option>
-                            <option value="l">L · 300–500 ตร.ม.</option>
-                            <option value="xl">XL · 600–1,200 ตร.ม.</option>
-                            <option value="cold">ห้องเย็น −18°C ถึง +5°C</option>
-                        </select>
-                    </div>
-                    <div class="lm-search-field">
-                        <label for="q-price">งบต่อเดือน</label>
-                        <select id="q-price" name="price">
-                            <option value="all">ทุกช่วงราคา</option>
-                            <option value="under20k">ต่ำกว่า ฿20,000</option>
-                            <option value="20k-50k">฿20,000 – 50,000</option>
-                            <option value="50k-100k">฿50,000 – 100,000</option>
-                            <option value="over100k">฿100,000 ขึ้นไป</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary">
-                        <span class="material-symbols-outlined" style="font-size:1.2rem;">search</span>
-                        ค้นหาห้องว่าง
-                    </button>
-                </form>
+        <form asp-controller="Customer" asp-action="Search" method="get" class="hm-search">
+            <label class="hm-search-field">
+                <span class="visually-hidden">ขนาดห้อง</span>
+                <select name="size" aria-label="ขนาดห้อง">
+                    <option value="all">ทุกขนาด</option>
+                    <option value="s">S · 30–80 ตร.ม.</option>
+                    <option value="m">M · 100–250 ตร.ม.</option>
+                    <option value="l">L · 300–500 ตร.ม.</option>
+                    <option value="xl">XL · 600–1,200 ตร.ม.</option>
+                    <option value="cold">ห้องเย็น −18°C ถึง +5°C</option>
+                </select>
+            </label>
+            <label class="hm-search-field">
+                <span class="visually-hidden">งบต่อเดือน</span>
+                <select name="price" aria-label="งบต่อเดือน">
+                    <option value="all">ทุกช่วงราคา</option>
+                    <option value="under20k">ต่ำกว่า ฿20,000</option>
+                    <option value="20k-50k">฿20,000 – 50,000</option>
+                    <option value="50k-100k">฿50,000 – 100,000</option>
+                    <option value="over100k">฿100,000 ขึ้นไป</option>
+                </select>
+            </label>
+            <button type="submit" class="hm-btn hm-btn--primary">ค้นหาห้องว่าง</button>
+        </form>
 
-                <div class="lm-hero-meta">
-                    <span><span class="material-symbols-outlined">videocam</span> CCTV แยกทุกห้อง</span>
-                    <span><span class="material-symbols-outlined">event_available</span> สัญญา 1–12 เดือน</span>
-                    <span><span class="material-symbols-outlined">draw</span> ทำสัญญาออนไลน์</span>
+        <ul class="hm-hero-meta">
+            <li><span class="material-symbols-outlined" aria-hidden="true">videocam</span> CCTV แยกทุกห้อง</li>
+            <li><span class="material-symbols-outlined" aria-hidden="true">event_available</span> สัญญา 1–12 เดือน</li>
+            <li><span class="material-symbols-outlined" aria-hidden="true">draw</span> ทำสัญญาออนไลน์</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ===== ตัวเลข ===== -->
+<section class="hm-section hm-section--tight" aria-label="ข้อมูลคลังสินค้า">
+    <div class="hm-container hm-stats">
+        <div class="hm-stat"><div class="hm-stat-value">50,000+</div><div class="hm-stat-label">ตร.ม. พื้นที่รวม</div></div>
+        <div class="hm-stat"><div class="hm-stat-value">40 ft</div><div class="hm-stat-label">Dock เทียบตู้</div></div>
+        <div class="hm-stat"><div class="hm-stat-value">24/7</div><div class="hm-stat-label">รปภ. และ CCTV</div></div>
+        <div class="hm-stat"><div class="hm-stat-value">4.9 ★</div><div class="hm-stat-label">คะแนนรีวิว</div></div>
+    </div>
+</section>
+
+<!-- ===== ห้องแนะนำ ===== -->
+<section class="hm-section">
+    <div class="hm-container">
+        <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="M-01" class="hm-card hm-unit">
+            <div class="hm-unit-main">
+                <span class="hm-eyebrow">Zone A · ห้องแนะนำ</span>
+                <div class="hm-unit-code">M-01 <span class="hm-tag">● ว่าง</span></div>
+                <div class="hm-unit-price">
+                    <small>ค่าเช่าเริ่มต้น</small>
+                    <strong>฿25,000</strong> <small>/ เดือน</small>
+                </div>
+                <span class="hm-btn hm-btn--ghost">
+                    ดูห้องนี้ <span class="material-symbols-outlined" aria-hidden="true">arrow_outward</span>
+                </span>
+            </div>
+            <div class="hm-unit-side">
+                <dl class="hm-unit-spec">
+                    <div><dt>พื้นที่</dt><dd>150 ตร.ม.</dd></div>
+                    <div><dt>เพดาน</dt><dd>8 ม.</dd></div>
+                    <div><dt>พาเลท</dt><dd>~90</dd></div>
+                </dl>
+                <div class="hm-unit-occ">
+                    <div class="hm-unit-occ-row"><span>อัตราการเช่าโซน A</span><strong>86%</strong></div>
+                    <div class="hm-unit-bar" aria-hidden="true"><i style="width:86%"></i></div>
                 </div>
             </div>
+        </a>
+    </div>
+</section>
 
-            <!-- Unit label card -->
-            <div class="col-12 col-xl-5 d-none d-xl-block">
-                <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="M-01" class="text-decoration-none">
-                    <div class="lm-unit">
-                        <div class="lm-unit-top">
-                            <div>
-                                <span class="lm-eyebrow">Zone A · ห้องแนะนำ</span>
-                                <div class="lm-unit-code">M-01</div>
-                            </div>
-                            <span class="lm-tag ok">● ว่าง</span>
-                        </div>
-                        <div class="lm-unit-spec">
-                            <div><small>พื้นที่</small><strong class="lm-num">150 ตร.ม.</strong></div>
-                            <div><small>เพดาน</small><strong class="lm-num">8 ม.</strong></div>
-                            <div><small>พาเลท</small><strong class="lm-num">~90</strong></div>
-                        </div>
-                        <div class="lm-unit-occ">
-                            <div class="d-flex justify-content-between">
-                                <small>อัตราการเช่าโซน A</small>
-                                <small style="color:var(--lm-ink);font-weight:600;">86%</small>
-                            </div>
-                            <div class="lm-unit-bar">
-                                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="free"></i><i class="free"></i>
-                            </div>
-                        </div>
-                        <div class="lm-unit-foot">
-                            <div>
-                                <small>ค่าเช่าเริ่มต้น</small><br />
-                                <strong>฿25,000</strong> <small>/ เดือน</small>
-                            </div>
-                            <span class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
-                                ดูห้องนี้ <span class="material-symbols-outlined" style="font-size:1rem;">arrow_outward</span>
-                            </span>
-                        </div>
-                        <div class="lm-barcode"></div>
-                    </div>
+<!-- ===== ขนาดห้อง ===== -->
+<section class="hm-section">
+    <div class="hm-container">
+        <div class="hm-section-head">
+            <div>
+                <span class="hm-eyebrow">01 — ขนาดห้อง</span>
+                <h2>เลือกขนาดที่พอดีกับธุรกิจ</h2>
+            </div>
+            <a asp-controller="Customer" asp-action="Search" class="hm-btn hm-btn--ghost">
+                ดูห้องว่าง <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            </a>
+        </div>
+
+        <div class="hm-grid hm-grid--4">
+            <a asp-controller="Customer" asp-action="Search" asp-route-size="s" class="hm-card hm-size">
+                <span class="material-symbols-outlined hm-size-icon" aria-hidden="true">inventory_2</span>
+                <div class="hm-size-letter">S</div>
+                <div class="hm-size-range">30–80 ตร.ม. · เพดาน 6 ม.</div>
+                <h3>SME &amp; ร้านออนไลน์</h3>
+                <p>กระบะและรถ 4 ล้อเข้าได้</p>
+                <div class="hm-size-foot">
+                    <div><small>เริ่มต้น</small><strong>฿12,000/ด.</strong></div>
+                    <span class="hm-size-go material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                </div>
+            </a>
+
+            <a asp-controller="Customer" asp-action="Search" asp-route-size="m" class="hm-card hm-size">
+                <span class="material-symbols-outlined hm-size-icon" aria-hidden="true">shelves</span>
+                <div class="hm-size-letter">M <span class="hm-tag">ยอดนิยม</span></div>
+                <div class="hm-size-range">100–250 ตร.ม. · เพดาน 8 ม.</div>
+                <h3>Commercial Pallet</h3>
+                <p>โฟล์คลิฟต์เข้าได้ วาง 60–120 พาเลท</p>
+                <div class="hm-size-foot">
+                    <div><small>เริ่มต้น</small><strong>฿25,000/ด.</strong></div>
+                    <span class="hm-size-go material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                </div>
+            </a>
+
+            <a asp-controller="Customer" asp-action="Search" asp-route-size="l" class="hm-card hm-size">
+                <span class="material-symbols-outlined hm-size-icon" aria-hidden="true">local_shipping</span>
+                <div class="hm-size-letter">L</div>
+                <div class="hm-size-range">300–500 ตร.ม. · เพดาน 10 ม.</div>
+                <h3>Logistics + Dock</h3>
+                <p>รถพ่วง 18 ล้อเทียบ Dock ได้</p>
+                <div class="hm-size-foot">
+                    <div><small>เริ่มต้น</small><strong>฿55,000/ด.</strong></div>
+                    <span class="hm-size-go material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                </div>
+            </a>
+
+            <a asp-controller="Customer" asp-action="Search" asp-route-size="cold" class="hm-card hm-size">
+                <span class="material-symbols-outlined hm-size-icon" aria-hidden="true">ac_unit</span>
+                <div class="hm-size-letter">XL</div>
+                <div class="hm-size-range">ห้องเย็น −18°C ถึง +5°C</div>
+                <h3>Mega &amp; Cold Chain</h3>
+                <p>ห้องเย็น หรือคลัง 1,200 ตร.ม.</p>
+                <div class="hm-size-foot">
+                    <div><small>เริ่มต้น</small><strong>฿40,000/ด.</strong></div>
+                    <span class="hm-size-go material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== บริการ ===== -->
+<section class="hm-section">
+    <div class="hm-container">
+        <div class="hm-section-head">
+            <div>
+                <span class="hm-eyebrow">02 — บริการ</span>
+                <h2>บริการของเรา</h2>
+            </div>
+        </div>
+
+        <ul class="hm-grid hm-grid--3 hm-services">
+            <li class="hm-card hm-service"><span class="material-symbols-outlined" aria-hidden="true">warehouse</span><strong>เช่าคลังสินค้า</strong><span>S ถึง XL และห้องเย็น</span></li>
+            <li class="hm-card hm-service"><span class="material-symbols-outlined" aria-hidden="true">history_edu</span><strong>จองออนไลน์</strong><span>สัญญาออนไลน์</span></li>
+            <li class="hm-card hm-service"><span class="material-symbols-outlined" aria-hidden="true">rv_hookup</span><strong>เทียบตู้คอนเทนเนอร์</strong><span>รองรับ 18 ล้อ</span></li>
+            <li class="hm-card hm-service"><span class="material-symbols-outlined" aria-hidden="true">forklift</span><strong>โฟล์คลิฟต์</strong><span>พร้อมคนขับ</span></li>
+            <li class="hm-card hm-service"><span class="material-symbols-outlined" aria-hidden="true">shield_lock</span><strong>ปลอดภัย 24/7</strong><span>CCTV และ รปภ.</span></li>
+            <li class="hm-card hm-service"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span><strong>ใบกำกับภาษี</strong><span>ออกในนามบริษัทได้</span></li>
+        </ul>
+    </div>
+</section>
+
+<!-- ===== เปรียบเทียบ + โปรโมชั่น ===== -->
+<section class="hm-section">
+    <div class="hm-container hm-split">
+        <div class="hm-card hm-compare">
+            <div class="hm-compare-head">
+                <span class="hm-eyebrow">คลังแบบเดิม</span>
+                <span></span>
+                <span class="hm-eyebrow hm-eyebrow--bright">LogiManage</span>
+            </div>
+            <div class="hm-compare-row">
+                <span class="hm-compare-old">สัญญา 3–5 ปี</span>
+                <span class="material-symbols-outlined hm-compare-arrow" aria-hidden="true">arrow_forward</span>
+                <span class="hm-compare-new"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>สัญญา 1–12 เดือน</span>
+            </div>
+            <div class="hm-compare-row">
+                <span class="hm-compare-old">ต้องไปดูราคาเอง</span>
+                <span class="material-symbols-outlined hm-compare-arrow" aria-hidden="true">arrow_forward</span>
+                <span class="hm-compare-new"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>ราคาและสเปกบนเว็บ</span>
+            </div>
+            <div class="hm-compare-row">
+                <span class="hm-compare-old">18 ล้อเข้าไม่ได้</span>
+                <span class="material-symbols-outlined hm-compare-arrow" aria-hidden="true">arrow_forward</span>
+                <span class="hm-compare-new"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>ถนน 20 ม. และ Dock 40ft</span>
+            </div>
+            <div class="hm-compare-row">
+                <span class="hm-compare-old">ไม่มีกล้องแยกห้อง</span>
+                <span class="material-symbols-outlined hm-compare-arrow" aria-hidden="true">arrow_forward</span>
+                <span class="hm-compare-new"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>CCTV แยกทุกห้อง</span>
+            </div>
+        </div>
+
+        <div class="hm-card hm-promo">
+            <span class="hm-eyebrow">โปรโมชั่น</span>
+            <div class="hm-promo-big">−35%</div>
+            <h3>ลดค่าเช่าเดือนแรก</h3>
+            <p>เมื่อทำสัญญา 6 เดือนขึ้นไป</p>
+            <div class="hm-promo-code">
+                <code>MEGA35START</code>
+                <a asp-controller="Customer" asp-action="Search" class="hm-btn hm-btn--ghost hm-btn--sm">ใช้โค้ด</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== ติดต่อ ===== -->
+<section class="hm-section">
+    <div class="hm-container">
+        <div class="hm-card hm-cta">
+            <div class="hm-cta-text">
+                <span class="material-symbols-outlined hm-cta-icon" aria-hidden="true">support_agent</span>
+                <div>
+                    <h3>อยากดูพื้นที่จริง?</h3>
+                    <p>นัดเข้าชมได้ทุกวัน</p>
+                </div>
+            </div>
+            <div class="hm-cta-actions">
+                <a href="tel:028889999" class="hm-btn hm-btn--ghost">
+                    <span class="material-symbols-outlined" aria-hidden="true">call</span> 02-888-9999
+                </a>
+                <a asp-controller="Customer" asp-action="Search" class="hm-btn hm-btn--ghost">
+                    <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span> จองห้องเลย
                 </a>
             </div>
         </div>
     </div>
 </section>
-
-<!-- ===== Stats strip ===== -->
-<div class="lm-stats">
-    <div class="lm-stat">
-        <div class="lm-stat-value">50,000<em>+</em></div>
-        <div class="lm-stat-label">ตร.ม. พื้นที่รวม</div>
-    </div>
-    <div class="lm-stat">
-        <div class="lm-stat-value">40<em>ft</em></div>
-        <div class="lm-stat-label">Dock เทียบตู้</div>
-    </div>
-    <div class="lm-stat">
-        <div class="lm-stat-value">24<em>/</em>7</div>
-        <div class="lm-stat-label">รปภ. และ CCTV</div>
-    </div>
-    <div class="lm-stat">
-        <div class="lm-stat-value">4.9<em>★</em></div>
-        <div class="lm-stat-label">คะแนนรีวิว</div>
-    </div>
-</div>
-
-<!-- ===== Sizes ===== -->
-<section class="lm-section">
-    <div class="lm-section-head">
-        <div>
-            <span class="lm-eyebrow">01 — ขนาดห้อง</span>
-            <h2>เลือกขนาดที่พอดีกับธุรกิจ</h2>
-        </div>
-        <a asp-controller="Customer" asp-action="Search" class="btn btn-outline-primary d-inline-flex align-items-center gap-1">
-            ดูห้องว่าง <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_forward</span>
-        </a>
-    </div>
-
-    <div class="row g-3">
-        <div class="col-12 col-md-6 col-xl-3">
-            <a asp-controller="Customer" asp-action="Search" asp-route-size="s" class="lm-size">
-                <span class="material-symbols-outlined lm-size-icon">inventory_2</span>
-                <div class="lm-size-letter">S</div>
-                <div class="lm-size-range">30–80 ตร.ม. · เพดาน 6 ม.</div>
-                <h3>SME &amp; ร้านออนไลน์</h3>
-                <p>กระบะและรถ 4 ล้อเข้าได้</p>
-                <div class="lm-size-foot">
-                    <div class="lm-size-price"><small>เริ่มต้น</small><strong>฿12,000/ด.</strong></div>
-                    <span class="lm-size-go"><span class="material-symbols-outlined">arrow_forward</span></span>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3">
-            <a asp-controller="Customer" asp-action="Search" asp-route-size="m" class="lm-size featured">
-                <span class="material-symbols-outlined lm-size-icon">shelves</span>
-                <div class="d-flex align-items-center gap-2">
-                    <div class="lm-size-letter">M</div>
-                    <span class="lm-tag ms-1">ยอดนิยม</span>
-                </div>
-                <div class="lm-size-range">100–250 ตร.ม. · เพดาน 8 ม.</div>
-                <h3>Commercial Pallet</h3>
-                <p>โฟล์คลิฟต์เข้าได้ วาง 60–120 พาเลท</p>
-                <div class="lm-size-foot">
-                    <div class="lm-size-price"><small>เริ่มต้น</small><strong>฿25,000/ด.</strong></div>
-                    <span class="lm-size-go"><span class="material-symbols-outlined">arrow_forward</span></span>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3">
-            <a asp-controller="Customer" asp-action="Search" asp-route-size="l" class="lm-size">
-                <span class="material-symbols-outlined lm-size-icon">local_shipping</span>
-                <div class="lm-size-letter">L</div>
-                <div class="lm-size-range">300–500 ตร.ม. · เพดาน 10 ม.</div>
-                <h3>Logistics + Dock</h3>
-                <p>รถพ่วง 18 ล้อเทียบ Dock ได้</p>
-                <div class="lm-size-foot">
-                    <div class="lm-size-price"><small>เริ่มต้น</small><strong>฿55,000/ด.</strong></div>
-                    <span class="lm-size-go"><span class="material-symbols-outlined">arrow_forward</span></span>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3">
-            <a asp-controller="Customer" asp-action="Search" asp-route-size="cold" class="lm-size">
-                <span class="material-symbols-outlined lm-size-icon">ac_unit</span>
-                <div class="lm-size-letter">XL</div>
-                <div class="lm-size-range">ห้องเย็น −18°C ถึง +5°C</div>
-                <h3>Mega &amp; Cold Chain</h3>
-                <p>ห้องเย็น หรือคลัง 1,200 ตร.ม.</p>
-                <div class="lm-size-foot">
-                    <div class="lm-size-price"><small>เริ่มต้น</small><strong>฿40,000/ด.</strong></div>
-                    <span class="lm-size-go"><span class="material-symbols-outlined">arrow_forward</span></span>
-                </div>
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- ===== Services ===== -->
-<section class="lm-section">
-    <div class="lm-section-head">
-        <div>
-            <span class="lm-eyebrow">02 — บริการ</span>
-            <h2>บริการของเรา</h2>
-        </div>
-    </div>
-
-    <div class="lm-services">
-        <div class="lm-service">
-            <div class="lm-service-icon"><span class="material-symbols-outlined">warehouse</span></div>
-            <strong>เช่าคลังสินค้า</strong>
-            <span class="d">S ถึง XL และห้องเย็น</span>
-        </div>
-        <div class="lm-service">
-            <div class="lm-service-icon"><span class="material-symbols-outlined">history_edu</span></div>
-            <strong>จองออนไลน์</strong>
-            <span class="d">สัญญาออนไลน์</span>
-        </div>
-        <div class="lm-service">
-            <div class="lm-service-icon"><span class="material-symbols-outlined">rv_hookup</span></div>
-            <strong>เทียบตู้คอนเทนเนอร์</strong>
-            <span class="d">รองรับ 18 ล้อ</span>
-        </div>
-        <div class="lm-service">
-            <div class="lm-service-icon"><span class="material-symbols-outlined">forklift</span></div>
-            <strong>โฟล์คลิฟต์</strong>
-            <span class="d">พร้อมคนขับ</span>
-        </div>
-        <div class="lm-service">
-            <div class="lm-service-icon"><span class="material-symbols-outlined">shield_lock</span></div>
-            <strong>ปลอดภัย 24/7</strong>
-            <span class="d">CCTV และ รปภ.</span>
-        </div>
-        <div class="lm-service">
-            <div class="lm-service-icon"><span class="material-symbols-outlined">receipt_long</span></div>
-            <strong>ใบกำกับภาษี</strong>
-            <span class="d">ออกในนามบริษัทได้</span>
-        </div>
-    </div>
-</section>
-
-<!-- ===== Compare + Promo ===== -->
-<section class="lm-section">
-    <div class="row g-3">
-        <div class="col-12 col-lg-8">
-            <div class="lm-compare">
-                <div class="lm-compare-head">
-                    <span class="lm-eyebrow">คลังแบบเดิม</span>
-                    <span></span>
-                    <span class="lm-eyebrow" style="color:var(--lm-accent);">LogiManage</span>
-                </div>
-                <div class="lm-compare-row">
-                    <span class="lm-compare-old">สัญญา 3–5 ปี</span>
-                    <span class="material-symbols-outlined lm-compare-arrow">arrow_forward</span>
-                    <span class="lm-compare-new"><span class="material-symbols-outlined">check_circle</span>สัญญา 1–12 เดือน</span>
-                </div>
-                <div class="lm-compare-row">
-                    <span class="lm-compare-old">ต้องไปดูราคาเอง</span>
-                    <span class="material-symbols-outlined lm-compare-arrow">arrow_forward</span>
-                    <span class="lm-compare-new"><span class="material-symbols-outlined">check_circle</span>ราคาและสเปกบนเว็บ</span>
-                </div>
-                <div class="lm-compare-row">
-                    <span class="lm-compare-old">18 ล้อเข้าไม่ได้</span>
-                    <span class="material-symbols-outlined lm-compare-arrow">arrow_forward</span>
-                    <span class="lm-compare-new"><span class="material-symbols-outlined">check_circle</span>ถนน 20 ม. และ Dock 40ft</span>
-                </div>
-                <div class="lm-compare-row">
-                    <span class="lm-compare-old">ไม่มีกล้องแยกห้อง</span>
-                    <span class="material-symbols-outlined lm-compare-arrow">arrow_forward</span>
-                    <span class="lm-compare-new"><span class="material-symbols-outlined">check_circle</span>CCTV แยกทุกห้อง</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-lg-4">
-            <div class="lm-ticket">
-                <span class="lm-eyebrow">โปรโมชั่น</span>
-                <div class="lm-ticket-big">−35%</div>
-                <h3>ลดค่าเช่าเดือนแรก</h3>
-                <p>เมื่อทำสัญญา 6 เดือนขึ้นไป</p>
-                <div class="lm-ticket-code">
-                    <code>MEGA35START</code>
-                    <a asp-controller="Customer" asp-action="Search" class="btn btn-sm">ใช้โค้ด</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ===== CTA ===== -->
-<div class="lm-cta">
-    <div class="d-flex align-items-center gap-3">
-        <div class="lm-cta-icon d-none d-sm-flex"><span class="material-symbols-outlined" style="font-size:1.7rem;">support_agent</span></div>
-        <div>
-            <h3>อยากดูพื้นที่จริง?</h3>
-            <p>นัดเข้าชมได้ทุกวัน</p>
-        </div>
-    </div>
-    <div class="d-flex gap-2 flex-wrap">
-        <a href="tel:028889999" class="btn btn-ghost d-inline-flex align-items-center gap-1">
-            <span class="material-symbols-outlined" style="font-size:1.1rem;">call</span> 02-888-9999
-        </a>
-        <a asp-controller="Customer" asp-action="Search" class="btn btn-primary d-inline-flex align-items-center gap-1">
-            <span class="material-symbols-outlined" style="font-size:1.1rem;">calendar_month</span> จองห้องเลย
-        </a>
-    </div>
-</div>
