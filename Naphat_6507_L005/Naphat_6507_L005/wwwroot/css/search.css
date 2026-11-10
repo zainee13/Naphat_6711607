@@ -48,15 +48,15 @@
     min-width: 0;
     overflow: hidden;
 }
-.fp-unit:hover { background: #31313f; border-color: rgba(226, 227, 237, 0.35); }
+.fp-unit:hover { background: #262626; border-color: rgba(255, 255, 255, 0.35); }
 .fp-unit--cold { box-shadow: inset 0 3px 0 var(--cu-cold); }
 .fp-unit.is-taken {
-    background: repeating-linear-gradient(-45deg, #1f1f2b 0 6px, #24242f 6px 12px);
+    background: repeating-linear-gradient(-45deg, #141414 0 6px, #1a1a1a 6px 12px);
     color: var(--cu-faint);
     border-style: dashed;
 }
-.fp-unit.is-selected { background: var(--cu-text); color: var(--cu-concrete); border-color: var(--cu-text); z-index: 1; }
-.fp-unit--cold.is-selected { box-shadow: inset 0 3px 0 var(--cu-orange); }
+.fp-unit.is-selected { background: var(--cu-grad); color: #fff; border-color: transparent; z-index: 1; }
+.fp-unit--cold.is-selected { box-shadow: inset 0 3px 0 var(--cu-cold); }
 .fp-unit.is-taken.is-selected { background: var(--cu-taken); color: var(--cu-text); border-color: var(--cu-taken); }
 .fp-unit:focus-visible { outline: 2px solid var(--cu-text); outline-offset: 3px; z-index: 2; }
 
@@ -66,9 +66,9 @@
 
 .fp-legend { display: flex; flex-wrap: wrap; gap: 8px 24px; list-style: none; margin: 16px 0 0; padding: 0; font-size: 13px; color: var(--cu-muted); }
 .fp-legend li { display: flex; align-items: center; gap: 8px; }
-.fp-sw { width: 14px; height: 14px; border-radius: 4px; display: inline-block; background: var(--cu-slab); border: 1px solid rgba(226, 227, 237, 0.35); }
+.fp-sw { width: 14px; height: 14px; border-radius: 4px; display: inline-block; background: var(--cu-slab); border: 1px solid rgba(255, 255, 255, 0.35); }
 .fp-sw--cold { box-shadow: inset 0 3px 0 var(--cu-cold); }
-.fp-sw--taken { border-style: dashed; background: repeating-linear-gradient(-45deg, #1f1f2b 0 3px, #2a2a36 3px 6px); }
+.fp-sw--taken { border-style: dashed; background: repeating-linear-gradient(-45deg, #141414 0 3px, #222222 3px 6px); }
 
 /* ---------- แผงรายละเอียด ---------- */
 .fp-detail {
@@ -123,7 +123,7 @@
 .sr-card-img { position: relative; aspect-ratio: 16 / 9; background: var(--cu-slab); }
 .sr-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .sr-card.is-taken .sr-card-img img { filter: grayscale(1); opacity: 0.45; }
-.sr-card-flag { position: absolute; left: 12px; top: 12px; background: rgba(23, 23, 33, 0.85); color: var(--cu-text); font-size: 12px; padding: 4px 12px; border-radius: 40px; }
+.sr-card-flag { position: absolute; left: 12px; top: 12px; background: rgba(0, 0, 0, 0.85); color: var(--cu-text); font-size: 12px; padding: 4px 12px; border-radius: 40px; }
 .sr-card-body { padding: 20px 24px 24px; }
 .sr-card-top { display: flex; justify-content: space-between; align-items: baseline; }
 .sr-card h3 { font-family: var(--cu-display); font-weight: 500; font-size: 24px; margin: 0; line-height: 1.1; }

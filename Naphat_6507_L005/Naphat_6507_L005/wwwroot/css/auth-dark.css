@@ -3,81 +3,81 @@
    ธีมเข้มตาม DESIGN.md ให้เข้ากับหน้าฝั่งลูกค้า
    โหลดหลัง theme.css เพื่อทับสไตล์ .auth เดิม
    ========================================================= */
-body { background: #171721; }
+body { background: #000000; }
 
 .auth {
-    background: #171721;
-    color: #ededf3;
+    background: #000000;
+    color: #f2f2f2;
     font-family: 'Inter', 'IBM Plex Sans Thai', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ฝั่งซ้าย: รูปคลังสินค้า + ชั้นมืด ไม่มีแสงสีส้ม */
-.auth-brand { background: #171721; }
+.auth-brand { background: #000000; }
 .auth-brand::before {
     background:
-        linear-gradient(180deg, rgba(23, 23, 33, 0.72) 0%, rgba(23, 23, 33, 0.84) 55%, rgba(23, 23, 33, 0.95) 100%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.84) 55%, rgba(0, 0, 0, 0.95) 100%),
         url("../images/login-warehouse.webp") center / cover no-repeat;
 }
 .auth-brand::after { display: none; }
 
-.auth-logo { font-size: 18px; font-weight: 500; letter-spacing: 0.01em; color: #ededf3; gap: 10px; }
-.auth-logo:hover { color: #ededf3; }
+.auth-logo { font-size: 18px; font-weight: 500; letter-spacing: 0.01em; color: #f2f2f2; gap: 10px; }
+.auth-logo:hover { color: #f2f2f2; }
 .auth-logo::before {
     width: 22px;
     height: 22px;
     margin-right: 0;
     border-radius: 50%;
     background: none;
-    border: 2px solid #ededf3;
-    box-shadow: inset 0 0 0 4px #171721, inset 0 0 0 7px #ededf3;
+    border: 2px solid #f45a33;
+    box-shadow: inset 0 0 0 4px #000000, inset 0 0 0 7px #f45a33;
 }
 .auth-logo span { color: inherit; }
 
-.auth-brand .lm-eyebrow { color: #c3c3cc !important; font-size: 12px; letter-spacing: 0.04em; }
-.auth-brand .lm-dot { background: #ededf3; box-shadow: 0 0 0 4px rgba(237, 237, 243, 0.15); }
+.auth-brand .lm-eyebrow { color: #bdbdbd !important; font-size: 12px; letter-spacing: 0.04em; }
+.auth-brand .lm-dot { background: linear-gradient(134.77deg, #f4824d 25.1%, #f42919 74.9%); box-shadow: 0 0 0 4px rgba(242, 242, 242, 0.15); }
 .auth-brand h2 { font-weight: 500; letter-spacing: 0.01em; line-height: 1.15; color: #ffffff; }
-.auth-brand h2 em { color: #ffffff; }
-.auth-brand .lead-s { color: #c3c3cc; line-height: 1.6; }
+.auth-brand h2 em { background: linear-gradient(134.77deg, #f4824d 25.1%, #f42919 74.9%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+.auth-brand .lead-s { color: #bdbdbd; line-height: 1.6; }
 
-.auth-point { background: rgba(30, 30, 42, 0.85); border: 0; border-radius: 12px; color: #ededf3; }
-.auth-point .material-symbols-outlined { color: #ededf3; }
-.auth-foot { color: #9a9aa6; font-family: inherit; }
+.auth-point { background: rgba(18, 18, 18, 0.85); border: 0; border-radius: 12px; color: #f2f2f2; }
+.auth-point .material-symbols-outlined { color: #f45a33; }
+.auth-foot { color: #8f8f8f; font-family: inherit; }
 
 /* ฝั่งขวา: ฟอร์ม */
-.auth-form-wrap { background: #171721; }
-.auth-back { color: #c3c3cc; }
-.auth-back:hover { color: #ededf3; }
-.auth-form h1 { font-weight: 500; letter-spacing: 0.01em; color: #ededf3; }
-.auth-form .sub { color: #c3c3cc; }
-.auth-form .form-label { font-weight: 400; font-size: 13px; color: #c3c3cc; padding-left: 4px; }
+.auth-form-wrap { background: #000000; }
+.auth-back { color: #bdbdbd; }
+.auth-back:hover { color: #f2f2f2; }
+.auth-form h1 { font-weight: 500; letter-spacing: 0.01em; color: #f2f2f2; }
+.auth-form .sub { color: #bdbdbd; }
+.auth-form .form-label { font-weight: 400; font-size: 13px; color: #bdbdbd; padding-left: 4px; }
 
-.auth-input .material-symbols-outlined { color: #9a9aa6; left: 18px; }
+.auth-input .material-symbols-outlined { color: #8f8f8f; left: 18px; }
 .auth-input .form-control,
 .auth-form .form-control {
     padding: 12px 18px 12px 48px;
-    border: 1px solid rgba(226, 227, 237, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 32px;
-    background: #1e1e2a;
-    color: #ededf3;
+    background: #121212;
+    color: #f2f2f2;
     font-size: 16px;
     color-scheme: dark;
 }
-.auth-form .form-control::placeholder { color: #9a9aa6; }
+.auth-form .form-control::placeholder { color: #8f8f8f; }
 .auth-form .form-control:focus {
-    background: #1e1e2a;
-    color: #ededf3;
-    border-color: #ededf3;
+    background: #121212;
+    color: #f2f2f2;
+    border-color: #f2f2f2;
     box-shadow: none;
-    outline: 2px solid #ededf3;
+    outline: 2px solid #f2f2f2;
     outline-offset: 1px;
 }
 
-/* ปุ่มหลัก cobalt ทรงแคปซูล (theme.css ใส่ !important ไว้กับ .btn-primary จึงต้องทับด้วย !important) */
+/* ปุ่มหลักสีไล่ระดับส้ม-แดง ทรงแคปซูล (theme.css ใส่ !important ไว้กับ .btn-primary จึงต้องทับด้วย !important) */
 .auth-submit,
 .auth-form .btn-primary {
-    border: 1px solid #5266eb !important;
+    border: 0 !important;
     border-radius: 32px;
-    background: #5266eb !important;
+    background: linear-gradient(134.77deg, #f4824d 25.1%, #f42919 74.9%) !important;
     color: #ffffff !important;
     font-weight: 400;
     box-shadow: none !important;
@@ -86,14 +86,14 @@ body { background: #171721; }
 .auth-submit:focus,
 .auth-form .btn-primary:hover,
 .auth-form .btn-primary:focus {
-    background: #4255d6 !important;
-    border-color: #4255d6 !important;
+    background: linear-gradient(134.77deg, #f4824d 25.1%, #f42919 74.9%) !important;
+    filter: brightness(1.08);
     box-shadow: none !important;
 }
-.auth-submit:focus-visible { outline: 2px solid #ededf3; outline-offset: 3px; }
+.auth-submit:focus-visible { outline: 2px solid #f2f2f2; outline-offset: 3px; }
 
-.auth-alt { border-top: 1px solid rgba(226, 227, 237, 0.14); color: #c3c3cc; }
-.auth-alt a { color: #ededf3; font-weight: 500; text-decoration: underline; }
+.auth-alt { border-top: 1px solid rgba(255, 255, 255, 0.14); color: #bdbdbd; }
+.auth-alt a { color: #f2f2f2; font-weight: 500; text-decoration: underline; }
 
 .auth-msg { border-radius: 12px; }
 .auth-msg.err { background: rgba(242, 163, 163, 0.1); color: #f2a3a3; border: 1px solid rgba(242, 163, 163, 0.3); }

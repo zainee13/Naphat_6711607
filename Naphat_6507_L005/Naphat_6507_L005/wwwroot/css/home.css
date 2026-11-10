@@ -1,21 +1,21 @@
 /* ==========================================================================
    หน้าหลัก (Customer/Dashboard + Views/Shared/_HomeLayout) — สไตล์ตาม DESIGN.md
-   พื้น onyx #171721 เต็มหน้า, การ์ด graphite #1e1e2a ไม่มีเงา, ตัวหนังสือ ivory,
-   cobalt #5266eb เฉพาะปุ่มหลัก, ปุ่ม/ช่องกรอกทรงแคปซูล,
+   พื้น onyx #000000 เต็มหน้า, การ์ด graphite #121212 ไม่มีเงา, ตัวหนังสือ ivory,
+   สีหลัก 2 สี: ดำ #000000 และไล่ระดับส้ม-แดง (ปุ่มหลัก + จุดเน้น), ปุ่ม/ช่องกรอกทรงแคปซูล,
    เมนูด้านบนโปร่งใสทับ hero แล้วทึบ (blur) เมื่อเลื่อนลง, เนื้อหากว้างสุด 1200px
    ========================================================================== */
 
 :root {
-    --hm-canvas: #171721;
-    --hm-card: #1e1e2a;
-    --hm-raised: #272735;
-    --hm-line: #70707d;
-    --hm-hairline: rgba(226, 227, 237, 0.14);
-    --hm-mist: #e2e3ed;
-    --hm-ash: #c3c3cc;
-    --hm-ivory: #ededf3;
-    --hm-cobalt: #5266eb;
-    --hm-cobalt-hover: #4255d6;
+    --hm-canvas: #000000;
+    --hm-card: #121212;
+    --hm-raised: #1c1c1c;
+    --hm-line: #6b6b6b;
+    --hm-hairline: rgba(255, 255, 255, 0.14);
+    --hm-mist: #e6e6e6;
+    --hm-ash: #bdbdbd;
+    --hm-ivory: #f2f2f2;
+    --hm-grad: linear-gradient(134.77deg, #f4824d 25.1%, #f42919 74.9%);   /* สีหลัก: ปุ่มหลักและจุดเน้น */
+    --hm-accent: #f45a33;   /* สีเดียวจากกลางไล่ระดับ ใช้กับเส้น/จุดเล็ก */
     --hm-white: #ffffff;
     --hm-font: 'Inter', 'IBM Plex Sans Thai', ui-sans-serif, system-ui, sans-serif;
     --hm-max: 1200px;
@@ -62,7 +62,7 @@ body.hm {
 }
 .hm-eyebrow--bright { color: var(--hm-ivory); }
 
-.hm-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--hm-ivory); box-shadow: 0 0 0 4px rgba(237, 237, 243, 0.15); }
+.hm-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--hm-ivory); box-shadow: 0 0 0 4px rgba(242, 242, 242, 0.15); }
 
 .hm-tag {
     display: inline-flex;
@@ -96,8 +96,8 @@ body.hm {
     transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 .hm-btn:focus-visible { outline: 2px solid var(--hm-ivory); outline-offset: 3px; }
-.hm-btn--primary { background: var(--hm-cobalt); color: var(--hm-white); }
-.hm-btn--primary:hover { background: var(--hm-cobalt-hover); }
+.hm-btn--primary { background: var(--hm-grad); color: var(--hm-white); border: 0; }
+.hm-btn--primary:hover { filter: brightness(1.08); }
 .hm-btn--ghost { background: transparent; border-color: var(--hm-ivory); color: var(--hm-ivory); border-radius: 40px; }
 .hm-btn--ghost:hover { background: var(--hm-raised); }
 .hm-btn--sm { min-height: 36px; padding: 8px 16px; font-size: 14px; }
@@ -117,7 +117,7 @@ body.hm {
 .hm-nav.is-scrolled,
 .hm-nav.is-open,
 .hm-nav.is-solid {
-    background: rgba(23, 23, 33, 0.86);
+    background: rgba(0, 0, 0, 0.86);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
 }
@@ -159,7 +159,7 @@ body.hm {
     font-size: 16px;
     transition: background-color 0.15s ease;
 }
-a.hm-nav-link:hover { background: rgba(237, 237, 243, 0.08); }
+a.hm-nav-link:hover { background: rgba(242, 242, 242, 0.08); }
 .hm-nav-link[aria-current="page"] { background: var(--hm-raised); }
 .hm-nav-link:focus-visible { outline: 2px solid var(--hm-ivory); outline-offset: 2px; }
 .hm-nav-user { color: var(--hm-ash); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -189,7 +189,7 @@ a.hm-nav-link:hover { background: rgba(237, 237, 243, 0.08); }
     min-height: 100svh;
     padding: 112px var(--hm-gutter) 72px;
     background:
-        linear-gradient(180deg, rgba(23, 23, 33, 0.82) 0%, rgba(23, 23, 33, 0.72) 45%, rgba(23, 23, 33, 0.94) 88%, var(--hm-canvas) 100%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.72) 45%, rgba(0, 0, 0, 0.94) 88%, var(--hm-canvas) 100%),
         url('../images/login-warehouse.webp') center / cover no-repeat,
         var(--hm-canvas);
 }
@@ -213,7 +213,7 @@ a.hm-nav-link:hover { background: rgba(237, 237, 243, 0.08); }
 
 .hm-hero-sub { max-width: 520px; font-size: 18px; line-height: 1.45; color: var(--hm-ivory) !important; }
 
-/* ฟอร์มค้นหา: ช่องเลือกทรงแคปซูล + ปุ่ม cobalt */
+/* ฟอร์มค้นหา: ช่องเลือกทรงแคปซูล + ปุ่มหลักสีไล่ระดับ */
 .hm-search { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; width: 100%; max-width: 640px; margin-top: 8px; }
 .hm-search-field { flex: 1 1 200px; margin: 0; }
 .hm-search-field select {
@@ -223,8 +223,8 @@ a.hm-nav-link:hover { background: rgba(237, 237, 243, 0.08); }
     padding: 12px 44px 12px 20px;
     border: 1px solid var(--hm-mist);
     border-radius: 32px;
-    background: rgba(23, 23, 33, 0.55)
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23ededf3' stroke-width='1.5'/%3E%3C/svg%3E")
+    background: rgba(0, 0, 0, 0.55)
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23f2f2f2' stroke-width='1.5'/%3E%3C/svg%3E")
         no-repeat right 20px center;
     color: var(--hm-ivory);
     font-family: var(--hm-font);
@@ -399,4 +399,32 @@ main > .hm-section:last-child { padding-bottom: 112px; }
 
 @media (prefers-reduced-motion: reduce) {
     .hm * { transition: none !important; }
+}
+
+/* ==========================================================================
+   จุดเน้นสีไล่ระดับส้ม-แดง
+   ========================================================================== */
+.hm-grad-text {
+    background: var(--hm-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+.hm-dot { background: var(--hm-grad); box-shadow: 0 0 0 4px rgba(244, 90, 51, 0.2); }
+.hm-unit-bar i { background: var(--hm-grad); }
+.hm-promo-big { background: var(--hm-grad); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+.hm-brand-mark { border-color: var(--hm-accent); box-shadow: inset 0 0 0 4px var(--hm-canvas), inset 0 0 0 7px var(--hm-accent); }
+
+/* เมนูที่เลือกอยู่: ตัวหนังสือไล่ระดับ + เส้นใต้ */
+.hm-nav-link[aria-current="page"] { background: transparent; position: relative; }
+.hm-nav-link[aria-current="page"]::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 4px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--hm-grad);
 }

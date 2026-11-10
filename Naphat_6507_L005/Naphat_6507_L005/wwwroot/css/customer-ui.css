@@ -2,24 +2,24 @@
    ฐานร่วมของหน้าฝั่งลูกค้า: สี ตัวอักษร ปุ่ม ส่วนหัวหน้า
    ธีมเข้มตาม DESIGN.md (ชุดเดียวกับหน้าหลัก home.css):
    พื้น onyx, การ์ด graphite ไม่มีเงา, ตัวหนังสือ ivory,
-   cobalt เฉพาะปุ่มหลัก, ปุ่ม/ช่องกรอกทรงแคปซูล
+   ดำ #000000 + ไล่ระดับส้ม-แดงสำหรับปุ่มหลักและจุดเน้น, ปุ่ม/ช่องกรอกทรงแคปซูล
    ใช้: ใส่ class="cu" ที่ div นอกสุดของหน้า
    ========================================================= */
 .cu {
-    --cu-blue: #ededf3;          /* หัวข้อ / ลิงก์ (ivory) */
-    --cu-blue-2: #c3c3cc;
-    --cu-orange: #5266eb;        /* ปุ่มหลัก (cobalt) */
-    --cu-orange-hover: #4255d6;
-    --cu-concrete: #171721;      /* พื้นหน้า (onyx) */
-    --cu-card: #1e1e2a;          /* การ์ด (graphite) */
-    --cu-slab: #272735;          /* พื้นยกขึ้นอีกขั้น */
-    --cu-taken: #70707d;
-    --cu-cold: #a9b2f5;
-    --cu-text: #ededf3;
-    --cu-muted: #c3c3cc;
-    --cu-faint: #9a9aa6;
-    --cu-line: rgba(226, 227, 237, 0.14);
-    --cu-field-line: rgba(226, 227, 237, 0.4);
+    --cu-blue: #f2f2f2;          /* หัวข้อ / ลิงก์ (ivory) */
+    --cu-blue-2: #bdbdbd;
+    --cu-grad: linear-gradient(134.77deg, #f4824d 25.1%, #f42919 74.9%);   /* ปุ่มหลัก / จุดเน้น */
+    --cu-orange: #f45a33;        /* สีเดียวของไล่ระดับ ใช้กับเส้น/ช่องติ๊ก */
+    --cu-concrete: #000000;      /* พื้นหน้า (onyx) */
+    --cu-card: #121212;          /* การ์ด (graphite) */
+    --cu-slab: #1c1c1c;          /* พื้นยกขึ้นอีกขั้น */
+    --cu-taken: #6b6b6b;
+    --cu-cold: #8fb8ff;
+    --cu-text: #f2f2f2;
+    --cu-muted: #bdbdbd;
+    --cu-faint: #8f8f8f;
+    --cu-line: rgba(255, 255, 255, 0.14);
+    --cu-field-line: rgba(255, 255, 255, 0.4);
     --cu-ok: #8fd6a8;
     --cu-ok-bg: rgba(143, 214, 168, 0.1);
     --cu-warn: #f0c27a;
@@ -49,7 +49,7 @@
 .cu-status { font-size: 12px; font-weight: 500; color: var(--cu-text); background: transparent; border: 1px solid var(--cu-line); padding: 4px 12px; border-radius: 40px; white-space: nowrap; }
 .cu-status.is-taken { color: var(--cu-faint); }
 
-/* ปุ่ม: ทรงแคปซูล, ปุ่มรองเป็นเส้นขอบ ivory, ปุ่มหลัก cobalt */
+/* ปุ่ม: ทรงแคปซูล, ปุ่มรองเป็นเส้นขอบสีขาว, ปุ่มหลักสีไล่ระดับส้ม-แดง */
 .cu-btn {
     flex: 1 1 auto;
     display: inline-flex;
@@ -70,8 +70,8 @@
     transition: background-color 0.15s ease;
 }
 .cu-btn:hover { background: var(--cu-slab); color: var(--cu-text); }
-.cu-btn--primary { background: var(--cu-orange); border-color: var(--cu-orange); color: #fff; border-radius: 32px; }
-.cu-btn--primary:hover { background: var(--cu-orange-hover); border-color: var(--cu-orange-hover); color: #fff; }
+.cu-btn--primary { background: var(--cu-grad); border: 0; color: #fff; border-radius: 32px; }
+.cu-btn--primary:hover { background: var(--cu-grad); filter: brightness(1.08); color: #fff; }
 .cu-btn:focus-visible { outline: 2px solid var(--cu-text); outline-offset: 3px; }
 .cu-btn .material-symbols-outlined { font-size: 1.15rem; }
 
@@ -90,7 +90,7 @@
     color-scheme: dark;
 }
 .cu-field textarea { border-radius: 16px; resize: vertical; }
-.cu-field select { appearance: none; padding-right: 44px; background: var(--cu-concrete) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23ededf3' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 18px center; }
+.cu-field select { appearance: none; padding-right: 44px; background: var(--cu-concrete) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23f2f2f2' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 18px center; }
 .cu-field select option { background: var(--cu-card); color: var(--cu-text); }
 .cu-field input::placeholder, .cu-field textarea::placeholder { color: var(--cu-faint); }
 .cu-field input:focus-visible, .cu-field select:focus-visible, .cu-field textarea:focus-visible { outline: 2px solid var(--cu-text); outline-offset: 1px; border-color: var(--cu-text); }

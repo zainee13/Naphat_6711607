@@ -15,7 +15,7 @@
 }
 .bk-steps .is-done span { background: var(--cu-slab); border-color: var(--cu-slab); color: var(--cu-text); }
 .bk-steps .is-current { color: var(--cu-text); font-weight: 500; }
-.bk-steps .is-current span { border-color: var(--cu-text); color: var(--cu-text); }
+.bk-steps .is-current span { border-color: transparent; background: var(--cu-grad); color: #fff; }
 
 .bk-blocked { background: var(--cu-card); border-radius: 12px; padding: 28px; max-width: 36rem; }
 .bk-blocked p { margin: 0 0 16px; }
@@ -38,7 +38,7 @@
 .bk-type label { position: relative; margin: 0; cursor: pointer; }
 .bk-type input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
 .bk-type span { display: inline-flex; align-items: center; min-height: 38px; padding: 0 18px; border-radius: 40px; color: var(--cu-muted); }
-.bk-type input:checked + span { background: var(--cu-text); color: var(--cu-concrete); }
+.bk-type input:checked + span { background: var(--cu-grad); color: #fff; }
 .bk-type input:focus-visible + span { outline: 2px solid var(--cu-text); outline-offset: 2px; }
 
 /* สรุปยอด */

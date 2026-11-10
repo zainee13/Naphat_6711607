@@ -14,10 +14,10 @@
     transition: background-color 0.15s ease;
 }
 .pf-tabs a:hover { color: var(--cu-text); background: var(--cu-slab); }
-.pf-tabs a[aria-selected="true"] { color: var(--cu-concrete); background: var(--cu-text); }
+.pf-tabs a[aria-selected="true"] { color: #fff; background: var(--cu-grad); }
 .pf-tabs a:focus-visible { outline: 2px solid var(--cu-text); outline-offset: 2px; }
 .pf-count { font-size: 12px; background: var(--cu-slab); color: var(--cu-text); padding: 1px 8px; border-radius: 40px; }
-.pf-tabs a[aria-selected="true"] .pf-count { background: rgba(23, 23, 33, 0.12); color: var(--cu-concrete); }
+.pf-tabs a[aria-selected="true"] .pf-count { background: rgba(0, 0, 0, 0.25); color: #fff; }
 .pf-count--due { background: var(--cu-err-bg); color: var(--cu-err); }
 
 .pf-panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
@@ -47,7 +47,7 @@ a.pf-room-code:hover { text-decoration: underline; }
     border-bottom: 1px solid var(--cu-line);
 }
 .pf-booking:last-child { border-bottom: 0; }
-.pf-booking.is-pending { box-shadow: inset 3px 0 0 var(--cu-text); }
+.pf-booking.is-pending { box-shadow: inset 3px 0 0 var(--cu-orange); }
 .pf-booking.is-cancelled { color: var(--cu-faint); }
 .pf-booking-room, .pf-booking-info, .pf-booking-amt { display: flex; flex-direction: column; min-width: 0; }
 .pf-booking-room span, .pf-booking-info span, .pf-booking-amt span { font-size: 13px; color: var(--cu-muted); }
@@ -81,7 +81,7 @@ a.pf-room-code:hover { text-decoration: underline; }
 .pf-methods input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .pf-methods span { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border: 1px solid var(--cu-line); border-radius: 40px; color: var(--cu-muted); }
 .pf-methods i { font-style: normal; font-size: 1.2rem; }
-.pf-methods input:checked + span { border-color: var(--cu-text); background: var(--cu-text); color: var(--cu-concrete); }
+.pf-methods input:checked + span { border-color: transparent; background: var(--cu-grad); color: #fff; }
 .pf-methods input:focus-visible + span { outline: 2px solid var(--cu-text); outline-offset: 2px; }
 
 .pf-method { background: var(--cu-card); border-radius: 12px; padding: 28px; }

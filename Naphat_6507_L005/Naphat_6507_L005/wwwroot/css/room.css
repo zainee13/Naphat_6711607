@@ -59,10 +59,10 @@
 .rd-star-input { border: 0; margin: 0 0 16px; padding: 0; display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; }
 .rd-star-input legend { float: left; width: 100%; font-size: 13px; color: var(--cu-muted); margin-bottom: 4px; }
 .rd-star-input input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.rd-star-input label { font-size: 2rem; line-height: 1; color: #3a3a48; cursor: pointer; padding: 0 2px; }
+.rd-star-input label { font-size: 2rem; line-height: 1; color: #333333; cursor: pointer; padding: 0 2px; }
 .rd-star-input input:checked ~ label,
 .rd-star-input label:hover,
-.rd-star-input label:hover ~ label { color: var(--cu-text); }
+.rd-star-input label:hover ~ label { color: var(--cu-orange); }
 .rd-star-input input:focus-visible + label { outline: 2px solid var(--cu-text); outline-offset: 2px; }
 
 /* กล่องจอง */
