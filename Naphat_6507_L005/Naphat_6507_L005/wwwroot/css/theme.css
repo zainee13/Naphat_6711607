@@ -910,12 +910,10 @@ body {
     content: "";
     position: absolute;
     inset: 0;
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 44px 44px;
-    -webkit-mask-image: radial-gradient(ellipse at 30% 60%, #000 0%, transparent 70%);
-    mask-image: radial-gradient(ellipse at 30% 60%, #000 0%, transparent 70%);
+    /* รูปคลังสินค้า + ชั้นสีเข้มให้อ่านตัวหนังสือออก */
+    background:
+        linear-gradient(180deg, rgba(14, 27, 44, 0.55) 0%, rgba(14, 27, 44, 0.78) 55%, rgba(14, 27, 44, 0.92) 100%),
+        url("../images/login-warehouse.webp") center / cover no-repeat;
 }
 
 .auth-brand::after {
