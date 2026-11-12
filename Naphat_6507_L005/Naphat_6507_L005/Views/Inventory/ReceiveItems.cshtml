@@ -1,0 +1,94 @@
+@model Naphat_6507_L005.ViewModels.ReceiveFormViewModel
+@{
+    var booking = (Naphat_6507_L005.ViewModels.ReceiveBookingViewModel)ViewBag.Booking;
+    ViewData["Title"] = "ตรวจรับสินค้า " + booking.BookingId;
+    Layout = "_Layout";
+}
+
+<div class="page-header mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <a asp-controller="Inventory" asp-action="Receive" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
+            <span class="material-symbols-outlined align-middle" style="font-size:1rem;">arrow_back</span> ย้อนกลับ
+        </a>
+        <h1 class="h3 mb-0">
+            <span class="material-symbols-outlined align-middle me-2" style="color:#8b5cf6;">fact_check</span>
+            ตรวจรับสินค้า ห้อง @booking.RoomId
+        </h1>
+    </div>
+</div>
+
+<div class="section-card p-4">
+    <p class="mb-3" style="font-size:0.9rem; color:#4b5563;">
+        การจอง <strong>@booking.BookingId</strong> · @booking.CustomerName · โทร @(booking.Phone ?? "-") · เริ่มเช่า @booking.StartDateText
+    </p>
+
+    @if (!booking.CanReceive)
+    {
+        <div class="alert alert-warning">การจองนี้ยังไม่ได้ชำระเงิน ดูรายการที่ลูกค้าแจ้งได้ แต่ตรวจรับได้หลังฝ่ายบัญชีอนุมัติการชำระแล้ว</div>
+    }
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
+    }
+
+    <form asp-controller="Inventory" asp-action="ReceiveItems" method="post">
+        <input type="hidden" asp-for="BookingId" />
+
+        <div class="table-responsive">
+            <table class="table-custom w-100">
+                <thead>
+                    <tr><th>สินค้า</th><th class="text-end">ลูกค้าแจ้ง</th><th style="width:150px;">นับได้จริง</th><th style="width:150px;">จำนวนขั้นต่ำ (แจ้งเตือน)</th></tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Items.Count; i++)
+                    {
+                        var item = Model.Items[i];
+                        <tr style="font-size:0.88rem;">
+                            <td>
+                                <input type="hidden" name="Items[@i].StockId" value="@item.StockId" />
+                                <input type="hidden" name="Items[@i].ItemName" value="@item.ItemName" />
+                                <input type="hidden" name="Items[@i].Unit" value="@item.Unit" />
+                                <input type="hidden" name="Items[@i].Declared" value="@item.Declared" />
+                                <strong>@item.ItemName</strong>
+                            </td>
+                            <td class="text-end">@item.Declared.ToString("N0") @item.Unit</td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm receive-count" name="Items[@i].Counted" value="@item.Counted"
+                                       min="0" step="1" required data-declared="@item.Declared" aria-label="จำนวนที่นับได้ของ @item.ItemName" />
+                            </td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm" name="Items[@i].MinQuantity" value="@item.MinQuantity"
+                                       min="0" step="1" required aria-label="จำนวนขั้นต่ำของ @item.ItemName" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex gap-2 mt-4 pt-3 border-top">
+            <button type="submit" class="btn flex-fill" style="background:#8b5cf6; color:#fff; border:none; border-radius:10px; padding:0.6rem; font-weight:600;"
+                    disabled="@(!booking.CanReceive)">
+                <span class="material-symbols-outlined align-middle me-1" style="font-size:1.1rem;">task_alt</span> ยืนยันตรวจรับ
+            </button>
+            <a asp-controller="Inventory" asp-action="Receive" class="btn btn-outline-secondary" style="border-radius:10px; padding:0.6rem 1.25rem;">ยกเลิก</a>
+        </div>
+        <p class="mt-2 mb-0" style="font-size:0.8rem; color:#6b7280;">ถ้าจำนวนที่นับได้ไม่ตรงกับที่ลูกค้าแจ้ง ระบบจะจดไว้ในหมายเหตุการจอง</p>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+    // ไฮไลต์ช่องที่นับได้ไม่ตรงกับที่ลูกค้าแจ้ง (เฉพาะหน้าตา ตัวจริงตรวจที่ InventoryController.ReceiveItems)
+    document.querySelectorAll('.receive-count').forEach(function (input) {
+        function mark() {
+            const diff = parseInt(input.value) !== parseInt(input.dataset.declared);
+            input.style.borderColor = diff ? '#f59e0b' : '';
+            input.style.background = diff ? '#fffbeb' : '';
+        }
+        input.addEventListener('input', mark);
+        mark();
+    });
+</script>
+}

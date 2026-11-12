@@ -79,3 +79,22 @@
     .bk-grid { grid-template-columns: 1fr; }
     .bk-section, .bk-summary, .bk-blocked { padding: 24px; }
 }
+
+/* รายการสินค้าที่จะนำเข้า */
+.bk-items-help { margin: 0 0 16px; font-size: 14px; color: var(--cu-muted); }
+.bk-items { display: flex; flex-direction: column; gap: 4px; }
+.bk-item-row { display: grid; grid-template-columns: minmax(0, 1fr) 7rem 9rem 44px; gap: 0 12px; align-items: end; }
+.bk-item-row .cu-field { margin-bottom: 12px; }
+.bk-item-remove {
+    width: 44px; height: 44px; margin-bottom: 12px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--cu-line); border-radius: 40px;
+    background: transparent; color: var(--cu-muted); cursor: pointer;
+}
+.bk-item-remove:hover { color: var(--cu-text); border-color: var(--cu-text); }
+.bk-item-remove:focus-visible { outline: 2px solid var(--cu-text); outline-offset: 2px; }
+.bk-item-add { flex: 0 0 auto; margin-top: 4px; }
+@media (max-width: 600px) {
+    .bk-item-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px; padding-bottom: 12px; border-bottom: 1px solid var(--cu-line); }
+    .bk-item-name { grid-column: 1 / -1; }
+}

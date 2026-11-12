@@ -1,0 +1,73 @@
+@model List<Naphat_6507_L005.ViewModels.StockItemViewModel>
+@{
+    // ตารางสินค้า + ฟอร์มรับเข้า/เบิกออกในแถว (ใช้ในหน้า StockList และ Alerts)
+    var returnTo = ViewData["ReturnTo"] as string ?? "StockList";
+    var filterBookingId = ViewData["FilterBookingId"] as string;
+}
+
+<div class="table-responsive">
+    <table class="table-custom w-100">
+        <thead>
+            <tr><th>ห้อง / การจอง</th><th>สินค้า</th><th class="text-end">คงเหลือ</th><th class="text-end">ขั้นต่ำ</th><th>รับเข้า / เบิกออก</th><th>แก้ไขล่าสุด</th><th></th></tr>
+        </thead>
+        <tbody>
+            @if (Model.Count > 0)
+            {
+                foreach (var s in Model)
+                {
+                    <tr style="font-size:0.85rem;">
+                        <td>
+                            <strong>@s.RoomId</strong><br />
+                            <span style="color:#6c757d; font-size:0.78rem;">@s.BookingId · @s.CustomerName</span>
+                        </td>
+                        <td>
+                            @s.ItemName
+                            @if (!string.IsNullOrEmpty(s.Category))
+                            {
+                                <br /><span style="color:#6c757d; font-size:0.78rem;">@s.Category</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <strong>@s.Quantity.ToString("N0")</strong> @s.Unit
+                            @if (s.IsLow)
+                            {
+                                <br /><span class="badge" style="background:#fef2f2; color:#b91c1c;">ใกล้หมด</span>
+                            }
+                        </td>
+                        <td class="text-end" style="color:#6c757d;">@s.MinQuantity.ToString("N0")</td>
+                        <td>
+                            @if (!s.IsVerified)
+                            {
+                                <!-- ลูกค้าแจ้งไว้ ยังไม่ตรวจรับ: ต้องตรวจรับก่อนถึงจะรับเข้า/เบิกออกได้ -->
+                                <span class="badge" style="background:#fef3c7; color:#92400e;">รอตรวจรับ</span>
+                                <a asp-controller="Inventory" asp-action="ReceiveItems" asp-route-id="@s.BookingId" class="ms-1" style="font-size:0.78rem;">ตรวจรับ</a>
+                            }
+                            else
+                            {
+                            <form asp-controller="Inventory" asp-action="AdjustStock" method="post" class="d-flex gap-1 align-items-center" style="min-width:230px;">
+                                <input type="hidden" name="StockId" value="@s.StockId" />
+                                <input type="hidden" name="ReturnTo" value="@returnTo" />
+                                <input type="hidden" name="FilterBookingId" value="@filterBookingId" />
+                                <input type="number" name="Amount" min="1" step="1" required class="form-control form-control-sm" style="width:80px; border-radius:8px;" aria-label="จำนวน @s.ItemName" />
+                                <button type="submit" name="Direction" value="in" class="btn btn-sm" style="background:#ecfdf5; color:#065f46; border:none; border-radius:6px; font-size:0.75rem;">รับเข้า</button>
+                                <button type="submit" name="Direction" value="out" class="btn btn-sm" style="background:#fef2f2; color:#991b1b; border:none; border-radius:6px; font-size:0.75rem;">เบิกออก</button>
+                            </form>
+                            }
+                        </td>
+                        <td style="font-size:0.75rem; color:#6c757d;">@s.UpdatedText<br />@s.UpdatedByName</td>
+                        <td>
+                            <a class="btn btn-sm" style="background:#f3e8ff; color:#6d28d9; border:none; border-radius:6px; font-size:0.75rem;"
+                               asp-controller="Inventory" asp-action="AddStock" asp-route-id="@s.StockId" title="แก้ไข @s.ItemName">
+                                <span class="material-symbols-outlined align-middle" style="font-size:0.85rem;">edit</span>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:2rem;">@(ViewData["EmptyText"] ?? "ยังไม่มีสินค้า")</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

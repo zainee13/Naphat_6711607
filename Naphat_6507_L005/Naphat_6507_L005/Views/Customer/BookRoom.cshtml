@@ -3,6 +3,9 @@
     var room = (Naphat_6507_L005.ViewModels.RoomViewModel)ViewBag.Room;
     var isCompany = Model.TenantType != "person";
 
+    // แถวรายการสินค้า: ถ้ายังไม่มี (เปิดฟอร์มครั้งแรก) ให้มีแถวว่าง 1 แถว
+    var itemRows = Model.Items.Count > 0 ? Model.Items : new List<Naphat_6507_L005.ViewModels.DeclaredItemViewModel> { new() };
+
     ViewData["Title"] = "จองห้อง " + room.Id;
     Layout = "_PublicLayout";
 }
@@ -110,7 +113,7 @@
                         <p class="bk-end bk-span-2">สิ้นสุดสัญญา <strong id="endDateText">-</strong></p>
 
                         <label class="cu-field">
-                            <span>สินค้าที่จะเก็บ</span>
+                            <span>ประเภทสินค้าหลัก</span>
                             <select asp-for="GoodsType">
                                 <option>สินค้าอุปโภคบริโภคทั่วไป</option>
                                 <option>อาหารและเครื่องดื่ม</option>
@@ -133,6 +136,38 @@
                             <textarea asp-for="Note" rows="2" placeholder="เช่น ขนาดรถที่จะเข้าเทียบ หรือวันขนของเข้าครั้งแรก"></textarea>
                         </label>
                     </div>
+                </fieldset>
+
+                <!-- สินค้าที่จะนำเข้า: ฝ่ายคลังใช้ตรวจรับวันย้ายเข้า -->
+                <fieldset class="bk-section">
+                    <legend class="cu-h2">สินค้าที่จะนำเข้า</legend>
+                    <p class="bk-items-help">แจ้งรายการและจำนวนสินค้า ฝ่ายคลังจะตรวจรับให้ตรงกับที่แจ้งในวันย้ายเข้า หลังจองแล้วถ้าต้องการแก้ไข ติดต่อฝ่ายคลังได้</p>
+
+                    <div class="bk-items" id="itemRows">
+                        @for (int i = 0; i < itemRows.Count; i++)
+                        {
+                            <div class="bk-item-row">
+                                <label class="cu-field bk-item-name">
+                                    <span>ชื่อสินค้า</span>
+                                    <input type="text" name="Items[@i].ItemName" value="@itemRows[i].ItemName" maxlength="200" placeholder="เช่น น้ำดื่มขวด 600 มล." />
+                                </label>
+                                <label class="cu-field bk-item-qty">
+                                    <span>จำนวน</span>
+                                    <input type="number" name="Items[@i].Quantity" value="@(itemRows[i].Quantity > 0 ? itemRows[i].Quantity.ToString() : "")" min="1" step="1" />
+                                </label>
+                                <label class="cu-field bk-item-unit">
+                                    <span>หน่วย</span>
+                                    <input type="text" name="Items[@i].Unit" value="@itemRows[i].Unit" maxlength="50" placeholder="กล่อง / พาเลท" />
+                                </label>
+                                <button type="button" class="bk-item-remove" aria-label="ลบรายการนี้">
+                                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                    <button type="button" class="cu-btn bk-item-add" id="addItemButton">
+                        <span class="material-symbols-outlined" aria-hidden="true">add</span> เพิ่มรายการ
+                    </button>
                 </fieldset>
             </div>
 
@@ -297,6 +332,38 @@
         });
 
         calculatePrice();
+
+        // รายการสินค้า: เพิ่ม / ลบแถวบนหน้าจอ แล้วเรียงชื่อช่องใหม่ (Items[0], Items[1], ...) ให้ส่งไป Controller ได้ครบ
+        const itemRows = document.getElementById('itemRows');
+
+        function renumberItems() {
+            itemRows.querySelectorAll('.bk-item-row').forEach(function (row, index) {
+                row.querySelectorAll('input').forEach(function (input) {
+                    input.name = input.name.replace(/Items\[\d+\]/, 'Items[' + index + ']');
+                });
+            });
+        }
+
+        document.getElementById('addItemButton').addEventListener('click', function () {
+            const first = itemRows.querySelector('.bk-item-row');
+            const row = first.cloneNode(true);
+            row.querySelectorAll('input').forEach(function (input) { input.value = ''; });
+            itemRows.appendChild(row);
+            renumberItems();
+            row.querySelector('input').focus();
+        });
+
+        itemRows.addEventListener('click', function (event) {
+            const button = event.target.closest('.bk-item-remove');
+            if (!button) return;
+            const rows = itemRows.querySelectorAll('.bk-item-row');
+            if (rows.length === 1) {
+                rows[0].querySelectorAll('input').forEach(function (input) { input.value = ''; });   // เหลือแถวเดียว: ล้างค่าแทนการลบ
+            } else {
+                button.closest('.bk-item-row').remove();
+                renumberItems();
+            }
+        });
     }
 </script>
 }

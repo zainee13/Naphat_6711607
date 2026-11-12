@@ -1,0 +1,30 @@
+@model List<Naphat_6507_L005.ViewModels.StockItemViewModel>
+@{
+    ViewData["Title"] = "แจ้งเตือนสต็อกต่ำ";
+    Layout = "_Layout";
+    ViewData["ReturnTo"] = "Alerts";
+    ViewData["EmptyText"] = "ไม่มีสินค้าใกล้หมด";
+}
+
+<div class="page-header">
+    <div>
+        <h1><span class="material-symbols-outlined align-middle me-2" style="color:#ef4444;">notifications_active</span>แจ้งเตือนสต็อกต่ำ</h1>
+        <p>สินค้าที่เหลือเท่ากับหรือน้อยกว่าจำนวนขั้นต่ำ</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" role="status">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+}
+
+<div class="section-card">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#ef4444;">warning</span> ใกล้หมด (@Model.Count)</h2>
+    </div>
+    <partial name="_StockTable" model="Model" />
+</div>

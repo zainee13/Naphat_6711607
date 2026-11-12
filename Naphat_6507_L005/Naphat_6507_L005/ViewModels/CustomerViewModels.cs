@@ -47,6 +47,16 @@ public class BookingViewModel
     public string Note { get; set; }
     public string PromoCode { get; set; }
     public bool AgreeTerms { get; set; }
+    public List<DeclaredItemViewModel> Items { get; set; } = new();   // สินค้าที่ลูกค้าแจ้งว่าจะนำเข้า
+}
+
+// ===================== DeclaredItemViewModel =====================
+// สินค้า 1 รายการที่ลูกค้าแจ้งตอนจอง (บันทึกลงตาราง stockitem สถานะรอตรวจรับ)
+public class DeclaredItemViewModel
+{
+    public string? ItemName { get; set; }
+    public int Quantity { get; set; }
+    public string? Unit { get; set; }
 }
 
 // ===================== MyBookingViewModel =====================

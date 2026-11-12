@@ -64,6 +64,10 @@
         var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
         var currentAction     = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
 
+        // จำนวนสินค้าใกล้หมด (ส่งมาจาก InventoryController.SetUserBag)
+        int lowStockCount = ViewBag.LowStockCount ?? 0;
+        int pendingReceiveCount = ViewBag.PendingReceiveCount ?? 0;
+
         Func<string, string, bool> isActive = (ctrl, act) =>
             currentController.Equals(ctrl, StringComparison.OrdinalIgnoreCase) &&
             (string.IsNullOrEmpty(act) || currentAction.Equals(act, StringComparison.OrdinalIgnoreCase));
@@ -190,19 +194,28 @@
                     <span>ภาพรวม</span>
                 </a>
                 <a asp-controller="Inventory" asp-action="StockList"
-                   class="nav-item-link @(isActive("Inventory","StockList") ? "active" : "")">
+                   class="nav-item-link @(isActive("Inventory","StockList") || isActive("Inventory","AddStock") ? "active" : "")">
                     <span class="material-symbols-outlined">inventory_2</span>
                     <span>รายการสต็อก</span>
                 </a>
-                <a asp-controller="Inventory" asp-action="AddStock"
-                   class="nav-item-link @(isActive("Inventory","AddStock") ? "active" : "")">
-                    <span class="material-symbols-outlined">add_box</span>
-                    <span>เพิ่ม / แก้ไขสินค้า</span>
+                @* หน้าเพิ่ม/แก้ไขสินค้าเข้าจากปุ่ม "เพิ่มสินค้า" และปุ่มแก้ไขในหน้ารายการสต็อก จึงไม่มีเมนูแยก *@
+                <a asp-controller="Inventory" asp-action="Receive"
+                   class="nav-item-link @(isActive("Inventory","Receive") || isActive("Inventory","ReceiveItems") ? "active" : "")">
+                    <span class="material-symbols-outlined">move_to_inbox</span>
+                    <span>ตรวจรับสินค้า</span>
+                    @if (pendingReceiveCount > 0)
+                    {
+                        <span class="nav-badge nav-badge--info" aria-label="รอตรวจรับ @pendingReceiveCount การจอง">@pendingReceiveCount</span>
+                    }
                 </a>
                 <a asp-controller="Inventory" asp-action="Alerts"
-                   class="nav-item-link @(isActive("Inventory","Alerts") ? "active" : "")">
+                   class="nav-item-link @(isActive("Inventory","Alerts") ? "active" : "") @(lowStockCount > 0 ? "nav-alert" : "")">
                     <span class="material-symbols-outlined">notification_important</span>
                     <span>แจ้งเตือนสต็อกต่ำ</span>
+                    @if (lowStockCount > 0)
+                    {
+                        <span class="nav-badge" aria-label="ใกล้หมด @lowStockCount รายการ">@lowStockCount</span>
+                    }
                 </a>
             }
 
@@ -275,6 +288,15 @@
         </header>
 
         <main class="main-inner">
+            @if (role == "Inventory" && lowStockCount > 0 && !isActive("Inventory", "Alerts"))
+            {
+                <!-- แถบเตือนสินค้าใกล้หมด แสดงทุกหน้าของฝ่ายคลัง ยกเว้นหน้าแจ้งเตือนเอง -->
+                <a asp-controller="Inventory" asp-action="Alerts" class="stock-alert-bar" role="alert">
+                    <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+                    <span>มีสินค้าใกล้หมด <strong>@lowStockCount รายการ</strong> ต้องเติมสต็อก</span>
+                    <span class="stock-alert-go">ดูรายการ <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></span>
+                </a>
+            }
             @RenderBody()
         </main>
 

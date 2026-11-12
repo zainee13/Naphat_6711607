@@ -151,3 +151,29 @@ a.pf-history-meta { color: var(--cu-text); text-decoration: underline; }
 @media (max-width: 1000px) {
     .pf-info-layout { grid-template-columns: 1fr; }
 }
+
+/* แท็บสต็อก (ดูอย่างเดียว) */
+.pf-stock { list-style: none; margin: 0; padding: 0; background: var(--cu-card); border-radius: 12px; }
+.pf-stock-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 10rem 6rem 11rem;
+    gap: 8px 16px;
+    align-items: center;
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--cu-line);
+}
+.pf-stock-item:last-child { border-bottom: 0; }
+.pf-stock-item.is-low { box-shadow: inset 3px 0 0 var(--cu-orange); }
+.pf-stock-name, .pf-stock-qty { display: flex; flex-direction: column; min-width: 0; }
+.pf-stock-name strong { font-weight: 500; }
+.pf-stock-name span, .pf-stock-qty span, .pf-stock-time { font-size: 13px; color: var(--cu-muted); }
+.pf-stock-qty { text-align: right; }
+.pf-stock-qty strong { font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.pf-stock-time { text-align: right; }
+@media (max-width: 760px) {
+    .pf-stock-item { grid-template-columns: minmax(0, 1fr) auto; padding: 16px 20px; }
+    .pf-stock-qty { text-align: right; }
+    .pf-stock-time { grid-column: 1 / -1; text-align: left; }
+}
+.pf-booking-act { gap: 8px; flex-wrap: wrap; }
+.pf-booking-act form { margin: 0; }

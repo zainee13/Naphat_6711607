@@ -131,6 +131,42 @@ public class CustomerController : Controller
         return room ?? (from r in _db.Rooms where r.RoomId == "M-01" select r).FirstOrDefault();
     }
 
+    // จำนวนวันที่ให้ชำระหลังจอง ถ้าเลยแล้วยังไม่ชำระ การจองถูกยกเลิกอัตโนมัติ
+    public const int PayWithinDays = 7;
+
+    // ยกเลิกการจองที่ยังรอชำระ (Pending) เกินกำหนด: การจองเป็น Cancelled และห้องกลับมาว่าง
+    // ไม่มีงานตั้งเวลาในระบบ จึงเรียกตอนเปิดหน้าที่เกี่ยวข้อง (หน้าลูกค้า และหน้าภาพรวมฝ่ายบัญชี)
+    public static int CancelExpiredBookings(Csi402dbContext db)
+    {
+        var limit = DateTime.Now.AddDays(-PayWithinDays);
+        var expired = (from b in db.Bookings
+                       where b.BookingStatus == "Pending" && b.BookingDate < limit
+                       select b).ToList();
+
+        foreach (var booking in expired)
+        {
+            CancelBooking(db, booking, "[ยกเลิกอัตโนมัติ " + DateTime.Now.ToString("d MMM yyyy", _th) + "] ไม่ชำระภายใน " + PayWithinDays + " วัน");
+        }
+        if (expired.Count > 0)
+        {
+            db.SaveChanges();
+        }
+        return expired.Count;
+    }
+
+    // ยกเลิกการจอง 1 รายการ (ยังไม่ SaveChanges): สถานะ Cancelled, จดเหตุผลใน Note, ห้องกลับมาว่าง
+    private static void CancelBooking(Csi402dbContext db, Booking booking, string noteLine)
+    {
+        booking.BookingStatus = "Cancelled";
+        booking.Note = string.IsNullOrEmpty(booking.Note) ? noteLine : booking.Note + "\n" + noteLine;
+
+        var room = (from r in db.Rooms where r.RoomId == booking.RoomId select r).FirstOrDefault();
+        if (room != null && room.Status == "Booked")
+        {
+            room.Status = "Available";
+        }
+    }
+
     // จำนวนเดือนของเงินประกัน: สัญญา 1–3 เดือน = 1 เดือน, 6 เดือน = 2 เดือน, 12 เดือน = 3 เดือน
     public static int GetDepositMonths(int months)
     {
@@ -202,6 +238,7 @@ public class CustomerController : Controller
     public IActionResult Dashboard()
     {
         SetUserBag();
+        CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
         return View();
     }
 
@@ -212,6 +249,7 @@ public class CustomerController : Controller
             return RedirectToAction("Login", "Account");
         }
         SetUserBag();
+        CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
 
         var rooms = (from r in _db.Rooms select r).ToList();
         List<RoomViewModel> model = new();
@@ -229,6 +267,7 @@ public class CustomerController : Controller
             return RedirectToAction("Login", "Account");
         }
         SetUserBag();
+        CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
 
         var room = FindRoom(id);
         if (room == null)
@@ -325,6 +364,7 @@ public class CustomerController : Controller
             return RedirectToAction("Login", "Account");
         }
         SetUserBag();
+        CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
 
         var room = FindRoom(id);
         if (room == null)
@@ -356,6 +396,7 @@ public class CustomerController : Controller
             return RedirectToAction("Login", "Account");
         }
         SetUserBag();
+        CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
 
         var room = FindRoom(data.RoomId);
         if (room == null)
@@ -406,6 +447,27 @@ public class CustomerController : Controller
             return View(data);
         }
 
+        // สินค้าที่จะนำเข้า: ตัดแถวที่ว่างทั้งแถวออก ต้องเหลืออย่างน้อย 1 รายการ
+        var items = (from i in data.Items
+                     where !string.IsNullOrWhiteSpace(i.ItemName) || i.Quantity != 0 || !string.IsNullOrWhiteSpace(i.Unit)
+                     select i).ToList();
+        data.Items = items;
+        if (items.Count == 0)
+        {
+            ViewBag.Error = "กรุณาแจ้งสินค้าที่จะนำเข้าอย่างน้อย 1 รายการ";
+            return View(data);
+        }
+        if (items.Any(i => string.IsNullOrWhiteSpace(i.ItemName)))
+        {
+            ViewBag.Error = "กรุณากรอกชื่อสินค้าให้ครบทุกรายการ";
+            return View(data);
+        }
+        if (items.Any(i => i.Quantity <= 0))
+        {
+            ViewBag.Error = "จำนวนสินค้าต้องมากกว่า 0 ทุกรายการ";
+            return View(data);
+        }
+
         if (!data.AgreeTerms)
         {
             ViewBag.Error = "กรุณายอมรับเงื่อนไขสัญญาเช่าก่อนยืนยัน";
@@ -449,6 +511,22 @@ public class CustomerController : Controller
         booking.BookingStatus = "Pending";
         _db.Bookings.Add(booking);
 
+        // สินค้าที่ลูกค้าแจ้ง บันทึกลงตาราง stockitem
+        // UpdatedBy = ลูกค้า หมายถึง "รอตรวจรับ" (ฝ่ายคลังตรวจรับแล้ว UpdatedBy จะเป็นพนักงาน)
+        foreach (var item in items)
+        {
+            Stockitem stock = new();
+            stock.BookingId = booking.BookingId;
+            stock.ItemName = item.ItemName!.Trim();
+            stock.Category = data.GoodsType;
+            stock.Quantity = item.Quantity;
+            stock.MinQuantity = 0;   // ฝ่ายคลังเป็นคนตั้งตอนตรวจรับ
+            stock.Unit = string.IsNullOrWhiteSpace(item.Unit) ? null : item.Unit.Trim();
+            stock.LastUpdated = DateTime.Now;
+            stock.UpdatedBy = user.UserId;
+            _db.Stockitems.Add(stock);
+        }
+
         // ห้องถูกจองแล้ว คนอื่นจองซ้ำไม่ได้
         room.Status = "Booked";
         _db.SaveChanges();
@@ -464,8 +542,9 @@ public class CustomerController : Controller
             return RedirectToAction("Login", "Account");
         }
         SetUserBag();
+        CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
 
-        if (tab != "bookings" && tab != "payment" && tab != "info")
+        if (tab != "bookings" && tab != "payment" && tab != "stock" && tab != "info")
         {
             tab = "bookings";
         }
@@ -474,6 +553,17 @@ public class CustomerController : Controller
         var user = GetCurrentUser();
         var bookings = GetMyBookings(user);
         ViewBag.Bookings = bookings;
+
+        // สต็อกสินค้า (ดูอย่างเดียว ฝ่ายคลังเป็นคนปรับ) ของการจองที่ยังไม่สิ้นสุด
+        // รวมการจองที่ยังรอชำระ ให้ลูกค้าเห็นรายการที่แจ้งไว้ (สถานะรอตรวจรับ)
+        var activeIds = (from b in bookings
+                         where b.Status == "active" || b.Status == "pending" || b.Status == "checking"
+                         select b.Id).ToList();
+        ViewBag.Stock = user == null
+            ? new List<StockItemViewModel>()
+            : (from s in InventoryController.GetStockItems(_db, null, false, user.UserId)
+               where activeIds.Contains(s.BookingId)
+               select s).ToList();
 
         // ประวัติการชำระจากตาราง payment
         List<PaymentHistoryViewModel> payments = new();
@@ -693,6 +783,33 @@ public class CustomerController : Controller
         }
         doc.BackUrl = Url.Action("Profile", "Customer", new { tab = "payment" })!;
         return View("ReceiptDocument", doc);
+    }
+
+    // ลูกค้ายกเลิกการจองเอง (POST): ได้เฉพาะการจองของตัวเองที่ยังไม่ได้ชำระ
+    [HttpPost]
+    public IActionResult CancelMyBooking(string bookingId)
+    {
+        if (!IsLoggedIn)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var user = GetCurrentUser();
+        var booking = user == null ? null :
+                      (from b in _db.Bookings
+                       where b.BookingId == bookingId && b.UserId == user.UserId
+                       select b).FirstOrDefault();
+        if (booking == null || booking.BookingStatus != "Pending")
+        {
+            TempData["Error"] = "ยกเลิกได้เฉพาะการจองที่ยังไม่ได้ชำระเงิน";
+            return RedirectToAction("Profile", new { tab = "bookings" });
+        }
+
+        CancelBooking(_db, booking, "[ลูกค้ายกเลิก " + DateTime.Now.ToString("d MMM yyyy", _th) + "]");
+        _db.SaveChanges();
+
+        TempData["Success"] = "ยกเลิกการจอง " + booking.BookingId + " แล้ว";
+        return RedirectToAction("Profile", new { tab = "bookings" });
     }
 
     public IActionResult MyBookings()

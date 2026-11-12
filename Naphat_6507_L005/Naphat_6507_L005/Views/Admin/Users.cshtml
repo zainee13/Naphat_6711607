@@ -19,6 +19,15 @@
     </div>
 </div>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" role="status">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+}
+
 <!-- Stats -->
 <div class="row g-3 mb-4">
     @foreach (var s in new[] {
@@ -97,11 +106,13 @@
                                        asp-action="EditUser" asp-controller="Admin" asp-route-id="@user.UserId" title="แก้ไข">
                                         <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">edit</span>
                                     </a>
-                                    <a class="btn btn-sm" style="background:#fee2e2; color:#991b1b; border:none; border-radius:6px; font-size:0.7rem; display:inline-flex; align-items:center;"
-                                       asp-action="DeleteUser" asp-controller="Admin" asp-route-id="@user.UserId"
-                                       onclick="return confirm('ยืนยันที่จะลบผู้ใช้ @user.Username หรือไม่?');" title="ลบ">
-                                        <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">delete</span>
-                                    </a>
+                                    @* ลบผ่าน POST เท่านั้น (เปิดลิงก์เฉยๆ ลบไม่ได้) *@
+                                    <form asp-action="DeleteUser" asp-controller="Admin" asp-route-id="@user.UserId" method="post" class="d-inline"
+                                          onsubmit="return confirm('ยืนยันที่จะลบผู้ใช้ @user.Username หรือไม่?');">
+                                        <button type="submit" class="btn btn-sm" style="background:#fee2e2; color:#991b1b; border:none; border-radius:6px; font-size:0.7rem; display:inline-flex; align-items:center;" title="ลบ">
+                                            <span class="material-symbols-outlined align-middle" style="font-size:0.8rem;">delete</span>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

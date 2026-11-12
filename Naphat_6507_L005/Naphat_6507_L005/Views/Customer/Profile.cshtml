@@ -9,6 +9,8 @@
     var fullName = Model.Fullname;
     var bookings = ViewBag.Bookings as List<MyBookingViewModel> ?? new();
     var payments = ViewBag.Payments as List<PaymentHistoryViewModel> ?? new();
+    var stock = ViewBag.Stock as List<StockItemViewModel> ?? new();
+    var lowStockCount = stock.Count(s => s.IsLow);
     var dueBooking = ViewBag.DueBooking as MyBookingViewModel;
     int dueDepositMonths = ViewBag.DueDepositMonths ?? 0;
     int dueDeposit = ViewBag.DueDeposit ?? 0;
@@ -20,7 +22,7 @@
         { "checking", "รอตรวจสอบการชำระ" },
         { "active", "ใช้งานอยู่" },
         { "ended", "สิ้นสุดสัญญา" },
-        { "cancelled", "ยกเลิก คืนเงินแล้ว" },
+        { "cancelled", "ยกเลิกแล้ว" },
     };
 
     var pendingCount = bookings.Count(b => b.Status == "pending");
@@ -68,6 +70,13 @@
                 <span class="pf-count pf-count--due">@pendingCount รอชำระ</span>
             }
         </a>
+        <a role="tab" href="?tab=stock" data-tab="stock" aria-selected="@(activeTab == "stock" ? "true" : "false")">
+            สต็อก
+            @if (lowStockCount > 0)
+            {
+                <span class="pf-count pf-count--due">@lowStockCount ใกล้หมด</span>
+            }
+        </a>
         <a role="tab" href="?tab=info" data-tab="info" aria-selected="@(activeTab == "info" ? "true" : "false")">
             ข้อมูลส่วนตัว
         </a>
@@ -101,6 +110,11 @@
                         @if (booking.Status == "pending")
                         {
                             <a class="cu-btn cu-btn--primary" asp-controller="Customer" asp-action="Profile" asp-route-tab="payment" asp-route-bookingId="@booking.Id">ชำระเงิน</a>
+                            <form asp-controller="Customer" asp-action="CancelMyBooking" method="post"
+                                  onsubmit="return confirm('ยกเลิกการจอง @booking.Id ห้อง @booking.Room ใช่ไหม? ห้องจะกลับไปว่างให้คนอื่นจองได้');">
+                                <input type="hidden" name="bookingId" value="@booking.Id" />
+                                <button type="submit" class="cu-btn">ยกเลิก</button>
+                            </form>
                         }
                     </div>
                 </li>
@@ -275,6 +289,49 @@
                 </ul>
             </aside>
         </div>
+    </section>
+
+    <!-- ========== แท็บ: สต็อก (ดูอย่างเดียว ฝ่ายคลังเป็นคนปรับ) ========== -->
+    <section class="pf-panel" id="panel-stock" role="tabpanel" hidden="@(activeTab != "stock")">
+        <div class="pf-panel-head">
+            <h2 class="cu-h2">สต็อกสินค้าในห้องที่เช่า</h2>
+        </div>
+
+        @if (stock.Count == 0)
+        {
+            <p class="pf-saved-empty">ยังไม่มีสินค้า รายการที่แจ้งไว้ตอนจองจะแสดงที่นี่ และฝ่ายคลังจะตรวจรับในวันย้ายเข้า</p>
+        }
+        else
+        {
+            <ul class="pf-stock">
+                @foreach (var s in stock)
+                {
+                    <li class="pf-stock-item @(s.IsLow ? "is-low" : "")">
+                        <div class="pf-stock-name">
+                            <strong>@s.ItemName</strong>
+                            <span>ห้อง @s.RoomId@(string.IsNullOrEmpty(s.Category) ? "" : " · " + s.Category)</span>
+                        </div>
+                        <div class="pf-stock-qty">
+                            <div><strong>@s.Quantity.ToString("N0")</strong> @s.Unit</div>
+                            <span>@(s.IsVerified ? "ขั้นต่ำ " + s.MinQuantity.ToString("N0") : "จำนวนที่แจ้งไว้")</span>
+                        </div>
+                        @if (!s.IsVerified)
+                        {
+                            <span class="pf-status pf-status--checking">รอตรวจรับ</span>
+                        }
+                        else if (s.IsLow)
+                        {
+                            <span class="pf-status pf-status--pending">ใกล้หมด</span>
+                        }
+                        else
+                        {
+                            <span class="pf-status pf-status--active">ปกติ</span>
+                        }
+                        <span class="pf-stock-time">อัปเดต @s.UpdatedText</span>
+                    </li>
+                }
+            </ul>
+        }
     </section>
 
     <!-- ========== แท็บ: ข้อมูลส่วนตัว ========== -->

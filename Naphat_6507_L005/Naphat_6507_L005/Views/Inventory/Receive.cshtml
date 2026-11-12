@@ -1,0 +1,75 @@
+@model List<Naphat_6507_L005.ViewModels.ReceiveBookingViewModel>
+@{
+    ViewData["Title"] = "ตรวจรับสินค้า";
+    Layout = "_Layout";
+
+    var statusText = new Dictionary<string, string>
+    {
+        { "Pending", "รอลูกค้าชำระเงิน" },
+        { "Checking", "รอฝ่ายบัญชีตรวจการชำระ" },
+        { "Active", "พร้อมตรวจรับ" },
+    };
+}
+
+<div class="page-header">
+    <div>
+        <h1><span class="material-symbols-outlined align-middle me-2" style="color:#8b5cf6;">move_to_inbox</span>ตรวจรับสินค้า</h1>
+        <p>สินค้าที่ลูกค้าแจ้งไว้ตอนจอง ตรวจรับวันย้ายเข้าให้ตรงกับที่แจ้ง ตรวจได้หลังลูกค้าชำระเงินแล้ว</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" role="status">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+}
+
+<div class="section-card">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#8b5cf6;">pending_actions</span> การจองที่มีสินค้ารอตรวจรับ (@Model.Count)</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom w-100">
+            <thead>
+                <tr><th>ห้อง / การจอง</th><th>ลูกค้า</th><th>วันเริ่มเช่า</th><th class="text-end">รายการที่แจ้ง</th><th>สถานะ</th><th></th></tr>
+            </thead>
+            <tbody>
+                @if (Model.Count > 0)
+                {
+                    foreach (var b in Model)
+                    {
+                        <tr style="font-size:0.85rem;">
+                            <td><strong>@b.RoomId</strong><br /><span style="color:#6c757d; font-size:0.78rem;">@b.BookingId</span></td>
+                            <td>@b.CustomerName<br /><span style="color:#6c757d; font-size:0.78rem;">@(b.Phone ?? "-")</span></td>
+                            <td>@b.StartDateText</td>
+                            <td class="text-end">@b.ItemCount รายการ</td>
+                            <td>
+                                @if (b.CanReceive)
+                                {
+                                    <span class="badge" style="background:#ecfdf5; color:#065f46;">@statusText[b.BookingStatus]</span>
+                                }
+                                else
+                                {
+                                    <span class="badge" style="background:#f3f4f6; color:#4b5563;">@(statusText.ContainsKey(b.BookingStatus) ? statusText[b.BookingStatus] : b.BookingStatus)</span>
+                                }
+                            </td>
+                            <td>
+                                <a class="btn btn-sm" style="background:#f3e8ff; color:#6d28d9; border:none; border-radius:6px; font-size:0.78rem;"
+                                   asp-controller="Inventory" asp-action="ReceiveItems" asp-route-id="@b.BookingId">
+                                    <span class="material-symbols-outlined align-middle" style="font-size:0.9rem;">fact_check</span> @(b.CanReceive ? "ตรวจรับ" : "ดูรายการ")
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6" style="text-align:center; color:#9ca3af; padding:2rem;">ไม่มีสินค้ารอตรวจรับ</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

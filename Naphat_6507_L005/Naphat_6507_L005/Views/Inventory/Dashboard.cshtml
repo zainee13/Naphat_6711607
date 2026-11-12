@@ -1,0 +1,81 @@
+@model List<Naphat_6507_L005.ViewModels.StockItemViewModel>
+@{
+    ViewData["Title"] = "ภาพรวมฝ่ายคลังสินค้า";
+    Layout = "_Layout";
+
+    // ตัวเลขสรุปส่งมาจาก InventoryController.Dashboard
+    int pendingReceive = ViewBag.PendingReceiveCount;
+    int itemCount = ViewBag.ItemCount;
+    int lowCount = ViewBag.LowCount;
+    int updatedToday = ViewBag.UpdatedToday;
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h1><span class="material-symbols-outlined align-middle me-2" style="color:#8b5cf6;">inventory_2</span>ภาพรวมฝ่ายคลังสินค้า</h1>
+            <p>สินค้าของลูกค้าในห้องที่เช่าอยู่ รับเข้า เบิกออก และแจ้งเตือนสต็อกต่ำ</p>
+        </div>
+        <a asp-controller="Inventory" asp-action="AddStock" class="btn btn-sm"
+           style="background:#8b5cf6; color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; font-weight:600;">
+            <span class="material-symbols-outlined align-middle me-1" style="font-size:0.9rem;">add</span> เพิ่มสินค้า
+        </a>
+    </div>
+</div>
+
+<!-- ตัวเลขสรุป -->
+<div class="row g-3 mb-4">
+    @foreach (var s in new[] {
+        ("move_to_inbox", "รอตรวจรับ", pendingReceive.ToString("N0") + " การจอง", "#8b5cf6"),
+        ("category", "รายการสินค้า", itemCount.ToString("N0") + " รายการ", "#3b82f6"),
+        ("warning", "ใกล้หมด", lowCount.ToString("N0") + " รายการ", "#ef4444"),
+        ("update", "ปรับวันนี้", updatedToday.ToString("N0") + " รายการ", "#10b981"),
+    })
+    {
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card" style="padding:1rem;">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="material-symbols-outlined" style="font-size:1.75rem; color:@s.Item4;">@s.Item1</span>
+                    <div>
+                        <div class="kpi-value" style="font-size:1.3rem;">@s.Item3</div>
+                        <div class="kpi-label" style="font-size:0.72rem;">@s.Item2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- ใกล้หมด 5 อันดับ -->
+<div class="section-card">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#ef4444;">warning</span> สินค้าใกล้หมด</h2>
+        <a asp-controller="Inventory" asp-action="Alerts" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">ดูทั้งหมด</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom w-100">
+            <thead>
+                <tr><th>ห้อง</th><th>ลูกค้า</th><th>สินค้า</th><th class="text-end">คงเหลือ</th><th class="text-end">ขั้นต่ำ</th></tr>
+            </thead>
+            <tbody>
+                @if (Model.Count > 0)
+                {
+                    foreach (var s in Model)
+                    {
+                        <tr style="font-size:0.85rem;">
+                            <td class="fw-semibold">@s.RoomId</td>
+                            <td>@s.CustomerName</td>
+                            <td>@s.ItemName</td>
+                            <td class="text-end fw-semibold" style="color:#b91c1c;">@s.Quantity.ToString("N0") @s.Unit</td>
+                            <td class="text-end" style="color:#6c757d;">@s.MinQuantity.ToString("N0")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:2rem;">ไม่มีสินค้าใกล้หมด</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

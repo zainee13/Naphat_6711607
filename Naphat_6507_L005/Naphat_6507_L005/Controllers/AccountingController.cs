@@ -88,6 +88,7 @@ public class AccountingController : Controller
             return RedirectToAction("Login", "Account");
         }
         SetUserBag();
+        CustomerController.CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนด
 
         var today = DateTime.Today;
         var tomorrow = today.AddDays(1);

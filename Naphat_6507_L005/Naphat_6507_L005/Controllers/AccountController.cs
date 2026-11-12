@@ -47,6 +47,11 @@ public class AccountController : Controller
         var dbUser = (from u in _db.Users
                       where u.Username == data.Username && u.PasswordHash == data.Password
                       select u).FirstOrDefault();
+        if (dbUser != null && dbUser.IsActive == false)
+        {
+            ViewBag.Error = "บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ";
+            return View(data);
+        }
         if (dbUser != null)
         {
             HttpContext.Session.SetString("Username", dbUser.Username);

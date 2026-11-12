@@ -1111,3 +1111,66 @@ body {
     .lm-compare-row { grid-template-columns: 1fr; gap: 0.25rem; }
     .lm-compare-arrow, .lm-compare-head { display: none; }
 }
+
+/* ---------- แจ้งเตือนสินค้าใกล้หมด (ฝ่ายคลัง) ---------- */
+/* เมนูใน sidebar: พื้นแดง ไอคอนสั่น + ป้ายตัวเลข */
+.nav-item-link.nav-alert {
+    background: rgba(239, 68, 68, 0.16);
+    color: #fecaca;
+    box-shadow: inset 3px 0 0 #ef4444;
+}
+.nav-item-link.nav-alert:hover { background: rgba(239, 68, 68, 0.24); color: #fff; }
+.nav-item-link.nav-alert .material-symbols-outlined { color: #f87171; animation: stock-ring 2.4s ease-in-out infinite; }
+.nav-badge {
+    margin-left: auto;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 22px;
+    text-align: center;
+    animation: stock-pulse 2s ease-out infinite;
+}
+
+/* แถบเตือนด้านบนของทุกหน้าฝ่ายคลัง */
+.stock-alert-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding: 0.85rem 1.1rem;
+    border-radius: 12px;
+    border: 1px solid #fecaca;
+    border-left: 5px solid #ef4444;
+    background: #fef2f2;
+    color: #991b1b;
+    font-size: 0.95rem;
+    text-decoration: none;
+}
+.stock-alert-bar:hover { background: #fee2e2; color: #7f1d1d; }
+.stock-alert-bar > .material-symbols-outlined { color: #ef4444; font-size: 1.5rem; }
+.stock-alert-go { margin-left: auto; display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 600; white-space: nowrap; }
+.stock-alert-go .material-symbols-outlined { font-size: 1.1rem; }
+
+@keyframes stock-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+    70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+@keyframes stock-ring {
+    0%, 80%, 100% { transform: rotate(0); }
+    84% { transform: rotate(-14deg); }
+    88% { transform: rotate(12deg); }
+    92% { transform: rotate(-8deg); }
+    96% { transform: rotate(4deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .nav-badge, .nav-item-link.nav-alert .material-symbols-outlined { animation: none; }
+}
+
+/* ป้ายจำนวนการจองรอตรวจรับ (ไม่ใช่เรื่องด่วน จึงไม่กระพริบ) */
+.nav-badge.nav-badge--info { background: #8b5cf6; animation: none; }
