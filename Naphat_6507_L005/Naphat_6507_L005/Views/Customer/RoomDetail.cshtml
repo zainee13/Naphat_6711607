@@ -2,6 +2,7 @@
 @{
     var room = Model;
     var reviews = ViewBag.Reviews as List<Naphat_6507_L005.ViewModels.ReviewViewModel> ?? new();
+    var quote = (Naphat_6507_L005.ViewModels.PriceQuoteViewModel)ViewBag.Quote;   // ยอดเริ่มต้น (เริ่มวันนี้ 6 เดือน)
 
     ViewData["Title"] = "ห้อง " + room.Id;
     Layout = "_PublicLayout";
@@ -162,21 +163,21 @@
                 <dl class="rd-calc">
                     <div>
                         <dt>ค่าเช่าเดือนแรก</dt>
-                        <dd id="rentText"></dd>
+                        <dd id="rentText">@quote.RentText</dd>
                     </div>
                     <div>
                         <dt>
-                            <span id="depositLabel">เงินประกัน 2 เดือน</span>
+                            <span id="depositLabel">เงินประกัน @quote.DepositMonths เดือน</span>
                             <span class="cu-sub">คืนเมื่อสิ้นสุดสัญญา</span>
                         </dt>
-                        <dd id="depositText"></dd>
+                        <dd id="depositText">@quote.DepositText</dd>
                     </div>
                     <div class="rd-total">
                         <dt>ชำระก่อนเข้าใช้</dt>
-                        <dd id="totalText"></dd>
+                        <dd id="totalText">@quote.TotalText</dd>
                     </div>
                 </dl>
-                <p class="cu-next" id="nextMonthsText"></p>
+                <p class="cu-next" id="nextMonthsText" hidden="@(quote.NextMonthsText == null)">@quote.NextMonthsText</p>
 
                 <button type="submit" class="cu-btn cu-btn--primary rd-cta">จองห้องนี้</button>
                 </form>
@@ -192,39 +193,30 @@
 
 @section Scripts {
 <script>
-    const monthlyRate = @room.Price;   // ค่าเช่าต่อเดือน
+    // ยอดและวันสิ้นสุดสัญญาคิดที่ CustomerController.BuildQuote ที่เดียว
+    // JS แค่ขอค่าใหม่จาก Customer/PriceQuote เมื่อเปลี่ยนวันหรือระยะสัญญา แล้วเอามาแสดง
+    const quoteUrl = '@Url.Action("PriceQuote", "Customer", new { id = room.Id })';
 
-    // แปลงตัวเลขเป็นข้อความเงินบาท เช่น 25000 -> ฿25,000
-    function toBaht(amount) {
-        return '฿' + Math.round(amount).toLocaleString('th-TH');
-    }
-
-    // จำนวนเดือนของเงินประกัน: สัญญา 1–3 เดือน = 1 เดือน, 6 เดือน = 2 เดือน, 12 เดือน = 3 เดือน
-    function getDepositMonths(months) {
-        if (months >= 12) return 3;
-        if (months >= 6) return 2;
-        return 1;
-    }
-
-    // คำนวณยอดที่ต้องจ่าย: ก่อนเข้าใช้จ่ายค่าเช่าเดือนแรก + เงินประกัน (ไม่มี VAT)
-    function calculatePrice() {
-        const months = parseInt(document.getElementById('duration').value) || 1;
-        const depositMonths = getDepositMonths(months);
-        const deposit = monthlyRate * depositMonths;
-
-        document.getElementById('rentText').textContent = toBaht(monthlyRate);
-        document.getElementById('depositLabel').textContent = 'เงินประกัน ' + depositMonths + ' เดือน';
-        document.getElementById('depositText').textContent = toBaht(deposit);
-        document.getElementById('totalText').textContent = toBaht(monthlyRate + deposit);
-
-        // บอกยอดเดือนถัดไป (สัญญา 1 เดือนไม่ต้องแสดง)
+    function showQuote(q) {
+        document.getElementById('rentText').textContent = q.rentText;
+        document.getElementById('depositLabel').textContent = 'เงินประกัน ' + q.depositMonths + ' เดือน';
+        document.getElementById('depositText').textContent = q.depositText;
+        document.getElementById('totalText').textContent = q.totalText;
         const nextText = document.getElementById('nextMonthsText');
-        if (months > 1) {
-            nextText.textContent = 'เดือนที่ 2–' + months + ' ชำระเดือนละ ' + toBaht(monthlyRate);
-            nextText.hidden = false;
-        } else {
-            nextText.hidden = true;
+        nextText.textContent = q.nextMonthsText || '';
+        nextText.hidden = !q.nextMonthsText;
+        const endText = document.getElementById('endDateText');
+        if (endText) {
+            endText.textContent = q.endDateText;
         }
+    }
+
+    function refreshQuote(startValue, monthsValue) {
+        const url = quoteUrl + '?months=' + encodeURIComponent(monthsValue) + (startValue ? '&start=' + encodeURIComponent(startValue) : '');
+        fetch(url, { headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (q) { if (q) showQuote(q); })
+            .catch(function () { /* เน็ตหลุด: คงยอดเดิมไว้ ยอดจริงคิดใหม่ตอนกดจองอยู่แล้ว */ });
     }
 
     // กล่องคำนวณมีเฉพาะห้องที่ว่าง
@@ -234,8 +226,7 @@
         startDate.valueAsDate = new Date();
         startDate.min = startDate.value;   // เลือกวันย้อนหลังไม่ได้
 
-        durationSelect.addEventListener('change', calculatePrice);
-        calculatePrice();
+        durationSelect.addEventListener('change', function () { refreshQuote(startDate.value, durationSelect.value); });
     }
 </script>
 }

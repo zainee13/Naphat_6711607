@@ -2,6 +2,7 @@
 @{
     var room = (Naphat_6507_L005.ViewModels.RoomViewModel)ViewBag.Room;
     var isCompany = Model.TenantType != "person";
+    var quote = (Naphat_6507_L005.ViewModels.PriceQuoteViewModel)ViewBag.Quote;   // ยอดเริ่มต้นจาก Controller
 
     // แถวรายการสินค้า: ถ้ายังไม่มี (เปิดฟอร์มครั้งแรก) ให้มีแถวว่าง 1 แถว
     var itemRows = Model.Items.Count > 0 ? Model.Items : new List<Naphat_6507_L005.ViewModels.DeclaredItemViewModel> { new() };
@@ -110,7 +111,7 @@
                                 <option value="12">12 เดือน</option>
                             </select>
                         </label>
-                        <p class="bk-end bk-span-2">สิ้นสุดสัญญา <strong id="endDateText">-</strong></p>
+                        <p class="bk-end bk-span-2">สิ้นสุดสัญญา <strong id="endDateText">@quote.EndDateText</strong></p>
 
                         <label class="cu-field">
                             <span>ประเภทสินค้าหลัก</span>
@@ -187,21 +188,21 @@
                 <dl class="bk-calc">
                     <div>
                         <dt>ค่าเช่าเดือนแรก</dt>
-                        <dd id="rentText"></dd>
+                        <dd id="rentText">@quote.RentText</dd>
                     </div>
                     <div>
                         <dt>
-                            <span id="depositLabel">เงินประกัน 2 เดือน</span>
+                            <span id="depositLabel">เงินประกัน @quote.DepositMonths เดือน</span>
                             <span class="cu-sub">คืนเมื่อสิ้นสุดสัญญา</span>
                         </dt>
-                        <dd id="depositText"></dd>
+                        <dd id="depositText">@quote.DepositText</dd>
                     </div>
                     <div class="bk-total">
                         <dt>ชำระก่อนเข้าใช้</dt>
-                        <dd id="totalText"></dd>
+                        <dd id="totalText">@quote.TotalText</dd>
                     </div>
                 </dl>
-                <p class="cu-next" id="nextMonthsText"></p>
+                <p class="cu-next" id="nextMonthsText" hidden="@(quote.NextMonthsText == null)">@quote.NextMonthsText</p>
 
                 <!-- โค้ดส่วนลด: มีแค่หน้าตา ยังไม่คิดส่วนลด -->
                 <div class="cu-promo bk-promo">
@@ -233,62 +234,33 @@
 
 @section Scripts {
 <script>
-    // JS ใช้แค่แสดงผลบนหน้าจอ (คำนวณยอดให้ดูก่อนกดจอง)
-    // การตรวจข้อมูลและบันทึกการจองทำที่ CustomerController.BookRoom (POST)
-    const monthlyRate = @room.Price;   // ค่าเช่าต่อเดือน
+    // JS ใช้แค่แสดงผลบนหน้าจอ การตรวจข้อมูลและบันทึกการจองทำที่ CustomerController.BookRoom (POST)
     const bookingForm = document.getElementById('bookingForm');
 
-    // แปลงตัวเลขเป็นข้อความเงินบาท เช่น 25000 -> ฿25,000
-    function toBaht(amount) {
-        return '฿' + Math.round(amount).toLocaleString('th-TH');
-    }
+    // ยอดและวันสิ้นสุดสัญญาคิดที่ CustomerController.BuildQuote ที่เดียว
+    // JS แค่ขอค่าใหม่จาก Customer/PriceQuote เมื่อเปลี่ยนวันหรือระยะสัญญา แล้วเอามาแสดง
+    const quoteUrl = '@Url.Action("PriceQuote", "Customer", new { id = room.Id })';
 
-    // จำนวนเดือนของเงินประกัน (กฎเดียวกับ CustomerController.GetDepositMonths)
-    function getDepositMonths(months) {
-        if (months >= 12) return 3;
-        if (months >= 6) return 2;
-        return 1;
-    }
-
-    // วันสิ้นสุดสัญญา = วันก่อนวันที่เดียวกันของเดือนปลายทาง
-    // ถ้าเดือนปลายทางไม่มีวันที่นั้น ให้จบวันสุดท้ายของเดือนนั้น
-    function getEndDate(startDate, months) {
-        const year = startDate.getFullYear();
-        const endMonth = startDate.getMonth() + months;
-        const day = startDate.getDate();
-        const lastDayOfEndMonth = new Date(year, endMonth + 1, 0).getDate();
-
-        if (day > lastDayOfEndMonth) {
-            return new Date(year, endMonth, lastDayOfEndMonth);
-        }
-        return new Date(year, endMonth, day - 1);
-    }
-
-    // คำนวณยอดและวันสิ้นสุดสัญญา
-    function calculatePrice() {
-        const months = parseInt(document.getElementById('Months').value) || 1;
-        const depositMonths = getDepositMonths(months);
-        const deposit = monthlyRate * depositMonths;
-
-        document.getElementById('rentText').textContent = toBaht(monthlyRate);
-        document.getElementById('depositLabel').textContent = 'เงินประกัน ' + depositMonths + ' เดือน';
-        document.getElementById('depositText').textContent = toBaht(deposit);
-        document.getElementById('totalText').textContent = toBaht(monthlyRate + deposit);
-
+    function showQuote(q) {
+        document.getElementById('rentText').textContent = q.rentText;
+        document.getElementById('depositLabel').textContent = 'เงินประกัน ' + q.depositMonths + ' เดือน';
+        document.getElementById('depositText').textContent = q.depositText;
+        document.getElementById('totalText').textContent = q.totalText;
         const nextText = document.getElementById('nextMonthsText');
-        if (months > 1) {
-            nextText.textContent = 'เดือนที่ 2–' + months + ' ชำระเดือนละ ' + toBaht(monthlyRate);
-            nextText.hidden = false;
-        } else {
-            nextText.hidden = true;
+        nextText.textContent = q.nextMonthsText || '';
+        nextText.hidden = !q.nextMonthsText;
+        const endText = document.getElementById('endDateText');
+        if (endText) {
+            endText.textContent = q.endDateText;
         }
+    }
 
-        const startDate = document.getElementById('StartDate').valueAsDate;
-        if (startDate) {
-            const endDate = getEndDate(startDate, months);
-            document.getElementById('endDateText').textContent =
-                endDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
-        }
+    function refreshQuote(startValue, monthsValue) {
+        const url = quoteUrl + '?months=' + encodeURIComponent(monthsValue) + (startValue ? '&start=' + encodeURIComponent(startValue) : '');
+        fetch(url, { headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (q) { if (q) showQuote(q); })
+            .catch(function () { /* เน็ตหลุด: คงยอดเดิมไว้ ยอดจริงคิดใหม่ตอนกดจองอยู่แล้ว */ });
     }
 
     // ประเภทผู้เช่า: บุคคลธรรมดาไม่ต้องกรอกชื่อบริษัท และใช้เลขบัตรประชาชนแทน
@@ -311,8 +283,10 @@
 
     // ห้องมีผู้เช่าแล้วจะไม่มีฟอร์ม ไม่ต้องทำอะไรต่อ
     if (bookingForm) {
-        document.getElementById('StartDate').addEventListener('change', calculatePrice);
-        document.getElementById('Months').addEventListener('change', calculatePrice);
+        const startInput = document.getElementById('StartDate');
+        const monthsInput = document.getElementById('Months');
+        startInput.addEventListener('change', function () { refreshQuote(startInput.value, monthsInput.value); });
+        monthsInput.addEventListener('change', function () { refreshQuote(startInput.value, monthsInput.value); });
 
         bookingForm.querySelectorAll('input[name=TenantType]').forEach(function (radio) {
             radio.addEventListener('change', changeTenantType);
@@ -331,7 +305,6 @@
             event.preventDefault();
         });
 
-        calculatePrice();
 
         // รายการสินค้า: เพิ่ม / ลบแถวบนหน้าจอ แล้วเรียงชื่อช่องใหม่ (Items[0], Items[1], ...) ให้ส่งไป Controller ได้ครบ
         const itemRows = document.getElementById('itemRows');

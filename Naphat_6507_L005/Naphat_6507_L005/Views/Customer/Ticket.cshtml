@@ -1,0 +1,123 @@
+@model Naphat_6507_L005.ViewModels.TicketViewModel
+@using Naphat_6507_L005.Controllers
+@{
+    ViewData["Title"] = "เรื่อง " + Model.No;
+    Layout = "_PublicLayout";
+
+    // ลูกค้าเป็นคนดูหน้านี้: ข้อความของลูกค้าอยู่ขวา (ฉัน) ข้อความเจ้าหน้าที่อยู่ซ้าย แบบแอปแชท
+    var staffName = Model.AssigneeName ?? "ฝ่ายบริการลูกค้า";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/customer-ui.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
+}
+
+<div class="pf cu">
+
+    <a class="cu-back" asp-controller="Customer" asp-action="Profile" asp-route-tab="support">
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>เรื่องที่แจ้งไว้
+    </a>
+
+    @if (TempData["Error"] != null)
+    {
+        <p class="cu-alert cu-alert--error" role="alert">@TempData["Error"]</p>
+    }
+
+    <section class="chat" aria-label="บทสนทนา @Model.No">
+
+        <!-- หัวแชท: คนที่คุยด้วย + เรื่อง -->
+        <header class="chat-head">
+            <span class="chat-avatar chat-avatar--lg" aria-hidden="true">
+                <span class="material-symbols-outlined">support_agent</span>
+            </span>
+            <div class="chat-head-text">
+                <strong>@staffName</strong>
+                <span>@Model.Title · @Model.No@(Model.RoomId == null ? "" : " · ห้อง " + Model.RoomId)</span>
+            </div>
+            <span class="chat-status chat-status--@Model.Status.ToLower()">@CustomerServiceController.StatusText[Model.Status]</span>
+        </header>
+
+        <!-- ข้อความ -->
+        <div class="chat-body" id="chatBody">
+            <p class="chat-day">เปิดเรื่องเมื่อ @Model.CreatedText · หมวด @Model.Category</p>
+
+            @for (int i = 0; i < Model.Messages.Count; i++)
+            {
+                var m = Model.Messages[i];
+                var mine = !m.IsStaff;
+                // ข้อความติดกันจากคนเดียวกัน แสดงรูปโปรไฟล์แค่ข้อความสุดท้ายของกลุ่ม แบบ Messenger
+                var lastOfGroup = i == Model.Messages.Count - 1 || Model.Messages[i + 1].IsStaff != m.IsStaff;
+
+                <div class="chat-row @(mine ? "is-mine" : "is-theirs") @(lastOfGroup ? "is-last" : "")">
+                    @if (!mine)
+                    {
+                        <span class="chat-avatar @(lastOfGroup ? "" : "is-hidden")" aria-hidden="true">
+                            <span class="material-symbols-outlined" style="font-size:1rem;">support_agent</span>
+                        </span>
+                    }
+                    <div class="chat-bubble-wrap">
+                        @if (!mine && (i == 0 || Model.Messages[i - 1].IsStaff != m.IsStaff))
+                        {
+                            <span class="chat-name">@m.Author</span>
+                        }
+                        <div class="chat-bubble">@m.Text</div>
+                        @if (lastOfGroup)
+                        {
+                            <span class="chat-time">@m.TimeText</span>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (Model.Status == "Resolved")
+            {
+                <p class="chat-day">ปิดเรื่องเมื่อ @Model.ResolvedText · ถ้ายังมีปัญหา พิมพ์ตอบด้านล่างเพื่อเปิดเรื่องอีกครั้ง</p>
+            }
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <p class="chat-toast" role="status">@TempData["Success"]</p>
+        }
+
+        <!-- ช่องพิมพ์: ส่งไปที่ CustomerController.ReplyTicket -->
+        <form class="chat-compose" asp-controller="Customer" asp-action="ReplyTicket" method="post" id="chatForm">
+            <input type="hidden" name="TicketId" value="@Model.TicketId" />
+            <label class="visually-hidden" for="chatInput">พิมพ์ข้อความ</label>
+            <textarea id="chatInput" name="Message" rows="1" required
+                      placeholder="@(Model.Status == "Resolved" ? "พิมพ์เพื่อเปิดเรื่องอีกครั้ง..." : "พิมพ์ข้อความ...")"></textarea>
+            <button type="submit" class="chat-send" aria-label="ส่งข้อความ">
+                <span class="material-symbols-outlined" aria-hidden="true">send</span>
+            </button>
+        </form>
+    </section>
+</div>
+
+@section Scripts {
+<script>
+    // เฉพาะหน้าตา: เลื่อนไปข้อความล่าสุด, ช่องพิมพ์ขยายตามข้อความ, Enter ส่ง / Shift+Enter ขึ้นบรรทัดใหม่
+    (function () {
+        const body = document.getElementById('chatBody');
+        const input = document.getElementById('chatInput');
+        const form = document.getElementById('chatForm');
+
+        body.scrollTop = body.scrollHeight;
+
+        function grow() {
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+        }
+        input.addEventListener('input', grow);
+
+        input.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+                event.preventDefault();
+                if (input.value.trim() !== '') {
+                    form.requestSubmit();
+                }
+            }
+        });
+    })();
+</script>
+}

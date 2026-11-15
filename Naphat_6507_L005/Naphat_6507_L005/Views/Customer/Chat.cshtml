@@ -1,0 +1,70 @@
+@model List<Naphat_6507_L005.ViewModels.TicketViewModel>
+@{
+    ViewData["Title"] = "แชทกับฝ่ายบริการลูกค้า";
+    Layout = "_ChatLayout";
+    bool canChat = ViewBag.CanChat == true;
+}
+
+<!-- รายการเรื่องในกล่องแชท (แบบกล่องข้อความ Messenger) -->
+<header class="cp-head">
+    <span class="chat-avatar chat-avatar--lg" aria-hidden="true"><span class="material-symbols-outlined">support_agent</span></span>
+    <div class="cp-head-text">
+        <strong>ฝ่ายบริการลูกค้า</strong>
+        <span>ทุกวัน 8:00–18:00 </span>
+    </div>
+</header>
+
+@if (TempData["Error"] != null)
+{
+    <p class="cu-alert cu-alert--error cp-alert" role="alert">@TempData["Error"]</p>
+}
+
+<div class="cp-scroll">
+    @if (Model.Count == 0)
+    {
+        <div class="cp-empty">
+            <span class="material-symbols-outlined" aria-hidden="true">forum</span>
+            <p>มีปัญหาเรื่องห้อง สต็อก หรือการชำระเงิน<br />ทักมาได้เลย</p>
+        </div>
+    }
+    else
+    {
+        <ul class="cp-list">
+            @foreach (var t in Model)
+            {
+                var last = t.Messages.LastOrDefault();
+                <li>
+                    <a asp-controller="Customer" asp-action="ChatThread" asp-route-id="@t.TicketId" class="cp-item @(t.Unread > 0 ? "is-unread" : "")">
+                        <span class="chat-avatar chat-avatar--lg cp-item-avatar" aria-hidden="true"><span class="material-symbols-outlined">support_agent</span></span>
+                        <div class="cp-item-text">
+                            <div class="cp-item-top">
+                                <strong>@t.Title</strong>
+                                <span>@(last?.TimeText ?? t.CreatedText)</span>
+                            </div>
+                            <div class="cp-item-bottom">
+                                <span class="cp-preview">@(last == null ? "" : (last.IsStaff ? "" : "คุณ: ") + last.Text)</span>
+                                @if (t.Unread > 0)
+                                {
+                                    <span class="cp-dot" aria-label="ข้อความใหม่ @t.Unread ข้อความ">@t.Unread</span>
+                                }
+                                else if (t.Status == "Resolved")
+                                {
+                                    <span class="cp-closed">ปิดแล้ว</span>
+                                }
+                            </div>
+                        </div>
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@if (canChat)
+{
+    <div class="cp-foot">
+        <a asp-controller="Customer" asp-action="ChatNew" class="cu-btn cu-btn--primary cp-new">
+            <span class="material-symbols-outlined" aria-hidden="true">edit_square</span> เรื่องใหม่
+        </a>
+    </div>
+}

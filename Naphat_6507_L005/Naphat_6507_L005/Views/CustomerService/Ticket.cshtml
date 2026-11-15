@@ -1,0 +1,114 @@
+@model Naphat_6507_L005.ViewModels.TicketViewModel
+@using Naphat_6507_L005.Controllers
+@{
+    ViewData["Title"] = "ตั๋ว " + Model.No;
+    Layout = "_Layout";
+    bool isOpen = Model.Status != "Resolved";
+}
+
+<div class="page-header mb-4">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a asp-controller="CustomerService" asp-action="Tickets" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
+            <span class="material-symbols-outlined align-middle" style="font-size:1rem;">arrow_back</span> ย้อนกลับ
+        </a>
+        <h1 class="h3 mb-0">@Model.No · @Model.Title</h1>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" role="status">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+}
+
+<div class="row g-4">
+
+    <!-- ซ้าย: บทสนทนา + ตอบ -->
+    <div class="col-12 col-lg-8">
+        <div class="section-card p-4">
+            <h2 class="h6 fw-bold mb-3">บทสนทนา</h2>
+            <div class="d-flex flex-column gap-3">
+                @foreach (var m in Model.Messages)
+                {
+                    <div style="padding:0.85rem 1rem; border-radius:12px; max-width:85%; @(m.IsStaff ? "align-self:flex-end; background:#fef3c7;" : "align-self:flex-start; background:#f3f4f6;")">
+                        <div style="font-size:0.75rem; color:#6b7280; margin-bottom:0.25rem;">
+                            <strong style="color:#374151;">@m.Author</strong> @(m.IsStaff ? "(เจ้าหน้าที่)" : "(ลูกค้า)") · @m.TimeText
+                        </div>
+                        <div style="font-size:0.9rem; white-space:pre-line;">@m.Text</div>
+                    </div>
+                }
+            </div>
+
+            <form asp-controller="CustomerService" asp-action="Reply" method="post" class="mt-4 pt-3 border-top">
+                <input type="hidden" name="TicketId" value="@Model.TicketId" />
+                <label class="form-label fw-semibold" style="font-size:0.875rem;" for="Message">ตอบลูกค้า</label>
+                <textarea class="form-control mb-2" id="Message" name="Message" rows="3" required placeholder="พิมพ์ข้อความถึงลูกค้า"></textarea>
+                <button type="submit" class="btn" style="background:#f59e0b; color:#fff; border:none; border-radius:10px; padding:0.5rem 1.25rem; font-weight:600;">
+                    <span class="material-symbols-outlined align-middle me-1" style="font-size:1.05rem;">send</span> ส่งข้อความ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ขวา: ข้อมูลตั๋ว + การจัดการ -->
+    <div class="col-12 col-lg-4">
+        <div class="section-card p-4 mb-4">
+            <dl class="row mb-0" style="font-size:0.88rem;">
+                <dt class="col-5">หมวด</dt><dd class="col-7">@Model.Category</dd>
+                <dt class="col-5">สถานะ</dt><dd class="col-7">@CustomerServiceController.StatusText[Model.Status]</dd>
+                <dt class="col-5">ความด่วน</dt><dd class="col-7">@CustomerServiceController.PriorityText[Model.Priority]</dd>
+                <dt class="col-5">ผู้รับผิดชอบ</dt><dd class="col-7">@(Model.AssigneeName ?? "ยังไม่มี")</dd>
+                <dt class="col-5">เปิดเมื่อ</dt><dd class="col-7">@Model.CreatedText</dd>
+                @if (Model.ResolvedText != null)
+                {
+                    <dt class="col-5">ปิดเมื่อ</dt><dd class="col-7">@Model.ResolvedText</dd>
+                }
+            </dl>
+            <hr />
+            <dl class="row mb-0" style="font-size:0.88rem;">
+                <dt class="col-5">ลูกค้า</dt><dd class="col-7">@Model.CustomerName</dd>
+                <dt class="col-5">โทร</dt><dd class="col-7">@(Model.Phone ?? "-")</dd>
+                <dt class="col-5">อีเมล</dt><dd class="col-7">@(Model.Email ?? "-")</dd>
+                <dt class="col-5">การจอง</dt><dd class="col-7">@(Model.BookingId == null ? "ไม่ระบุ" : Model.BookingId + " · ห้อง " + Model.RoomId)</dd>
+            </dl>
+        </div>
+
+        <div class="section-card p-4">
+            @if (isOpen && Model.Status == "Open")
+            {
+                <form asp-controller="CustomerService" asp-action="Assign" asp-route-id="@Model.TicketId" method="post" class="mb-3">
+                    <button type="submit" class="btn w-100" style="background:#8b5cf6; color:#fff; border:none; border-radius:10px; padding:0.55rem; font-weight:600;">
+                        <span class="material-symbols-outlined align-middle me-1" style="font-size:1.05rem;">assignment_ind</span> รับเรื่อง
+                    </button>
+                </form>
+            }
+
+            <form asp-controller="CustomerService" asp-action="SetPriority" asp-route-id="@Model.TicketId" method="post" class="d-flex gap-2 mb-3">
+                <select name="priority" class="form-select form-select-sm" aria-label="ความด่วน" style="border-radius:8px;">
+                    @foreach (var p in CustomerServiceController.PriorityText)
+                    {
+                        <option value="@p.Key" selected="@(p.Key == Model.Priority)">@p.Value</option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-sm btn-outline-secondary" style="border-radius:8px; white-space:nowrap;">ปรับความด่วน</button>
+            </form>
+
+            @if (isOpen)
+            {
+                <form asp-controller="CustomerService" asp-action="Close" asp-route-id="@Model.TicketId" method="post"
+                      onsubmit="return confirm('ปิดตั๋ว @Model.No ใช่ไหม? ถ้าลูกค้าตอบกลับ ตั๋วจะเปิดใหม่');">
+                    <button type="submit" class="btn btn-outline-success w-100" style="border-radius:10px; padding:0.55rem; font-weight:600;">
+                        <span class="material-symbols-outlined align-middle me-1" style="font-size:1.05rem;">task_alt</span> ปิดตั๋ว (แก้ไขเรียบร้อย)
+                    </button>
+                </form>
+            }
+            else
+            {
+                <p class="mb-0" style="font-size:0.85rem; color:#065f46;">ตั๋วนี้ปิดแล้ว ถ้าลูกค้าตอบกลับ ตั๋วจะเปิดใหม่อัตโนมัติ</p>
+            }
+        </div>
+    </div>
+</div>

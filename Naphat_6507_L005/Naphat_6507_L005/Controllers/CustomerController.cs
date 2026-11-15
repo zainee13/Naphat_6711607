@@ -188,6 +188,28 @@ public class CustomerController : Controller
         return endMonth.AddDays(start.Day - 2);
     }
 
+    // ระยะสัญญาที่เลือกได้ (ค่าอื่นใช้ 6 เดือน)
+    private static int ValidMonths(int months) => months == 1 || months == 3 || months == 6 || months == 12 ? months : 6;
+
+    // ยอดที่ต้องชำระก่อนเข้าใช้ (ค่าเช่าเดือนแรก + เงินประกัน ไม่มี VAT) และวันสิ้นสุดสัญญา
+    // ที่เดียวที่คิดยอดสำหรับแสดงผล ใช้กฎเดียวกับตอนบันทึกการจอง (GetDepositMonths / GetEndDate)
+    public static PriceQuoteViewModel BuildQuote(decimal monthlyRate, DateTime start, int months)
+    {
+        months = ValidMonths(months);
+        var depositMonths = GetDepositMonths(months);
+        var deposit = monthlyRate * depositMonths;
+
+        PriceQuoteViewModel q = new();
+        q.Months = months;
+        q.RentText = "฿" + monthlyRate.ToString("N0");
+        q.DepositMonths = depositMonths;
+        q.DepositText = "฿" + deposit.ToString("N0");
+        q.TotalText = "฿" + (monthlyRate + deposit).ToString("N0");
+        q.NextMonthsText = months > 1 ? "เดือนที่ 2–" + months + " ชำระเดือนละ ฿" + monthlyRate.ToString("N0") : null;
+        q.EndDateText = GetEndDate(start.Date, months).ToString("d MMMM yyyy", _th);
+        return q;
+    }
+
     // เลขการจองใหม่ เช่น BK-2026-001
     private string NewBookingId()
     {
@@ -260,6 +282,19 @@ public class CustomerController : Controller
         return View(model);
     }
 
+    // ยอดและวันสิ้นสุดสัญญา (JSON) หน้า RoomDetail / BookRoom ขอใหม่เมื่อลูกค้าเปลี่ยนวันเริ่มหรือระยะสัญญา
+    [HttpGet]
+    public IActionResult PriceQuote(string id, DateTime? start, int months = 6)
+    {
+        var room = FindRoom(id);
+        if (room == null)
+        {
+            return NotFound();
+        }
+        var startDate = start != null && start.Value.Date >= DateTime.Today ? start.Value.Date : DateTime.Today;
+        return Json(BuildQuote(room.MonthlyRate, startDate, months));
+    }
+
     public IActionResult RoomDetail(string id = "M-01")
     {
         if (!IsLoggedIn)
@@ -304,6 +339,7 @@ public class CustomerController : Controller
                                                     && !_db.Reviews.Any(rv => rv.BookingId == b.BookingId)
                                               select b).Any();
 
+        ViewBag.Quote = BuildQuote(room.MonthlyRate, DateTime.Today, 6);
         var rating = reviewList.Count == 0 ? null : reviewList.Average(r => r.Stars).ToString("0.0");
         return View(ToRoomViewModel(room, rating));
     }
@@ -378,7 +414,8 @@ public class CustomerController : Controller
         BookingViewModel data = new();
         data.RoomId = room.RoomId;
         data.StartDate = startDate != null && startDate.Value.Date >= DateTime.Today ? startDate.Value.Date : DateTime.Today;
-        data.Months = months;
+        data.Months = ValidMonths(months);
+        ViewBag.Quote = BuildQuote(room.MonthlyRate, data.StartDate, data.Months);
         data.ContactName = user?.Fullname ?? HttpContext.Session.GetString("FullName");
         data.CompanyName = user?.CompanyName;
         data.TaxId = user?.TaxId;
@@ -404,6 +441,8 @@ public class CustomerController : Controller
             return RedirectToAction("Search");
         }
         ViewBag.Room = ToRoomViewModel(room, null);
+        // ยอดที่แสดงถ้าต้องกลับไปหน้าฟอร์ม (กรอกผิด) ใช้วันและระยะสัญญาที่ลูกค้าเลือกไว้
+        ViewBag.Quote = BuildQuote(room.MonthlyRate, data.StartDate.Date >= DateTime.Today ? data.StartDate : DateTime.Today, data.Months);
 
         var user = GetCurrentUser();
         if (user == null)
@@ -783,6 +822,223 @@ public class CustomerController : Controller
         }
         doc.BackUrl = Url.Action("Profile", "Customer", new { tab = "payment" })!;
         return View("ReceiptDocument", doc);
+    }
+
+    // ===================== แจ้งปัญหา (กล่องแชท CS มุมขวาล่าง) =====================
+    // ข้างในกล่องแชทเป็นหน้าย่อย (iframe) ที่ใช้ _ChatLayout: Chat = รายการเรื่อง, ChatThread = คุยในเรื่อง, ChatNew = เรื่องใหม่
+    // ส่งข้อความ / เปิดเรื่อง เป็นฟอร์ม POST มาที่ Controller ตามปกติ
+
+    // จำนวนข้อความของเจ้าหน้าที่ที่ลูกค้าเปิดอ่านแล้ว (เก็บใน Session เพราะตารางไม่มีช่องสถานะอ่านแล้ว)
+    private int GetSeenCount(int ticketId) => HttpContext.Session.GetInt32("TicketSeen:" + ticketId) ?? 0;
+
+    private void MarkSeen(TicketViewModel ticket)
+    {
+        HttpContext.Session.SetInt32("TicketSeen:" + ticket.TicketId, ticket.Messages.Count(m => m.IsStaff));
+    }
+
+    // เรื่องทั้งหมดของลูกค้าที่ล็อกอิน พร้อมจำนวนข้อความใหม่จากเจ้าหน้าที่ในแต่ละเรื่อง
+    private List<TicketViewModel> GetMyTickets()
+    {
+        var user = GetCurrentUser();
+        if (user == null)
+        {
+            return new List<TicketViewModel>();
+        }
+        var tickets = CustomerServiceController.GetTickets(_db, user.UserId, null, null, true);
+        foreach (var t in tickets)
+        {
+            t.Unread = Math.Max(t.Messages.Count(m => m.IsStaff) - GetSeenCount(t.TicketId), 0);
+        }
+        // เรียงตามข้อความล่าสุด (เรื่องที่มีข้อความใหม่ขึ้นก่อน)
+        return tickets.OrderByDescending(t => t.Unread > 0).ThenByDescending(t => t.TicketId).ToList();
+    }
+
+    // รายการเรื่องในกล่องแชท
+    public IActionResult Chat()
+    {
+        if (!IsLoggedIn)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        ViewBag.CanChat = GetCurrentUser() != null;
+        return View(GetMyTickets());
+    }
+
+    // คุยในเรื่อง 1 เรื่อง (ในกล่องแชท): เปิดแล้วนับว่าอ่านแล้ว
+    public IActionResult ChatThread(int id)
+    {
+        if (!IsLoggedIn)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var user = GetCurrentUser();
+        var ticket = user == null ? null : CustomerServiceController.GetTickets(_db, user.UserId, null, id, true).FirstOrDefault();
+        if (ticket == null)
+        {
+            TempData["Error"] = "ไม่พบเรื่องนี้";
+            return RedirectToAction("Chat");
+        }
+        MarkSeen(ticket);
+        return View(ticket);
+    }
+
+    // ฟอร์มเปิดเรื่องใหม่ (ในกล่องแชท)
+    [HttpGet]
+    public IActionResult ChatNew()
+    {
+        if (!IsLoggedIn)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        var user = GetCurrentUser();
+        if (user == null)
+        {
+            TempData["Error"] = "บัญชีนี้แจ้งปัญหาไม่ได้ กรุณาเข้าสู่ระบบด้วยบัญชีลูกค้าที่สมัครสมาชิก";
+            return RedirectToAction("Chat");
+        }
+        ViewBag.TicketBookings = (from b in GetMyBookings(user) where b.Status != "cancelled" select b).ToList();
+        return View(new NewTicketViewModel());
+    }
+
+    // เปิดเรื่องใหม่ (POST): ลูกค้าเลือกหมวด ระบบตั้งความด่วนให้ตามหมวด
+    [HttpPost]
+    public IActionResult ChatNew(NewTicketViewModel data)
+    {
+        if (!IsLoggedIn)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var user = GetCurrentUser();
+        if (user == null)
+        {
+            TempData["Error"] = "บัญชีนี้แจ้งปัญหาไม่ได้ กรุณาเข้าสู่ระบบด้วยบัญชีลูกค้าที่สมัครสมาชิก";
+            return RedirectToAction("Chat");
+        }
+        ViewBag.TicketBookings = (from b in GetMyBookings(user) where b.Status != "cancelled" select b).ToList();
+
+        if (data.Category == null || !CustomerServiceController.Categories.ContainsKey(data.Category))
+        {
+            ViewBag.Error = "กรุณาเลือกหมวดของปัญหา";
+            return View(data);
+        }
+        if (string.IsNullOrWhiteSpace(data.Subject) || string.IsNullOrWhiteSpace(data.Description))
+        {
+            ViewBag.Error = "กรุณากรอกหัวข้อและรายละเอียด";
+            return View(data);
+        }
+
+        // การจองที่เลือก ต้องเป็นของลูกค้าคนนี้
+        string? bookingId = null;
+        if (!string.IsNullOrEmpty(data.BookingId))
+        {
+            bookingId = (from b in _db.Bookings
+                         where b.BookingId == data.BookingId && b.UserId == user.UserId
+                         select b.BookingId).FirstOrDefault();
+        }
+
+        // หมวดเก็บไว้หน้าหัวข้อ (ตารางไม่มีช่องหมวด) เช่น "[ไฟฟ้า] ไฟในห้องดับ"
+        var subject = "[" + data.Category + "] " + data.Subject.Trim();
+        if (subject.Length > 255)
+        {
+            subject = subject.Substring(0, 255);
+        }
+
+        Supportticket ticket = new();
+        ticket.UserId = user.UserId;
+        ticket.BookingId = bookingId;
+        ticket.Subject = subject;
+        ticket.Description = data.Description.Trim().Replace("\r\n", "\n");
+        ticket.Priority = CustomerServiceController.Categories[data.Category];
+        ticket.TicketStatus = "Open";
+        ticket.CreatedAt = DateTime.Now;
+        _db.Supporttickets.Add(ticket);
+        _db.SaveChanges();
+
+        TempData["Success"] = "ส่งเรื่องแล้ว ฝ่ายบริการลูกค้าจะตอบกลับในแชทนี้";
+        return RedirectToAction("ChatThread", new { id = ticket.TicketId });
+    }
+
+    // จำนวนข้อความใหม่จากเจ้าหน้าที่ (JSON) ปุ่มแชทเรียกทุก 30 วินาทีเพื่อแสดงป้ายตัวเลขและแจ้งเตือน
+    [HttpGet]
+    public IActionResult ChatUnread()
+    {
+        if (!IsLoggedIn)
+        {
+            return Json(new { count = 0 });
+        }
+        var tickets = GetMyTickets();
+        var latest = tickets.FirstOrDefault(t => t.Unread > 0);
+        return Json(new
+        {
+            count = tickets.Sum(t => t.Unread),
+            title = latest?.Title,
+            text = latest?.Messages.LastOrDefault(m => m.IsStaff)?.Text
+        });
+    }
+
+    // หน้าตั๋วแบบเต็มหน้า (เก็บไว้เผื่อเข้าจากลิงก์เดิม) เปิดได้เฉพาะตั๋วของตัวเอง
+    public IActionResult Ticket(int id)
+    {
+        if (!IsLoggedIn)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        SetUserBag();
+
+        var user = GetCurrentUser();
+        var ticket = user == null ? null : CustomerServiceController.GetTickets(_db, user.UserId, null, id, true).FirstOrDefault();
+        if (ticket == null)
+        {
+            TempData["Error"] = "ไม่พบเรื่องนี้";
+            return RedirectToAction("Profile");
+        }
+        MarkSeen(ticket);
+        return View(ticket);
+    }
+
+    // ลูกค้าตอบในเรื่อง (POST): ถ้าเรื่องปิดไปแล้ว จะเปิดใหม่ให้พนักงานเห็น
+    // Embed = true ส่งมาจากกล่องแชท กลับไปที่ ChatThread, ไม่งั้นกลับหน้าเต็ม Ticket
+    [HttpPost]
+    public IActionResult ReplyTicket(TicketReplyViewModel data)
+    {
+        if (!IsLoggedIn)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        var backAction = data.Embed ? "ChatThread" : "Ticket";
+
+        var user = GetCurrentUser();
+        var ticket = user == null ? null :
+                     (from t in _db.Supporttickets
+                      where t.TicketId == data.TicketId && t.UserId == user.UserId
+                      select t).FirstOrDefault();
+        if (ticket == null)
+        {
+            TempData["Error"] = "ไม่พบเรื่องนี้";
+            return RedirectToAction(data.Embed ? "Chat" : "Profile");
+        }
+        if (string.IsNullOrWhiteSpace(data.Message))
+        {
+            TempData["Error"] = "กรุณาพิมพ์ข้อความก่อนส่ง";
+            return RedirectToAction(backAction, new { id = data.TicketId });
+        }
+
+        ticket.Description = CustomerServiceController.AppendMessage(ticket.Description, user!.Fullname, false, data.Message);
+        bool reopened = ticket.TicketStatus == "Resolved";
+        if (reopened)
+        {
+            ticket.TicketStatus = "Open";
+            ticket.ResolvedAt = null;
+        }
+        _db.SaveChanges();
+
+        if (reopened)
+        {
+            TempData["Success"] = "เปิดเรื่องนี้อีกครั้งแล้ว";
+        }
+        return RedirectToAction(backAction, new { id = data.TicketId });
     }
 
     // ลูกค้ายกเลิกการจองเอง (POST): ได้เฉพาะการจองของตัวเองที่ยังไม่ได้ชำระ

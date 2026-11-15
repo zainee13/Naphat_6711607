@@ -1,0 +1,57 @@
+@model Naphat_6507_L005.ViewModels.NewTicketViewModel
+@using Naphat_6507_L005.Controllers
+@{
+    ViewData["Title"] = "เรื่องใหม่";
+    Layout = "_ChatLayout";
+    var bookings = ViewBag.TicketBookings as List<Naphat_6507_L005.ViewModels.MyBookingViewModel> ?? new();
+}
+
+<!-- เปิดเรื่องใหม่ (ในกล่องแชท): ส่งไปที่ CustomerController.ChatNew (POST) -->
+<header class="cp-head">
+    <a asp-controller="Customer" asp-action="Chat" class="cp-back" aria-label="กลับไปรายการเรื่อง">
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+    </a>
+    <div class="cp-head-text">
+        <strong>เรื่องใหม่</strong>
+        <span>เลือกหมวด ระบบจะส่งเรื่องด่วนให้เจ้าหน้าที่ก่อน</span>
+    </div>
+</header>
+
+<form class="cp-scroll cp-form" asp-controller="Customer" asp-action="ChatNew" method="post">
+    @if (ViewBag.Error != null)
+    {
+        <p class="cu-alert cu-alert--error" role="alert">@ViewBag.Error</p>
+    }
+
+    <label class="cu-field">
+        <span>หมวด</span>
+        <select name="Category" required>
+            <option value="">เลือกหมวดของปัญหา</option>
+            @foreach (var c in CustomerServiceController.Categories.Keys)
+            {
+                <option value="@c" selected="@(c == Model.Category)">@c</option>
+            }
+        </select>
+    </label>
+    <label class="cu-field">
+        <span>การจองที่เกี่ยวข้อง (ไม่บังคับ)</span>
+        <select name="BookingId">
+            <option value="">ไม่ระบุ</option>
+            @foreach (var b in bookings)
+            {
+                <option value="@b.Id" selected="@(b.Id == Model.BookingId)">ห้อง @b.Room · @b.Id</option>
+            }
+        </select>
+    </label>
+    <label class="cu-field">
+        <span>หัวข้อ</span>
+        <input type="text" name="Subject" value="@Model.Subject" maxlength="200" required placeholder="เช่น ไฟในห้องดับ" />
+    </label>
+    <label class="cu-field">
+        <span>รายละเอียด</span>
+        <textarea name="Description" rows="4" required placeholder="อธิบายปัญหาที่เจอ เวลา และจุดที่เกิด">@Model.Description</textarea>
+    </label>
+    <button type="submit" class="cu-btn cu-btn--primary cp-new">
+        <span class="material-symbols-outlined" aria-hidden="true">send</span> ส่งเรื่อง
+    </button>
+</form>

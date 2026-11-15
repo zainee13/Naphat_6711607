@@ -67,6 +67,7 @@
         // จำนวนสินค้าใกล้หมด (ส่งมาจาก InventoryController.SetUserBag)
         int lowStockCount = ViewBag.LowStockCount ?? 0;
         int pendingReceiveCount = ViewBag.PendingReceiveCount ?? 0;
+        int openTicketCount = ViewBag.OpenTicketCount ?? 0;   // ตั๋วที่ยังไม่มีคนรับ (CustomerServiceController.SetUserBag)
 
         Func<string, string, bool> isActive = (ctrl, act) =>
             currentController.Equals(ctrl, StringComparison.OrdinalIgnoreCase) &&
@@ -228,9 +229,13 @@
                     <span>ภาพรวม</span>
                 </a>
                 <a asp-controller="CustomerService" asp-action="Tickets"
-                   class="nav-item-link @(isActive("CustomerService","Tickets") ? "active" : "")">
+                   class="nav-item-link @(isActive("CustomerService","Tickets") || isActive("CustomerService","Ticket") ? "active" : "")">
                     <span class="material-symbols-outlined">confirmation_number</span>
                     <span>รายการ Ticket</span>
+                    @if (openTicketCount > 0)
+                    {
+                        <span class="nav-badge nav-badge--info" aria-label="ตั๋วเปิดใหม่ @openTicketCount ใบ">@openTicketCount</span>
+                    }
                 </a>
             }
 

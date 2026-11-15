@@ -1,0 +1,49 @@
+@model List<Naphat_6507_L005.ViewModels.TicketViewModel>
+@{
+    ViewData["Title"] = "ภาพรวมฝ่ายบริการลูกค้า";
+    Layout = "_Layout";
+    ViewData["EmptyText"] = "ไม่มีตั๋วด่วนมากที่ค้างอยู่";
+
+    // ตัวเลขสรุปส่งมาจาก CustomerServiceController.Dashboard
+    int openCount = ViewBag.OpenTicketCount;
+    int inProgress = ViewBag.InProgressCount;
+    int urgent = ViewBag.UrgentCount;
+    int resolvedToday = ViewBag.ResolvedToday;
+}
+
+<div class="page-header">
+    <div>
+        <h1><span class="material-symbols-outlined align-middle me-2" style="color:#f59e0b;">support_agent</span>ภาพรวมฝ่ายบริการลูกค้า</h1>
+        <p>ตั๋วแจ้งปัญหาจากลูกค้า รับเรื่อง ตอบ และปิดตั๋ว</p>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    @foreach (var s in new[] {
+        ("mark_email_unread", "เปิดใหม่ (ยังไม่มีคนรับ)", openCount.ToString("N0") + " ใบ", "#f59e0b"),
+        ("pending", "กำลังดำเนินการ", inProgress.ToString("N0") + " ใบ", "#8b5cf6"),
+        ("priority_high", "ด่วนมากที่ยังไม่ปิด", urgent.ToString("N0") + " ใบ", "#ef4444"),
+        ("task_alt", "ปิดวันนี้", resolvedToday.ToString("N0") + " ใบ", "#10b981"),
+    })
+    {
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card" style="padding:1rem;">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="material-symbols-outlined" style="font-size:1.75rem; color:@s.Item4;">@s.Item1</span>
+                    <div>
+                        <div class="kpi-value" style="font-size:1.3rem;">@s.Item3</div>
+                        <div class="kpi-label" style="font-size:0.72rem;">@s.Item2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="section-card">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#ef4444;">priority_high</span> ตั๋วด่วนมากที่ยังไม่ปิด</h2>
+        <a asp-controller="CustomerService" asp-action="Tickets" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">ดูทั้งหมด</a>
+    </div>
+    <partial name="_TicketTable" model="Model" />
+</div>

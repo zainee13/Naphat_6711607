@@ -1,0 +1,79 @@
+/* =========================================================
+   หน้าย่อยในกล่องแชท CS (Views/Shared/_ChatLayout)
+   เต็มกล่องพอดี: หัว + เนื้อหาเลื่อนได้ + ส่วนล่าง (ปุ่ม/ช่องพิมพ์)
+   ใช้ตัวแปรสีจาก customer-ui.css และฟองแชทจาก profile.css
+   ========================================================= */
+html, body.chat-frame { height: 100%; }
+body.chat-frame {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--cu-card);
+    color: var(--cu-text);
+    font-family: var(--cu-display);
+    font-size: 15px;
+    line-height: 1.45;
+    overflow: hidden;
+}
+*, *::before, *::after { box-sizing: border-box; }
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* หัวกล่อง */
+.cp-head { flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--cu-line); }
+.cp-head-text { display: flex; flex-direction: column; min-width: 0; }
+.cp-head-text strong { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cp-head-text span { font-size: 12px; color: var(--cu-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cp-back {
+    flex-shrink: 0; width: 36px; height: 36px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%; color: var(--cu-text); text-decoration: none;
+}
+.cp-back:hover { background: var(--cu-slab); color: var(--cu-text); }
+.cp-back:focus-visible { outline: 2px solid var(--cu-text); outline-offset: 1px; }
+
+/* เนื้อหาเลื่อนได้ */
+.cp-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+.cp-alert { margin: 10px 14px 0; }
+
+/* รายการเรื่อง (แบบกล่องข้อความ) */
+.cp-list { list-style: none; margin: 0; padding: 6px 0; }
+.cp-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: var(--cu-text); text-decoration: none; }
+.cp-item:hover { background: var(--cu-slab); color: var(--cu-text); }
+.cp-item:focus-visible { outline: 2px solid var(--cu-text); outline-offset: -2px; }
+.cp-item-avatar { width: 46px; height: 46px; }
+.cp-item-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cp-item-top, .cp-item-bottom { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cp-item-top strong { flex: 1; min-width: 0; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cp-item-top span { flex-shrink: 0; font-size: 11px; color: var(--cu-faint); }
+.cp-preview { flex: 1; min-width: 0; font-size: 13px; color: var(--cu-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cp-item.is-unread .cp-item-top strong,
+.cp-item.is-unread .cp-preview { font-weight: 600; color: var(--cu-text); }
+.cp-dot { flex-shrink: 0; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 40px; background: var(--cu-grad); color: #fff; font-size: 11px; font-weight: 600; line-height: 20px; text-align: center; }
+.cp-closed { flex-shrink: 0; font-size: 11px; color: var(--cu-faint); }
+
+.cp-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; text-align: center; color: var(--cu-muted); }
+.cp-empty .material-symbols-outlined { font-size: 2.6rem; color: var(--cu-orange); }
+.cp-empty p { margin: 0; }
+
+/* ส่วนล่าง */
+.cp-foot { flex-shrink: 0; padding: 12px 14px; border-top: 1px solid var(--cu-line); }
+.cp-new { width: 100%; }
+
+/* ฟอร์มเรื่องใหม่ */
+.cp-form { padding: 14px; }
+.cp-form .cu-field { margin-bottom: 12px; }
+
+/* แชทในกล่อง: ใช้ฟองแชทจาก profile.css */
+.chat-body.cp-scroll { padding: 14px 12px 6px; }
+.chat-compose { flex-shrink: 0; }
+.chat-day--ok { color: var(--cu-ok); }
+.chat-day--err { color: var(--cu-err); }
+.chat-bubble-wrap { max-width: 78%; }
+
+/* เว้นที่ด้านขวาให้ปุ่มปิด (X) ของกล่องแชทที่อยู่ทับหัว */
+.cp-head { padding-right: 52px; }

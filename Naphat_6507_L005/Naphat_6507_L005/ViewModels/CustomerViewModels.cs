@@ -118,3 +118,17 @@ public class ProfileViewModel
     public string TaxId { get; set; }
     public string Address { get; set; }
 }
+
+// ===================== PriceQuoteViewModel =====================
+// ยอดที่ต้องชำระก่อนเข้าใช้ + วันสิ้นสุดสัญญา คิดที่ CustomerController.BuildQuote ที่เดียว
+// หน้า RoomDetail / BookRoom แสดงค่านี้ และขอค่าใหม่จาก Customer/PriceQuote เมื่อเปลี่ยนวันหรือระยะสัญญา
+public class PriceQuoteViewModel
+{
+    public int Months { get; set; }
+    public string RentText { get; set; }          // ค่าเช่าเดือนแรก
+    public int DepositMonths { get; set; }
+    public string DepositText { get; set; }       // เงินประกัน
+    public string TotalText { get; set; }         // ชำระก่อนเข้าใช้
+    public string? NextMonthsText { get; set; }   // "เดือนที่ 2–6 ชำระเดือนละ ..." (สัญญา 1 เดือนไม่มี)
+    public string EndDateText { get; set; }       // วันสิ้นสุดสัญญา
+}

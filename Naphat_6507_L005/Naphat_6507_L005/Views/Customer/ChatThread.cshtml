@@ -1,0 +1,99 @@
+@model Naphat_6507_L005.ViewModels.TicketViewModel
+@using Naphat_6507_L005.Controllers
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "_ChatLayout";
+}
+
+<!-- คุยในเรื่อง 1 เรื่อง (ในกล่องแชท): ข้อความของลูกค้าอยู่ขวา เจ้าหน้าที่อยู่ซ้าย -->
+<header class="cp-head">
+    <a asp-controller="Customer" asp-action="Chat" class="cp-back" aria-label="กลับไปรายการเรื่อง">
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+    </a>
+    <div class="cp-head-text">
+        <strong>@Model.Title</strong>
+        <span>@Model.No · @CustomerServiceController.StatusText[Model.Status]@(Model.AssigneeName == null ? "" : " · " + Model.AssigneeName)</span>
+    </div>
+</header>
+
+<div class="chat-body cp-scroll" id="chatBody">
+    <p class="chat-day">เปิดเรื่องเมื่อ @Model.CreatedText · @Model.Category@(Model.RoomId == null ? "" : " · ห้อง " + Model.RoomId)</p>
+
+    @for (int i = 0; i < Model.Messages.Count; i++)
+    {
+        var m = Model.Messages[i];
+        var mine = !m.IsStaff;
+        var lastOfGroup = i == Model.Messages.Count - 1 || Model.Messages[i + 1].IsStaff != m.IsStaff;
+
+        <div class="chat-row @(mine ? "is-mine" : "is-theirs") @(lastOfGroup ? "is-last" : "")">
+            @if (!mine)
+            {
+                <span class="chat-avatar @(lastOfGroup ? "" : "is-hidden")" aria-hidden="true">
+                    <span class="material-symbols-outlined" style="font-size:1rem;">support_agent</span>
+                </span>
+            }
+            <div class="chat-bubble-wrap">
+                @if (!mine && (i == 0 || Model.Messages[i - 1].IsStaff != m.IsStaff))
+                {
+                    <span class="chat-name">@m.Author</span>
+                }
+                <div class="chat-bubble">@m.Text</div>
+                @if (lastOfGroup)
+                {
+                    <span class="chat-time">@m.TimeText</span>
+                }
+            </div>
+        </div>
+    }
+
+    @if (Model.Status == "Resolved")
+    {
+        <p class="chat-day">ปิดเรื่องเมื่อ @Model.ResolvedText · ถ้ายังมีปัญหา พิมพ์ตอบเพื่อเปิดเรื่องอีกครั้ง</p>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <p class="chat-day chat-day--ok" role="status">@TempData["Success"]</p>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <p class="chat-day chat-day--err" role="alert">@TempData["Error"]</p>
+    }
+</div>
+
+<!-- ช่องพิมพ์: ส่งไปที่ CustomerController.ReplyTicket (Embed = กลับมาหน้านี้) -->
+<form class="chat-compose" asp-controller="Customer" asp-action="ReplyTicket" method="post" id="chatForm">
+    <input type="hidden" name="TicketId" value="@Model.TicketId" />
+    <input type="hidden" name="Embed" value="true" />
+    <label class="visually-hidden" for="chatInput">พิมพ์ข้อความ</label>
+    <textarea id="chatInput" name="Message" rows="1" required
+              placeholder="@(Model.Status == "Resolved" ? "พิมพ์เพื่อเปิดเรื่องอีกครั้ง..." : "พิมพ์ข้อความ...")"></textarea>
+    <button type="submit" class="chat-send" aria-label="ส่งข้อความ">
+        <span class="material-symbols-outlined" aria-hidden="true">send</span>
+    </button>
+</form>
+
+@section Scripts {
+<script>
+    // เฉพาะหน้าตา: เลื่อนไปข้อความล่าสุด, ช่องพิมพ์ขยายตามข้อความ, Enter ส่ง / Shift+Enter ขึ้นบรรทัดใหม่
+    (function () {
+        const body = document.getElementById('chatBody');
+        const input = document.getElementById('chatInput');
+        const form = document.getElementById('chatForm');
+        body.scrollTop = body.scrollHeight;
+
+        input.addEventListener('input', function () {
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+        });
+        input.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+                event.preventDefault();
+                if (input.value.trim() !== '') {
+                    form.requestSubmit();
+                }
+            }
+        });
+        input.focus();
+    })();
+</script>
+}

@@ -1,0 +1,56 @@
+@model List<Naphat_6507_L005.ViewModels.TicketViewModel>
+@using Naphat_6507_L005.Controllers
+@{
+    // ตารางตั๋ว (ใช้ในหน้า Dashboard และ Tickets)
+    var priorityStyle = new Dictionary<string, string>
+    {
+        { "High", "background:#fee2e2; color:#991b1b;" },
+        { "Normal", "background:#e0f2fe; color:#075985;" },
+        { "Low", "background:#f3f4f6; color:#4b5563;" },
+    };
+    var statusStyle = new Dictionary<string, string>
+    {
+        { "Open", "background:#fef3c7; color:#92400e;" },
+        { "InProgress", "background:#ede9fe; color:#5b21b6;" },
+        { "Resolved", "background:#ecfdf5; color:#065f46;" },
+    };
+}
+
+<div class="table-responsive">
+    <table class="table-custom w-100">
+        <thead>
+            <tr><th>เลขที่</th><th>เรื่อง</th><th>ลูกค้า / ห้อง</th><th>ความด่วน</th><th>สถานะ</th><th>ผู้รับผิดชอบ</th><th>เปิดเมื่อ</th><th></th></tr>
+        </thead>
+        <tbody>
+            @if (Model.Count > 0)
+            {
+                foreach (var t in Model)
+                {
+                    <tr style="font-size:0.85rem;">
+                        <td class="fw-semibold" style="color:#f59e0b;">@t.No</td>
+                        <td>
+                            @t.Title<br />
+                            <span style="color:#6c757d; font-size:0.78rem;">@t.Category</span>
+                        </td>
+                        <td>
+                            @t.CustomerName<br />
+                            <span style="color:#6c757d; font-size:0.78rem;">@(t.RoomId == null ? "ไม่ระบุห้อง" : "ห้อง " + t.RoomId + " · " + t.BookingId)</span>
+                        </td>
+                        <td><span class="badge" style="@priorityStyle[t.Priority]">@CustomerServiceController.PriorityText[t.Priority]</span></td>
+                        <td><span class="badge" style="@statusStyle[t.Status]">@CustomerServiceController.StatusText[t.Status]</span></td>
+                        <td style="font-size:0.8rem;">@(t.AssigneeName ?? "-")</td>
+                        <td style="font-size:0.75rem; color:#6c757d;">@t.CreatedText</td>
+                        <td>
+                            <a class="btn btn-sm" style="background:#fef3c7; color:#92400e; border:none; border-radius:6px; font-size:0.78rem;"
+                               asp-controller="CustomerService" asp-action="Ticket" asp-route-id="@t.TicketId">เปิดดู</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="8" style="text-align:center; color:#9ca3af; padding:2rem;">@(ViewData["EmptyText"] ?? "ไม่มีตั๋ว")</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

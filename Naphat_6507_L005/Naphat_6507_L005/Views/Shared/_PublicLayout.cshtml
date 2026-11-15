@@ -115,6 +115,88 @@
         &copy; 2026 LogiManage — ระบบเช่าห้องคลังสินค้าออนไลน์
     </footer>
 
+    @if (isLoggedIn && role == "Customer")
+    {
+        <!-- ===== ปุ่มแชทฝ่ายบริการลูกค้า มุมขวาล่าง (ทุกหน้าของลูกค้า) =====
+             ข้างในกล่องเป็นหน้าย่อยจาก CustomerController (Chat / ChatThread / ChatNew) โหลดเมื่อกดเปิดครั้งแรก -->
+        <div class="cs-widget">
+            <section class="cs-panel" id="csPanel" role="dialog" aria-label="แชทกับฝ่ายบริการลูกค้า" hidden>
+                <button type="button" class="cs-panel-close" id="csClose" aria-label="ปิดแชท">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+                <iframe id="csFrame" title="แชทกับฝ่ายบริการลูกค้า" data-src="@Url.Action("Chat", "Customer")"></iframe>
+            </section>
+
+            <button type="button" class="cs-toast" id="csToast" hidden></button>
+
+            <button type="button" class="cs-fab" id="csFab" aria-expanded="false" aria-controls="csPanel" aria-label="แชทกับฝ่ายบริการลูกค้า">
+                <span class="material-symbols-outlined" aria-hidden="true">support_agent</span>
+                <span class="cs-badge" id="csBadge" hidden></span>
+            </button>
+        </div>
+
+        <script>
+            // ปุ่มแชท: เปิด/ปิดกล่อง และถามจำนวนข้อความใหม่จาก CustomerController.ChatUnread ทุก 30 วินาที (ตัวนับคิดที่ Controller)
+            (function () {
+                const unreadUrl = '@Url.Action("ChatUnread", "Customer")';
+                const fab = document.getElementById('csFab');
+                const panel = document.getElementById('csPanel');
+                const frame = document.getElementById('csFrame');
+                const badge = document.getElementById('csBadge');
+                const toast = document.getElementById('csToast');
+                let lastCount = null;
+
+                function setOpen(open) {
+                    panel.hidden = !open;
+                    fab.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    fab.classList.toggle('is-open', open);
+                    if (open) {
+                        if (!frame.src) {
+                            frame.src = frame.dataset.src;   // โหลดครั้งแรกตอนเปิด
+                        }
+                        toast.hidden = true;
+                    }
+                }
+
+                fab.addEventListener('click', function () { setOpen(panel.hidden); });
+                document.getElementById('csClose').addEventListener('click', function () { setOpen(false); fab.focus(); });
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape' && !panel.hidden) { setOpen(false); fab.focus(); }
+                });
+                toast.addEventListener('click', function () { setOpen(true); });
+
+                function showBadge(count) {
+                    badge.hidden = count === 0;
+                    badge.textContent = count > 9 ? '9+' : count;
+                    fab.setAttribute('aria-label', count > 0 ? 'แชทกับฝ่ายบริการลูกค้า มีข้อความใหม่ ' + count + ' ข้อความ' : 'แชทกับฝ่ายบริการลูกค้า');
+                }
+
+                function checkUnread() {
+                    fetch(unreadUrl, { headers: { 'Accept': 'application/json' } })
+                        .then(function (r) { return r.ok ? r.json() : null; })
+                        .then(function (data) {
+                            if (!data) return;
+                            showBadge(data.count);
+                            // มีข้อความใหม่เพิ่มขึ้นตอนกล่องปิดอยู่: เด้งข้อความแจ้งเตือนข้างปุ่ม ค้างไว้จนกว่าลูกค้าจะเปิดแชท
+                            if (lastCount !== null && data.count > lastCount && panel.hidden && data.text) {
+                                toast.textContent = 'ฝ่ายบริการลูกค้า: ' + data.text;
+                                toast.hidden = false;
+                            }
+                            if (data.count === 0) {
+                                toast.hidden = true;
+                            }
+                            lastCount = data.count;
+                        })
+                        .catch(function () { /* เน็ตหลุด: รอรอบถัดไป */ });
+                }
+
+                frame.addEventListener('load', checkUnread);   // เปิดอ่านในกล่องแล้ว ตัวเลขลดลงทันที
+                checkUnread();
+                setInterval(checkUnread, 30000);
+            })();
+        </script>
+    }
+
     <script>
         // เมนูด้านบน: ทึบขึ้นเมื่อเลื่อนลง และเปิด/ปิดเมนูบนจอมือถือ (เฉพาะหน้าตา)
         (function () {
