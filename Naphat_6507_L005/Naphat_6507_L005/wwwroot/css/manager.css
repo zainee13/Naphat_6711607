@@ -1,0 +1,48 @@
+/* หน้าฝ่ายผู้จัดการ: กราฟแท่งด้วย CSS (ความยาวแท่งคิดที่ ManagerController ส่งมาเป็น %) */
+
+/* ===== กราฟแท่งแนวนอน: รายรับรายเดือน ===== */
+.mg-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.mg-bar-row { display: grid; grid-template-columns: 6.5rem 1fr 7.5rem; align-items: center; gap: 12px; font-size: 0.85rem; }
+.mg-bar-label { color: #6b7280; white-space: nowrap; }
+.mg-bar-track { height: 14px; border-radius: 40px; background: #f1f5f9; overflow: hidden; }
+.mg-bar-fill { display: block; height: 100%; border-radius: 40px; background: linear-gradient(90deg, #f4824d, #f42919); min-width: 2px; }
+.mg-bar-fill.is-zero { background: transparent; }
+.mg-bar-value { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ===== แท่งสัดส่วนห้อง (ว่าง / ถูกจอง / มีผู้เช่า) ===== */
+.mg-stack { display: flex; height: 12px; border-radius: 40px; overflow: hidden; background: #d1fae5; }
+.mg-stack span { display: block; height: 100%; }
+.mg-stack .is-booked { background: #fbbf24; }
+.mg-stack .is-occupied { background: #ef4444; }
+.mg-legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 0; padding: 0; list-style: none; font-size: 0.78rem; color: #6b7280; }
+.mg-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.mg-legend .is-available { background: #a7f3d0; }
+.mg-legend .is-booked { background: #fbbf24; }
+.mg-legend .is-occupied { background: #ef4444; }
+
+.mg-size-row { display: grid; grid-template-columns: 5.5rem 1fr 8rem; align-items: center; gap: 12px; font-size: 0.85rem; padding: 6px 0; }
+.mg-size-row strong { font-weight: 600; }
+.mg-size-count { text-align: right; color: #6b7280; font-variant-numeric: tabular-nums; }
+
+/* ===== งานค้างแต่ละฝ่าย ===== */
+.mg-work { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.mg-work-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: #fff; }
+.mg-work-item .material-symbols-outlined { font-size: 1.6rem; }
+.mg-work-count { font-size: 1.35rem; font-weight: 700; line-height: 1; }
+.mg-work-text { font-size: 0.78rem; color: #6b7280; }
+.mg-work-dept { font-size: 0.7rem; color: #9ca3af; }
+.mg-work-item.is-zero { opacity: 0.55; }
+
+/* ตัวกรองสถานะห้อง */
+.mg-filter { display: flex; flex-wrap: wrap; gap: 6px; }
+.mg-filter a { padding: 0.3rem 0.85rem; border-radius: 40px; border: 1px solid #e5e7eb; font-size: 0.8rem; color: #374151; text-decoration: none; }
+.mg-filter a.is-active { background: #ef4444; border-color: #ef4444; color: #fff; }
+
+.mg-days-soon { color: #b91c1c; font-weight: 600; }
+
+@media (max-width: 575.98px) {
+    .mg-bar-row { grid-template-columns: 5rem 1fr; }
+    .mg-bar-value { grid-column: 2; text-align: left; }
+    .mg-size-row { grid-template-columns: 4rem 1fr; }
+    .mg-size-count { grid-column: 2; text-align: left; }
+}

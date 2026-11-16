@@ -456,7 +456,7 @@ public class AccountingController : Controller
 
         foreach (var p in payments)
         {
-            var rent = p.InvoiceRent ?? Math.Max(p.Amount - p.Deposit, 0);
+            var rent = RentPart(p.Amount, p.Deposit, p.InvoiceRent);
             var day = GetDay(p.Date);
             day.Count++;
             day.Rent += rent;
@@ -474,6 +474,13 @@ public class AccountingController : Controller
         ViewBag.TotalNet = list.Sum(d => d.Net);
         ViewBag.TotalCount = list.Sum(d => d.Count);
         return View(list);
+    }
+
+    // ค่าเช่าในยอดชำระ 1 รายการ: ใช้ยอดจากใบแจ้งหนี้ ถ้ายังไม่มีใบแจ้งหนี้ใช้ยอดชำระ − เงินประกัน (ส่วนที่เหลือคือเงินประกัน)
+    // ใช้ร่วมกับ ManagerController (รายงานรายรับรายเดือน)
+    public static decimal RentPart(decimal amount, decimal deposit, decimal? invoiceRent)
+    {
+        return invoiceRent ?? Math.Max(amount - deposit, 0);
     }
 
     // ===================== การคืนเงิน =====================

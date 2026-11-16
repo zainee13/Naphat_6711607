@@ -1,0 +1,124 @@
+@model List<Naphat_6507_L005.ViewModels.ManagerRoomViewModel>
+@using Naphat_6507_L005.ViewModels
+@{
+    ViewData["Title"] = "สถานะห้อง";
+    Layout = "_Layout";
+
+    // ข้อมูลส่งมาจาก ManagerController.Rooms
+    var sizeSummary = (List<RoomSizeSummaryViewModel>)ViewBag.SizeSummary;
+    var status = ViewBag.Status as string;
+    var filters = new[]
+    {
+        ((string?)null, "ทั้งหมด", (int)ViewBag.CountAll),
+        ("Available", "ว่าง", (int)ViewBag.CountAvailable),
+        ("Booked", "ถูกจอง", (int)ViewBag.CountBooked),
+        ("Occupied", "มีผู้เช่า", (int)ViewBag.CountOccupied),
+    };
+    var badgeClass = new Dictionary<string, string>
+    {
+        { "Available", "badge-available" },
+        { "Booked", "badge-pending" },
+        { "Occupied", "badge-occupied" },
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/manager.css" asp-append-version="true" />
+}
+
+<div class="page-header">
+    <div>
+        <h1><span class="material-symbols-outlined align-middle me-2" style="color:#ef4444;">warehouse</span>สถานะห้อง</h1>
+        <p>ห้องทั้งหมด ผู้เช่าปัจจุบัน และวันหมดสัญญา</p>
+    </div>
+</div>
+
+<!-- สรุปตามขนาด -->
+<div class="section-card mb-4">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#ef4444;">stacked_bar_chart</span> การใช้ห้องตามขนาด</h2>
+    </div>
+    <div class="p-3">
+        @foreach (var g in sizeSummary)
+        {
+            <div class="mg-size-row">
+                <strong>@g.SizeText</strong>
+                <div class="mg-stack" aria-label="@g.SizeText ว่าง @g.Available ถูกจอง @g.Booked มีผู้เช่า @g.Occupied">
+                    <span class="is-occupied" style="width:@(g.Occupied * 100 / g.Total)%;"></span>
+                    <span class="is-booked" style="width:@(g.Booked * 100 / g.Total)%;"></span>
+                </div>
+                <span class="mg-size-count">ใช้ @(g.Booked + g.Occupied)/@g.Total (@g.UsedPercent%)</span>
+            </div>
+        }
+        <ul class="mg-legend mt-3">
+            <li><i class="is-available"></i>ว่าง</li>
+            <li><i class="is-booked"></i>ถูกจอง</li>
+            <li><i class="is-occupied"></i>มีผู้เช่า</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ตารางห้อง -->
+<div class="section-card">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#3b82f6;">list_alt</span> ห้องทั้งหมด</h2>
+        <!-- กรองตามสถานะ: ลิงก์ ?status= ให้ ManagerController.Rooms กรอง -->
+        <nav class="mg-filter" aria-label="กรองตามสถานะ">
+            @foreach (var f in filters)
+            {
+                <a class="@(status == f.Item1 ? "is-active" : "")" aria-current="@(status == f.Item1 ? "true" : null)"
+                   asp-controller="Manager" asp-action="Rooms" asp-route-status="@f.Item1">@f.Item2 (@f.Item3)</a>
+            }
+        </nav>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom w-100">
+            <thead>
+                <tr><th>ห้อง</th><th>ขนาด / โซน</th><th>ค่าเช่า/เดือน</th><th>สถานะ</th><th>ผู้เช่า</th><th>หมดสัญญา</th></tr>
+            </thead>
+            <tbody>
+                @if (Model.Count > 0)
+                {
+                    foreach (var r in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold" style="font-size:0.875rem;">@r.RoomId</td>
+                            <td style="font-size:0.82rem;">
+                                @r.SizeText · @r.Area.ToString("N0") ตร.ม.<br />
+                                <span style="color:#6c757d; font-size:0.76rem;">@r.Zone</span>
+                            </td>
+                            <td style="font-size:0.85rem;">฿@r.MonthlyRate.ToString("N0")</td>
+                            <td><span class="badge-status @(badgeClass.ContainsKey(r.Status) ? badgeClass[r.Status] : "")">@r.StatusText</span></td>
+                            <td style="font-size:0.85rem;">
+                                @if (r.TenantName != null)
+                                {
+                                    @r.TenantName<br />
+                                    <span style="color:#6c757d; font-size:0.76rem;">@r.BookingId</span>
+                                }
+                                else
+                                {
+                                    <span style="color:#9ca3af;">-</span>
+                                }
+                            </td>
+                            <td style="font-size:0.85rem;">
+                                @if (r.EndDateText != null)
+                                {
+                                    @r.EndDateText<br />
+                                    <span class="@(r.DaysLeft <= 30 ? "mg-days-soon" : "")" style="font-size:0.76rem; @(r.DaysLeft <= 30 ? "" : "color:#6c757d;")">@(r.DaysLeft < 0 ? "เลยกำหนด " + (-r.DaysLeft) + " วัน" : "เหลือ " + r.DaysLeft + " วัน")</span>
+                                }
+                                else
+                                {
+                                    <span style="color:#9ca3af;">-</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6" style="text-align:center; color:#9ca3af; padding:2rem;">ไม่มีห้องในสถานะนี้</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

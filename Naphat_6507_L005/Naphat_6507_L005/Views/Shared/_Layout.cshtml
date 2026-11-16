@@ -245,7 +245,17 @@
                 <a asp-controller="Manager" asp-action="Dashboard"
                    class="nav-item-link @(isActive("Manager","Dashboard") ? "active" : "")">
                     <span class="material-symbols-outlined">insights</span>
-                    <span>Business Dashboard</span>
+                    <span>ภาพรวมธุรกิจ</span>
+                </a>
+                <a asp-controller="Manager" asp-action="Revenue"
+                   class="nav-item-link @(isActive("Manager","Revenue") ? "active" : "")">
+                    <span class="material-symbols-outlined">monitoring</span>
+                    <span>รายรับรายเดือน</span>
+                </a>
+                <a asp-controller="Manager" asp-action="Rooms"
+                   class="nav-item-link @(isActive("Manager","Rooms") ? "active" : "")">
+                    <span class="material-symbols-outlined">warehouse</span>
+                    <span>สถานะห้อง</span>
                 </a>
             }
 

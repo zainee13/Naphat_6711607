@@ -1,0 +1,93 @@
+@model List<Naphat_6507_L005.ViewModels.MonthlyRevenueViewModel>
+@{
+    ViewData["Title"] = "รายรับรายเดือน";
+    Layout = "_Layout";
+
+    // ยอดรวม 12 เดือนส่งมาจาก ManagerController.Revenue
+    decimal totalRent = ViewBag.TotalRent;
+    decimal totalDeposit = ViewBag.TotalDeposit;
+    decimal totalRefund = ViewBag.TotalRefund;
+    decimal totalNet = ViewBag.TotalNet;
+    int totalCount = ViewBag.TotalCount;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/manager.css" asp-append-version="true" />
+}
+
+<div class="page-header">
+    <div>
+        <h1><span class="material-symbols-outlined align-middle me-2" style="color:#ef4444;">monitoring</span>รายรับรายเดือน</h1>
+        <p>ย้อนหลัง 12 เดือน (@ViewBag.RangeText) นับตามวันที่ฝ่ายบัญชีอนุมัติการชำระ</p>
+    </div>
+</div>
+
+<!-- ยอดรวม 12 เดือน -->
+<div class="row g-3 mb-4">
+    @foreach (var s in new[] {
+        ("home_work", "ค่าเช่า", "฿" + totalRent.ToString("N0"), "#3b82f6"),
+        ("savings", "เงินประกันรับ", "฿" + totalDeposit.ToString("N0"), "#8b5cf6"),
+        ("currency_exchange", "คืนเงินประกัน", "−฿" + totalRefund.ToString("N0"), "#ef4444"),
+        ("account_balance", "เงินเข้าสุทธิ (" + totalCount + " รายการ)", "฿" + totalNet.ToString("N0"), "#10b981"),
+    })
+    {
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card" style="padding:1rem;">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="material-symbols-outlined" style="font-size:1.75rem; color:@s.Item4;">@s.Item1</span>
+                    <div>
+                        <div class="kpi-value" style="font-size:1.3rem;">@s.Item3</div>
+                        <div class="kpi-label" style="font-size:0.72rem;">@s.Item2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- กราฟค่าเช่า -->
+<div class="section-card mb-4">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#10b981;">bar_chart</span> ค่าเช่าแต่ละเดือน</h2>
+    </div>
+    <div class="p-3">
+        <ul class="mg-bars">
+            @foreach (var m in Model)
+            {
+                <li class="mg-bar-row">
+                    <span class="mg-bar-label">@m.MonthText</span>
+                    <span class="mg-bar-track"><span class="mg-bar-fill @(m.Rent == 0 ? "is-zero" : "")" style="width:@(m.BarPercent)%;"></span></span>
+                    <span class="mg-bar-value">฿@m.Rent.ToString("N0")</span>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+<!-- ตารางรายเดือน -->
+<div class="section-card">
+    <div class="section-card-header">
+        <h2><span class="material-symbols-outlined" style="color:#3b82f6;">table_chart</span> รายละเอียดรายเดือน</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom w-100">
+            <thead>
+                <tr><th>เดือน</th><th>รายการ</th><th>ค่าเช่า</th><th>เงินประกันรับ</th><th>คืนเงินประกัน</th><th>เงินเข้าสุทธิ</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var m in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold" style="font-size:0.85rem;">@m.MonthText</td>
+                        <td style="font-size:0.85rem;">@m.Count</td>
+                        <td style="font-size:0.85rem;">฿@m.Rent.ToString("N0")</td>
+                        <td style="font-size:0.85rem;">฿@m.Deposit.ToString("N0")</td>
+                        <td style="font-size:0.85rem; color:#ef4444;">@(m.Refund > 0 ? "−฿" + m.Refund.ToString("N0") : "-")</td>
+                        <td class="fw-semibold" style="font-size:0.85rem;">฿@m.Net.ToString("N0")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<p class="mt-2" style="font-size:0.78rem; color:#6b7280;">ระบบมีแค่การชำระครั้งแรกของแต่ละการจอง (ค่าเช่าเดือนแรก + เงินประกัน) ค่าเช่าเดือนถัดไปยังไม่มีในระบบ</p>
