@@ -98,7 +98,7 @@ public class AccountController : Controller
         newUser.Username = data.Username;
         newUser.PasswordHash = data.Password;
         newUser.Fullname = string.IsNullOrWhiteSpace(data.Fullname) ? data.Username : data.Fullname;
-        newUser.Phone = data.Phone;
+        newUser.Phone = CustomerController.DigitsOnly(data.Phone);   // พิมพ์เว้นวรรค/มีขีดมาได้ เก็บแต่ตัวเลข
         newUser.Role = "Customer";
         newUser.IsActive = true;
         newUser.CreatedAt = DateTime.Now;

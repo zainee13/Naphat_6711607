@@ -72,7 +72,7 @@
                         </label>
                         <label class="cu-field">
                             <span id="taxIdLabel">@(isCompany ? "เลขผู้เสียภาษี 13 หลัก" : "เลขบัตรประชาชน 13 หลัก")</span>
-                            <input type="text" asp-for="TaxId" inputmode="numeric" pattern="\d{13}" maxlength="13" placeholder="ตัวเลข 13 หลัก ไม่ต้องมีขีด" required />
+                            <input type="text" asp-for="TaxId" inputmode="numeric" pattern="[0-9 \-]{13,17}" maxlength="17" placeholder="1 2345 67890 12 3" required />
                         </label>
                         <label class="cu-field">
                             <span>ชื่อผู้ติดต่อ</span>
@@ -80,7 +80,7 @@
                         </label>
                         <label class="cu-field">
                             <span>เบอร์โทร</span>
-                            <input type="tel" asp-for="Phone" autocomplete="tel" inputmode="tel" pattern="0\d{8,9}" placeholder="0812345678" required />
+                            <input type="tel" asp-for="Phone" autocomplete="tel" inputmode="tel" pattern="[0-9 \-]{9,12}" maxlength="12" placeholder="081 234 5678" required />
                         </label>
                         <label class="cu-field">
                             <span>อีเมลรับสัญญาและใบแจ้งหนี้</span>

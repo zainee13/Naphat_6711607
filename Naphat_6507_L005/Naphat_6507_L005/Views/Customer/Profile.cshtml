@@ -201,10 +201,6 @@
                         <input type="radio" name="payMethod" value="qr" />
                         <span><i class="material-symbols-outlined" aria-hidden="true">qr_code_2</i>พร้อมเพย์ QR</span>
                     </label>
-                    <label>
-                        <input type="radio" name="payMethod" value="card" />
-                        <span><i class="material-symbols-outlined" aria-hidden="true">credit_card</i>บัตรเครดิต / เดบิต</span>
-                    </label>
                 </div>
 
                 <!-- วิธีที่ 1: โอนเงิน -->
@@ -229,39 +225,18 @@
                 </form>
 
                 <!-- วิธีที่ 2: QR พร้อมเพย์ -->
-                <form class="pf-method" id="method-qr" asp-controller="Customer" asp-action="Pay" method="post" hidden>
+                <form class="pf-method" id="method-qr" asp-controller="Customer" asp-action="Pay" method="post" enctype="multipart/form-data" hidden>
                     <input type="hidden" name="BookingId" value="@dueBooking.Id" />
                     <input type="hidden" name="PayMethod" value="qr" />
                     <div class="pf-qr">
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PROMPTPAY-@dueTotal" alt="QR พร้อมเพย์" width="160" height="160" />
-                        <p>สแกนด้วยแอปธนาคาร ยอด <strong>฿@dueTotal.ToString("N0")</strong></p>
+                        <p>สแกนด้วยแอปธนาคาร ยอด <strong>฿@dueTotal.ToString("N0")</strong> แล้วแนบสลิปด้านล่าง</p>
                     </div>
-                    <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">ฉันชำระแล้ว</button>
-                </form>
-
-                <!-- วิธีที่ 3: บัตรเครดิต -->
-                <form class="pf-method" id="method-card" asp-controller="Customer" asp-action="Pay" method="post" hidden>
-                    <input type="hidden" name="BookingId" value="@dueBooking.Id" />
-                    <input type="hidden" name="PayMethod" value="card" />
-                    <div class="pf-grid">
-                        <label class="cu-field pf-span-2">
-                            <span>เลขบัตร</span>
-                            <input type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000" required />
-                        </label>
-                        <label class="cu-field pf-span-2">
-                            <span>ชื่อบนบัตร</span>
-                            <input type="text" autocomplete="cc-name" required />
-                        </label>
-                        <label class="cu-field">
-                            <span>หมดอายุ (ดด/ปป)</span>
-                            <input type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="12/28" required />
-                        </label>
-                        <label class="cu-field">
-                            <span>CVV</span>
-                            <input type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" required />
-                        </label>
-                    </div>
-                    <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">ชำระ ฿@dueTotal.ToString("N0")</button>
+                    <label class="cu-field">
+                        <span>สลิปการชำระ</span>
+                        <input type="file" name="Slip" accept="image/*" required />
+                    </label>
+                    <button type="submit" class="cu-btn cu-btn--primary pf-pay-btn">แจ้งชำระเงิน</button>
                 </form>
 
                 }
@@ -351,7 +326,7 @@
                     </label>
                     <label class="cu-field">
                         <span>เบอร์โทร</span>
-                        <input type="tel" asp-for="Phone" autocomplete="tel" pattern="0\d{8,9}" placeholder="0812345678" required />
+                        <input type="tel" asp-for="Phone" autocomplete="tel" inputmode="tel" pattern="[0-9 \-]{9,12}" maxlength="12" placeholder="081 234 5678" required />
                     </label>
                     <label class="cu-field">
                         <span>อีเมล</span>
@@ -359,7 +334,7 @@
                     </label>
                     <label class="cu-field">
                         <span>เลขผู้เสียภาษี / เลขบัตรประชาชน</span>
-                        <input type="text" asp-for="TaxId" inputmode="numeric" pattern="\d{13}" maxlength="13" placeholder="ตัวเลข 13 หลัก" />
+                        <input type="text" asp-for="TaxId" inputmode="numeric" pattern="[0-9 \-]{13,17}" maxlength="17" placeholder="1 2345 67890 12 3" />
                     </label>
                     <label class="cu-field pf-span-2">
                         <span>ที่อยู่ออกใบกำกับภาษี</span>
@@ -451,7 +426,6 @@
         radio.addEventListener('change', function () {
             document.getElementById('method-transfer').hidden = (radio.value !== 'transfer');
             document.getElementById('method-qr').hidden = (radio.value !== 'qr');
-            document.getElementById('method-card').hidden = (radio.value !== 'card');
         });
     });
 

@@ -57,6 +57,10 @@ public class CustomerController : Controller
 
     private bool IsLoggedIn => !string.IsNullOrEmpty(HttpContext.Session.GetString("Username"));
 
+    // หน้าลูกค้าใช้ได้เฉพาะลูกค้ากับ Admin เว็บ พนักงานฝ่ายอื่น (บัญชี / คลัง / CS / ผู้จัดการ) ใช้ไม่ได้
+    private string? StaffRole => HttpContext.Session.GetString("Role");
+    private bool IsStaff => IsLoggedIn && StaffRole != "Customer" && StaffRole != "Admin";
+
     private void SetUserBag()
     {
         var username = HttpContext.Session.GetString("Username");
@@ -64,6 +68,51 @@ public class CustomerController : Controller
         ViewBag.Username = username;
         ViewBag.FullName = HttpContext.Session.GetString("FullName") ?? "ผู้เยี่ยมชม";
         ViewBag.Role = HttpContext.Session.GetString("Role") ?? "Guest";
+    }
+
+    // ===== เบอร์โทร / เลขผู้เสียภาษี =====
+    // ฐานข้อมูลเก็บตัวเลขล้วน ส่วนช่องกรอกในหน้าเว็บแสดงแบบเว้นวรรค (096 938 2439, 1 2345 67890 12 3)
+    // ลูกค้าจะพิมพ์ติดกันหรือเว้นวรรค/มีขีดก็ได้ Controller ตัดเหลือแต่ตัวเลขก่อนตรวจและบันทึก
+
+    // เหลือแต่ตัวเลข
+    public static string? DigitsOnly(string? value)
+    {
+        return value == null ? null : new string(value.Where(char.IsDigit).ToArray());
+    }
+
+    // แบ่งตัวเลขเป็นกลุ่มแล้วคั่นด้วยเว้นวรรค ถ้าจำนวนหลักไม่ตรงรูปแบบ คืนค่าเดิม
+    private static string GroupDigits(string digits, int[] sizes)
+    {
+        if (digits.Length != sizes.Sum())
+        {
+            return digits;
+        }
+        List<string> parts = new();
+        int start = 0;
+        foreach (var size in sizes)
+        {
+            parts.Add(digits.Substring(start, size));
+            start += size;
+        }
+        return string.Join(" ", parts);
+    }
+
+    // เบอร์มือถือ 10 หลัก: 096 938 2439, เบอร์บ้าน 9 หลัก: 02 123 4567
+    public static string? FormatPhone(string? phone)
+    {
+        var digits = DigitsOnly(phone);
+        if (string.IsNullOrEmpty(digits))
+        {
+            return phone;
+        }
+        return digits.Length == 9 ? GroupDigits(digits, new[] { 2, 3, 4 }) : GroupDigits(digits, new[] { 3, 3, 4 });
+    }
+
+    // เลขผู้เสียภาษี / เลขบัตรประชาชน 13 หลัก: 1 2345 67890 12 3
+    public static string? FormatTaxId(string? taxId)
+    {
+        var digits = DigitsOnly(taxId);
+        return string.IsNullOrEmpty(digits) ? taxId : GroupDigits(digits, new[] { 1, 4, 5, 2, 1 });
     }
 
     // ผู้ใช้ที่ล็อกอินอยู่ (จากตาราง user) บัญชีพนักงานตัวอย่างจะไม่มีในตาราง ได้ null
@@ -259,6 +308,10 @@ public class CustomerController : Controller
 
     public IActionResult Dashboard()
     {
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
+        }
         SetUserBag();
         CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
         return View();
@@ -269,6 +322,10 @@ public class CustomerController : Controller
         if (!IsLoggedIn)
         {
             return RedirectToAction("Login", "Account");
+        }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
         }
         SetUserBag();
         CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
@@ -300,6 +357,10 @@ public class CustomerController : Controller
         if (!IsLoggedIn)
         {
             return RedirectToAction("Login", "Account");
+        }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
         }
         SetUserBag();
         CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
@@ -351,6 +412,10 @@ public class CustomerController : Controller
         {
             return RedirectToAction("Login", "Account");
         }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
+        }
 
         var room = FindRoom(data.RoomId);
         if (room == null)
@@ -399,6 +464,10 @@ public class CustomerController : Controller
         {
             return RedirectToAction("Login", "Account");
         }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
+        }
         SetUserBag();
         CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
 
@@ -418,8 +487,8 @@ public class CustomerController : Controller
         ViewBag.Quote = BuildQuote(room.MonthlyRate, data.StartDate, data.Months);
         data.ContactName = user?.Fullname ?? HttpContext.Session.GetString("FullName");
         data.CompanyName = user?.CompanyName;
-        data.TaxId = user?.TaxId;
-        data.Phone = user?.Phone;
+        data.TaxId = FormatTaxId(user?.TaxId);
+        data.Phone = FormatPhone(user?.Phone);
         data.Email = user?.Email;
         data.Address = user?.Address;
         return View(data);
@@ -431,6 +500,10 @@ public class CustomerController : Controller
         if (!IsLoggedIn)
         {
             return RedirectToAction("Login", "Account");
+        }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
         }
         SetUserBag();
         CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
@@ -457,6 +530,8 @@ public class CustomerController : Controller
             return View(data);
         }
 
+        data.Phone = DigitsOnly(data.Phone);
+        data.TaxId = DigitsOnly(data.TaxId);
         bool isCompany = data.TenantType != "person";
         if ((isCompany && string.IsNullOrWhiteSpace(data.CompanyName))
             || string.IsNullOrWhiteSpace(data.ContactName)
@@ -580,6 +655,10 @@ public class CustomerController : Controller
         {
             return RedirectToAction("Login", "Account");
         }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
+        }
         SetUserBag();
         CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
 
@@ -680,9 +759,9 @@ public class CustomerController : Controller
         ProfileViewModel info = new();
         info.Fullname = user?.Fullname ?? HttpContext.Session.GetString("FullName") ?? "";
         info.Company = user?.CompanyName ?? "";
-        info.Phone = user?.Phone ?? "";
+        info.Phone = FormatPhone(user?.Phone) ?? "";
         info.Email = user?.Email ?? "";
-        info.TaxId = user?.TaxId ?? "";
+        info.TaxId = FormatTaxId(user?.TaxId) ?? "";
         info.Address = user?.Address ?? "";
         return View(info);
     }
@@ -693,6 +772,10 @@ public class CustomerController : Controller
         if (!IsLoggedIn)
         {
             return RedirectToAction("Login", "Account");
+        }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
         }
 
         var user = GetCurrentUser();
@@ -706,38 +789,36 @@ public class CustomerController : Controller
             return RedirectToAction("Profile", new { tab = "payment" });
         }
 
-        if (data.PayMethod != "transfer" && data.PayMethod != "qr" && data.PayMethod != "card")
+        // รับชำระแค่โอนเงินกับ QR พร้อมเพย์ (ยังไม่มีระบบตัดบัตร)
+        if (data.PayMethod != "transfer" && data.PayMethod != "qr")
         {
             TempData["Error"] = "วิธีชำระเงินไม่ถูกต้อง";
             return RedirectToAction("Profile", new { tab = "payment", bookingId = booking.BookingId });
         }
 
-        // โอนเงินต้องแนบสลิป เก็บไฟล์ไว้ที่ wwwroot/uploads/slips
+        // ทั้งโอนเงินและ QR ต้องแนบสลิปให้ฝ่ายบัญชีตรวจ เก็บไฟล์ไว้ที่ wwwroot/uploads/slips
         string? slipUrl = null;
-        if (data.PayMethod == "transfer")
+        if (data.Slip == null || data.Slip.Length == 0)
         {
-            if (data.Slip == null || data.Slip.Length == 0)
-            {
-                TempData["Error"] = "กรุณาแนบสลิปโอนเงิน";
-                return RedirectToAction("Profile", new { tab = "payment", bookingId = booking.BookingId });
-            }
-
-            var ext = Path.GetExtension(data.Slip.FileName).ToLower();
-            if (ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".webp")
-            {
-                TempData["Error"] = "สลิปต้องเป็นไฟล์รูป (jpg, png, webp)";
-                return RedirectToAction("Profile", new { tab = "payment", bookingId = booking.BookingId });
-            }
-
-            var folder = Path.Combine(_env.WebRootPath, "uploads", "slips");
-            Directory.CreateDirectory(folder);
-            var fileName = booking.BookingId + "-" + DateTime.Now.ToString("yyyyMMddHHmmss") + ext;
-            using (var stream = new FileStream(Path.Combine(folder, fileName), FileMode.Create))
-            {
-                data.Slip.CopyTo(stream);
-            }
-            slipUrl = "/uploads/slips/" + fileName;
+            TempData["Error"] = "กรุณาแนบสลิปการชำระ";
+            return RedirectToAction("Profile", new { tab = "payment", bookingId = booking.BookingId });
         }
+
+        var ext = Path.GetExtension(data.Slip.FileName).ToLower();
+        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".webp")
+        {
+            TempData["Error"] = "สลิปต้องเป็นไฟล์รูป (jpg, png, webp)";
+            return RedirectToAction("Profile", new { tab = "payment", bookingId = booking.BookingId });
+        }
+
+        var folder = Path.Combine(_env.WebRootPath, "uploads", "slips");
+        Directory.CreateDirectory(folder);
+        var fileName = booking.BookingId + "-" + DateTime.Now.ToString("yyyyMMddHHmmss") + ext;
+        using (var stream = new FileStream(Path.Combine(folder, fileName), FileMode.Create))
+        {
+            data.Slip.CopyTo(stream);
+        }
+        slipUrl = "/uploads/slips/" + fileName;
 
         // บันทึกลงตาราง payment: ค่าเช่าเดือนแรก + เงินประกัน รอเจ้าหน้าที่ตรวจสอบ
         var room = (from r in _db.Rooms where r.RoomId == booking.RoomId select r).First();
@@ -765,6 +846,10 @@ public class CustomerController : Controller
         {
             return RedirectToAction("Login", "Account");
         }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
+        }
 
         var user = GetCurrentUser();
         if (user == null)
@@ -773,6 +858,8 @@ public class CustomerController : Controller
             return RedirectToAction("Profile", new { tab = "info" });
         }
 
+        data.Phone = DigitsOnly(data.Phone) ?? "";
+        data.TaxId = DigitsOnly(data.TaxId) ?? "";
         if (string.IsNullOrWhiteSpace(data.Fullname) || string.IsNullOrWhiteSpace(data.Phone) || string.IsNullOrWhiteSpace(data.Email))
         {
             TempData["Error"] = "กรุณากรอกชื่อ เบอร์โทร และอีเมล";
@@ -806,6 +893,10 @@ public class CustomerController : Controller
         if (!IsLoggedIn)
         {
             return RedirectToAction("Login", "Account");
+        }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
         }
 
         var user = GetCurrentUser();
@@ -860,6 +951,10 @@ public class CustomerController : Controller
         {
             return RedirectToAction("Login", "Account");
         }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
+        }
         ViewBag.CanChat = GetCurrentUser() != null;
         return View(GetMyTickets());
     }
@@ -870,6 +965,10 @@ public class CustomerController : Controller
         if (!IsLoggedIn)
         {
             return RedirectToAction("Login", "Account");
+        }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
         }
 
         var user = GetCurrentUser();
@@ -891,6 +990,10 @@ public class CustomerController : Controller
         {
             return RedirectToAction("Login", "Account");
         }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
+        }
         var user = GetCurrentUser();
         if (user == null)
         {
@@ -908,6 +1011,10 @@ public class CustomerController : Controller
         if (!IsLoggedIn)
         {
             return RedirectToAction("Login", "Account");
+        }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
         }
 
         var user = GetCurrentUser();
@@ -968,6 +1075,10 @@ public class CustomerController : Controller
         {
             return Json(new { count = 0 });
         }
+        if (IsStaff)
+        {
+            return Json(new { count = 0 });
+        }
         var tickets = GetMyTickets();
         var latest = tickets.FirstOrDefault(t => t.Unread > 0);
         return Json(new
@@ -984,6 +1095,10 @@ public class CustomerController : Controller
         if (!IsLoggedIn)
         {
             return RedirectToAction("Login", "Account");
+        }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
         }
         SetUserBag();
 
@@ -1006,6 +1121,10 @@ public class CustomerController : Controller
         if (!IsLoggedIn)
         {
             return RedirectToAction("Login", "Account");
+        }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
         }
         var backAction = data.Embed ? "ChatThread" : "Ticket";
 
@@ -1049,6 +1168,10 @@ public class CustomerController : Controller
         {
             return RedirectToAction("Login", "Account");
         }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
+        }
 
         var user = GetCurrentUser();
         var booking = user == null ? null :
@@ -1074,6 +1197,10 @@ public class CustomerController : Controller
         {
             return RedirectToAction("Login", "Account");
         }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
+        }
         return RedirectToAction("Profile", new { tab = "bookings" });
     }
 
@@ -1083,6 +1210,10 @@ public class CustomerController : Controller
         {
             return RedirectToAction("Login", "Account");
         }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
+        }
         return RedirectToAction("Profile", new { tab = "payment", bookingId });
     }
 
@@ -1091,6 +1222,10 @@ public class CustomerController : Controller
         if (!IsLoggedIn)
         {
             return RedirectToAction("Login", "Account");
+        }
+        if (IsStaff)
+        {
+            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
         }
         return RedirectToAction("RoomDetail", new { id = "M-01" });
     }

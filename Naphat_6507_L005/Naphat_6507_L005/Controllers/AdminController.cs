@@ -55,6 +55,7 @@ public class AdminController : Controller
             TempData["Error"] = "ไม่พบผู้ใช้นี้";
             return RedirectToAction("Users");
         }
+        user.Phone = CustomerController.FormatPhone(user.Phone);   // แสดงแบบเว้นวรรค (หน้านี้ไม่ SaveChanges ค่าใน DB ไม่เปลี่ยน)
         return View(user);
     }
 
@@ -73,7 +74,7 @@ public class AdminController : Controller
             user.Username = data.Username;
             user.Fullname = data.Fullname;
             user.Email = data.Email;
-            user.Phone = data.Phone;
+            user.Phone = CustomerController.DigitsOnly(data.Phone);   // หน้าเว็บเว้นวรรค เก็บแต่ตัวเลข
             user.Role = data.Role;
             user.IsActive = data.IsActive;
 
