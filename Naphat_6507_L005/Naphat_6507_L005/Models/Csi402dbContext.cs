@@ -28,6 +28,8 @@ public partial class Csi402dbContext : DbContext
 
     public virtual DbSet<Refund> Refunds { get; set; }
 
+    public virtual DbSet<Promocode> Promocodes { get; set; }
+
     public virtual DbSet<Review> Reviews { get; set; }
 
     public virtual DbSet<Room> Rooms { get; set; }
@@ -218,6 +220,23 @@ public partial class Csi402dbContext : DbContext
                 .HasForeignKey(d => d.ProcessedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_refund_processedby");
+        });
+
+        modelBuilder.Entity<Promocode>(entity =>
+        {
+            entity.HasKey(e => e.Code).HasName("PRIMARY");
+
+            entity.ToTable("promocode");
+
+            entity.Property(e => e.Code).HasMaxLength(30);
+            entity.Property(e => e.Description).HasMaxLength(200);
+            entity.Property(e => e.DiscountType).HasMaxLength(10);
+            entity.Property(e => e.DiscountValue).HasPrecision(10, 2);
+            entity.Property(e => e.MinMonths).HasDefaultValueSql("'1'");
+            entity.Property(e => e.IsActive).HasDefaultValueSql("'1'");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Review>(entity =>

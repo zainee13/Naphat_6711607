@@ -9,8 +9,9 @@
     // ห้องที่เลือกไว้ตอนเปิดหน้า
     var firstRoom = rooms.First(r => r.Id == "M-01");
 
-    // รายการการ์ด: ห้องว่างขึ้นก่อน แล้วเรียงตามราคา
-    var roomList = rooms.OrderBy(r => r.Free ? 0 : 1).ThenBy(r => r.Price);
+    // รายการการ์ด (กรองตามงบและเรียงแล้ว) ส่งมาจาก CustomerController.Search
+    var roomList = (List<Naphat_6507_L005.ViewModels.RoomViewModel>)ViewBag.RoomList;
+    var priceText = ViewBag.PriceText as string;
 
     var detailUrl = Url.Action("RoomDetail", "Customer");
     var bookUrl = Url.Action("BookRoom", "Customer");
@@ -108,7 +109,15 @@
 
     <!-- รายการห้องทั้งหมด -->
     <section class="sr-list" aria-labelledby="roomListTitle">
-        <h2 id="roomListTitle">ห้องทั้งหมด</h2>
+        <h2 id="roomListTitle">@(priceText == null ? "ห้องทั้งหมด" : "ห้องงบ " + priceText + " (" + roomList.Count + " ห้อง)")</h2>
+        @if (priceText != null)
+        {
+            <p class="cu-sub"><a asp-controller="Customer" asp-action="Search">ดูทุกห้อง</a></p>
+        }
+        @if (roomList.Count == 0)
+        {
+            <p class="cu-sub">ไม่มีห้องในช่วงงบนี้</p>
+        }
 
         <ul class="sr-grid">
             @foreach (var room in roomList)

@@ -128,7 +128,39 @@ public class PriceQuoteViewModel
     public string RentText { get; set; }          // ค่าเช่าเดือนแรก
     public int DepositMonths { get; set; }
     public string DepositText { get; set; }       // เงินประกัน
+    public string? DiscountText { get; set; }     // ส่วนลดจากโค้ด เช่น "−฿8,750" (null = ไม่มีส่วนลด)
+    public string? PromoMessage { get; set; }     // ผลการตรวจโค้ด (ใช้ได้ / ใช้ไม่ได้เพราะอะไร)
+    public bool PromoOk { get; set; }
     public string TotalText { get; set; }         // ชำระก่อนเข้าใช้
     public string? NextMonthsText { get; set; }   // "เดือนที่ 2–6 ชำระเดือนละ ..." (สัญญา 1 เดือนไม่มี)
     public string EndDateText { get; set; }       // วันสิ้นสุดสัญญา
+}
+
+// ===================== HomeViewModel =====================
+// ตัวเลขบนหน้าหลัก (Customer/Dashboard) ดึงจากฐานข้อมูลจริง
+public class HomeViewModel
+{
+    public int FreeCount { get; set; }              // ห้องว่างพร้อมส่งมอบ
+    public int RoomCount { get; set; }
+    public int TotalArea { get; set; }              // พื้นที่รวมทุกห้อง (ตร.ม.)
+    public string? AvgRating { get; set; }          // คะแนนรีวิวเฉลี่ย (null = ยังไม่มีรีวิว)
+    public int ReviewCount { get; set; }
+    public int UsedPercent { get; set; }            // อัตราการเช่าทั้งคลัง
+    public Naphat_6507_L005.Models.Promocode? Promo { get; set; }   // โค้ดส่วนลดที่โชว์บนหน้าหลัก (null = ไม่มีโปรโมชั่น)
+    public string? PromoBigText { get; set; }       // เช่น −35% หรือ −฿5,000
+    public RoomViewModel? Featured { get; set; }    // ห้องแนะนำ
+    public List<HomeSizeCardViewModel> SizeCards { get; set; } = new();
+}
+
+// การ์ดขนาดห้อง 1 ใบบนหน้าหลัก
+public class HomeSizeCardViewModel
+{
+    public string Kind { get; set; } = "";          // ลิงก์ไปหน้า Search?size=
+    public string Letter { get; set; } = "";
+    public string Icon { get; set; } = "";
+    public string Title { get; set; } = "";
+    public string Text { get; set; } = "";
+    public string RangeText { get; set; } = "";     // เช่น 60–80 ตร.ม. · ว่าง 1 ห้อง
+    public int MinPrice { get; set; }
+    public bool Popular { get; set; }
 }

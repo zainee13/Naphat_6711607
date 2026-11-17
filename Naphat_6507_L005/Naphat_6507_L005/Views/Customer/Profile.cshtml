@@ -15,6 +15,7 @@
     int dueDepositMonths = ViewBag.DueDepositMonths ?? 0;
     int dueDeposit = ViewBag.DueDeposit ?? 0;
     int dueTotal = ViewBag.DueTotal ?? 0;
+    int dueDiscount = ViewBag.DueDiscount ?? 0;   // ส่วนลดจากโค้ดที่ใช้ตอนจอง
 
     var statusText = new Dictionary<string, string>
     {
@@ -164,6 +165,13 @@
                             </dt>
                             <dd>฿@dueDeposit.ToString("N0")</dd>
                         </div>
+                        @if (dueDiscount > 0)
+                        {
+                            <div>
+                                <dt>ส่วนลด (โค้ด @ViewBag.DuePromo)</dt>
+                                <dd>−฿@dueDiscount.ToString("N0")</dd>
+                            </div>
+                        }
                         <div class="pf-total">
                             <dt>ชำระก่อนเข้าใช้</dt>
                             <dd>฿@dueTotal.ToString("N0")</dd>
@@ -174,18 +182,6 @@
                     {
                         <p class="cu-next pf-next">เดือนที่ 2–@dueBooking.Months ชำระเดือนละ ฿@dueBooking.Rate.ToString("N0")</p>
                     }
-
-                    <!-- โค้ดส่วนลด: มีแค่หน้าตา ยังไม่คิดส่วนลด -->
-                    <form class="cu-promo" id="promoForm" novalidate>
-                        <div class="cu-field">
-                            <label for="promoInput">โค้ดส่วนลด</label>
-                            <div class="cu-promo-row">
-                                <input type="text" id="promoInput" autocomplete="off" placeholder="เช่น MEGA35START" />
-                                <button type="submit" class="cu-btn">ใช้โค้ด</button>
-                            </div>
-                        </div>
-                        <p class="cu-promo-msg" id="promoMessage" role="status" hidden></p>
-                    </form>
 
                     <p class="pf-due">ชำระภายใน <strong>@ViewBag.DueDate, 23:59 น.</strong> ถ้าเลยกำหนด การจองจะถูกยกเลิก</p>
                 </div>
@@ -406,19 +402,6 @@
             showTab(link.dataset.tab);
         });
     });
-
-    // ===================== โค้ดส่วนลด =====================
-    // ยังไม่มีระบบส่วนลด แสดงข้อความแจ้งเฉยๆ
-    const promoForm = document.getElementById('promoForm');
-    if (promoForm) {
-        promoForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const code = document.getElementById('promoInput').value.trim();
-            const message = document.getElementById('promoMessage');
-            message.textContent = (code === '') ? 'พิมพ์โค้ดส่วนลดก่อนกดใช้โค้ด' : 'ยังใช้โค้ดส่วนลดไม่ได้ในตอนนี้';
-            message.hidden = false;
-        });
-    }
 
     // ===================== วิธีชำระเงิน =====================
     // เลือกวิธีชำระ แล้วแสดงฟอร์มของวิธีนั้น

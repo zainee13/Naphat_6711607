@@ -1,13 +1,17 @@
+@model Naphat_6507_L005.ViewModels.HomeViewModel
 @{
     ViewData["Title"] = "หน้าหลัก";
     Layout = "_PublicLayout";
     ViewData["HeroNav"] = true;   // เมนูโปร่งใสทับรูป hero
+
+    // ตัวเลขทั้งหมดมาจาก CustomerController.Dashboard (ตาราง room / review)
+    var featured = Model.Featured;
 }
 
 <!-- ===== Hero: รูปเต็มจอ ข้อความตรงกลาง ===== -->
 <section class="hm-hero">
     <div class="hm-hero-inner">
-        <span class="hm-eyebrow"><span class="hm-dot"></span> ยูนิตว่างพร้อมส่งมอบ 7 ยูนิต</span>
+        <span class="hm-eyebrow"><span class="hm-dot"></span> @(Model.FreeCount > 0 ? "ยูนิตว่างพร้อมส่งมอบ " + Model.FreeCount + " ยูนิต" : "ตอนนี้ห้องเต็มทุกห้อง")</span>
         <h1 class="hm-hero-title">พื้นที่คลังสินค้า<span class="hm-grad-text">พร้อมใช้</span><br />ในไม่กี่คลิก</h1>
         <p class="hm-hero-sub">เลือกห้อง จอง และชำระเงินได้ในเว็บเดียว สัญญาเริ่มต้น 1 เดือน</p>
 
@@ -47,23 +51,25 @@
 <!-- ===== ตัวเลข ===== -->
 <section class="hm-section hm-section--tight" aria-label="ข้อมูลคลังสินค้า">
     <div class="hm-container hm-stats">
-        <div class="hm-stat"><div class="hm-stat-value">50,000+</div><div class="hm-stat-label">ตร.ม. พื้นที่รวม</div></div>
+        <div class="hm-stat"><div class="hm-stat-value">@Model.TotalArea.ToString("N0")</div><div class="hm-stat-label">ตร.ม. พื้นที่รวม @Model.RoomCount ห้อง</div></div>
         <div class="hm-stat"><div class="hm-stat-value">40 ft</div><div class="hm-stat-label">Dock เทียบตู้</div></div>
         <div class="hm-stat"><div class="hm-stat-value">24/7</div><div class="hm-stat-label">รปภ. และ CCTV</div></div>
-        <div class="hm-stat"><div class="hm-stat-value">4.9 ★</div><div class="hm-stat-label">คะแนนรีวิว</div></div>
+        <div class="hm-stat"><div class="hm-stat-value">@(Model.AvgRating == null ? "-" : Model.AvgRating + " ★")</div><div class="hm-stat-label">@(Model.ReviewCount == 0 ? "ยังไม่มีรีวิว" : "คะแนนรีวิว (" + Model.ReviewCount + " รีวิว)")</div></div>
     </div>
 </section>
 
 <!-- ===== ห้องแนะนำ ===== -->
+@if (featured != null)
+{
 <section class="hm-section">
     <div class="hm-container">
-        <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="M-01" class="hm-card hm-unit">
+        <a asp-controller="Customer" asp-action="RoomDetail" asp-route-id="@featured.Id" class="hm-card hm-unit">
             <div class="hm-unit-main">
-                <span class="hm-eyebrow">Zone A · ห้องแนะนำ</span>
-                <div class="hm-unit-code">M-01 <span class="hm-tag">● ว่าง</span></div>
+                <span class="hm-eyebrow">@featured.Zone · ห้องแนะนำ</span>
+                <div class="hm-unit-code">@featured.Id <span class="hm-tag">@(featured.Free ? "● ว่าง" : "มีผู้เช่าแล้ว")</span></div>
                 <div class="hm-unit-price">
-                    <small>ค่าเช่าเริ่มต้น</small>
-                    <strong>฿25,000</strong> <small>/ เดือน</small>
+                    <small>ค่าเช่า</small>
+                    <strong>฿@featured.Price.ToString("N0")</strong> <small>/ เดือน</small>
                 </div>
                 <span class="hm-btn hm-btn--ghost">
                     ดูห้องนี้ <span class="material-symbols-outlined" aria-hidden="true">arrow_outward</span>
@@ -71,18 +77,19 @@
             </div>
             <div class="hm-unit-side">
                 <dl class="hm-unit-spec">
-                    <div><dt>พื้นที่</dt><dd>150 ตร.ม.</dd></div>
-                    <div><dt>เพดาน</dt><dd>8 ม.</dd></div>
-                    <div><dt>พาเลท</dt><dd>~90</dd></div>
+                    <div><dt>พื้นที่</dt><dd>@featured.Area ตร.ม.</dd></div>
+                    <div><dt>เพดาน</dt><dd>@featured.Height</dd></div>
+                    <div><dt>รถเข้าได้</dt><dd>@featured.Vehicle</dd></div>
                 </dl>
                 <div class="hm-unit-occ">
-                    <div class="hm-unit-occ-row"><span>อัตราการเช่าโซน A</span><strong>86%</strong></div>
-                    <div class="hm-unit-bar" aria-hidden="true"><i style="width:86%"></i></div>
+                    <div class="hm-unit-occ-row"><span>อัตราการเช่าทั้งคลัง</span><strong>@Model.UsedPercent%</strong></div>
+                    <div class="hm-unit-bar" aria-hidden="true"><i style="width:@(Model.UsedPercent)%"></i></div>
                 </div>
             </div>
         </a>
     </div>
 </section>
+}
 
 <!-- ===== ขนาดห้อง ===== -->
 <section class="hm-section">
@@ -98,53 +105,20 @@
         </div>
 
         <div class="hm-grid hm-grid--4">
-            <a asp-controller="Customer" asp-action="Search" asp-route-size="s" class="hm-card hm-size">
-                <span class="material-symbols-outlined hm-size-icon" aria-hidden="true">inventory_2</span>
-                <div class="hm-size-letter">S</div>
-                <div class="hm-size-range">30–80 ตร.ม. · เพดาน 6 ม.</div>
-                <h3>SME &amp; ร้านออนไลน์</h3>
-                <p>กระบะและรถ 4 ล้อเข้าได้</p>
-                <div class="hm-size-foot">
-                    <div><small>เริ่มต้น</small><strong>฿12,000/ด.</strong></div>
-                    <span class="hm-size-go material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                </div>
-            </a>
-
-            <a asp-controller="Customer" asp-action="Search" asp-route-size="m" class="hm-card hm-size">
-                <span class="material-symbols-outlined hm-size-icon" aria-hidden="true">shelves</span>
-                <div class="hm-size-letter">M <span class="hm-tag">ยอดนิยม</span></div>
-                <div class="hm-size-range">100–250 ตร.ม. · เพดาน 8 ม.</div>
-                <h3>Commercial Pallet</h3>
-                <p>โฟล์คลิฟต์เข้าได้ วาง 60–120 พาเลท</p>
-                <div class="hm-size-foot">
-                    <div><small>เริ่มต้น</small><strong>฿25,000/ด.</strong></div>
-                    <span class="hm-size-go material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                </div>
-            </a>
-
-            <a asp-controller="Customer" asp-action="Search" asp-route-size="l" class="hm-card hm-size">
-                <span class="material-symbols-outlined hm-size-icon" aria-hidden="true">local_shipping</span>
-                <div class="hm-size-letter">L</div>
-                <div class="hm-size-range">300–500 ตร.ม. · เพดาน 10 ม.</div>
-                <h3>Logistics + Dock</h3>
-                <p>รถพ่วง 18 ล้อเทียบ Dock ได้</p>
-                <div class="hm-size-foot">
-                    <div><small>เริ่มต้น</small><strong>฿55,000/ด.</strong></div>
-                    <span class="hm-size-go material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                </div>
-            </a>
-
-            <a asp-controller="Customer" asp-action="Search" asp-route-size="cold" class="hm-card hm-size">
-                <span class="material-symbols-outlined hm-size-icon" aria-hidden="true">ac_unit</span>
-                <div class="hm-size-letter">XL</div>
-                <div class="hm-size-range">ห้องเย็น −18°C ถึง +5°C</div>
-                <h3>Mega &amp; Cold Chain</h3>
-                <p>ห้องเย็น หรือคลัง 1,200 ตร.ม.</p>
-                <div class="hm-size-foot">
-                    <div><small>เริ่มต้น</small><strong>฿40,000/ด.</strong></div>
-                    <span class="hm-size-go material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                </div>
-            </a>
+            @foreach (var card in Model.SizeCards)
+            {
+                <a asp-controller="Customer" asp-action="Search" asp-route-size="@card.Kind" class="hm-card hm-size">
+                    <span class="material-symbols-outlined hm-size-icon" aria-hidden="true">@card.Icon</span>
+                    <div class="hm-size-letter">@card.Letter @if (card.Popular) { <span class="hm-tag">ยอดนิยม</span> }</div>
+                    <div class="hm-size-range">@card.RangeText</div>
+                    <h3>@card.Title</h3>
+                    <p>@card.Text</p>
+                    <div class="hm-size-foot">
+                        <div><small>เริ่มต้น</small><strong>฿@card.MinPrice.ToString("N0")/ด.</strong></div>
+                        <span class="hm-size-go material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                    </div>
+                </a>
+            }
         </div>
     </div>
 </section>
@@ -201,16 +175,20 @@
             </div>
         </div>
 
-        <div class="hm-card hm-promo">
-            <span class="hm-eyebrow">โปรโมชั่น</span>
-            <div class="hm-promo-big">−35%</div>
-            <h3>ลดค่าเช่าเดือนแรก</h3>
-            <p>เมื่อทำสัญญา 6 เดือนขึ้นไป</p>
-            <div class="hm-promo-code">
-                <code>MEGA35START</code>
-                <a asp-controller="Customer" asp-action="Search" class="hm-btn hm-btn--ghost hm-btn--sm">ใช้โค้ด</a>
+        @if (Model.Promo != null)
+        {
+            <!-- โค้ดส่วนลดที่ Admin เปิดใช้งาน (ตาราง promocode) -->
+            <div class="hm-card hm-promo">
+                <span class="hm-eyebrow">โปรโมชั่น</span>
+                <div class="hm-promo-big">@Model.PromoBigText</div>
+                <h3>ลดค่าเช่าเดือนแรก</h3>
+                <p>@(Model.Promo.Description ?? (Model.Promo.MinMonths > 1 ? "เมื่อทำสัญญา " + Model.Promo.MinMonths + " เดือนขึ้นไป" : "ทุกระยะสัญญา"))</p>
+                <div class="hm-promo-code">
+                    <code>@Model.Promo.Code</code>
+                    <a asp-controller="Customer" asp-action="Search" class="hm-btn hm-btn--ghost hm-btn--sm">ใช้โค้ด</a>
+                </div>
             </div>
-        </div>
+        }
     </div>
 </section>
 

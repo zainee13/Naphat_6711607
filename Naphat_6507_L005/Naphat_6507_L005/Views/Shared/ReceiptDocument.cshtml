@@ -89,6 +89,10 @@
             </thead>
             <tbody>
                 <tr><td>ค่าเช่าห้อง @Model.RoomId เดือนแรก</td><td class="num">@Model.RentAmount.ToString("N2")</td></tr>
+                @if (Model.DiscountAmount > 0)
+                {
+                    <tr><td>ส่วนลด (โค้ด @Model.PromoCode)</td><td class="num">−@Model.DiscountAmount.ToString("N2")</td></tr>
+                }
                 <tr><td>เงินประกัน (คืนเมื่อสิ้นสุดสัญญา)</td><td class="num">@Model.DepositAmount.ToString("N2")</td></tr>
                 <tr><td>ภาษีมูลค่าเพิ่ม</td><td class="num">@Model.VatAmount.ToString("N2")</td></tr>
                 <tr class="total"><td>รวมทั้งสิ้น</td><td class="num">@Model.TotalAmount.ToString("N2")</td></tr>

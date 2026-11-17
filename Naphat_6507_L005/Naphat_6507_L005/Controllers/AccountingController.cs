@@ -168,26 +168,44 @@ public class AccountingController : Controller
 
     // ===================== ใบแจ้งหนี้ / ใบเสร็จ =====================
 
-    // สร้างใบแจ้งหนี้ (การจองละ 1 ใบ) และใบเสร็จ (การชำระละ 1 ใบ) ถ้ายังไม่มี ยังไม่ SaveChanges
-    // ไม่คิด VAT: ยอด = ค่าเช่าเดือนแรก + เงินประกัน
+    // ใบแจ้งหนี้ (การจองละ 1 ใบ) ออกตอนลูกค้าจองเสร็จ (CustomerController.BookRoom) ยังไม่ SaveChanges
+    // ไม่คิด VAT: ยอด = ค่าเช่าเดือนแรก (หักส่วนลด) + เงินประกัน
+    // staffId = null: ระบบออกให้ในนามพนักงานบัญชีคนแรกที่ใช้งานอยู่ (ไม่มีพนักงานบัญชี = ยังไม่ออก รอออกตอนอนุมัติ)
+    public static string? CreateInvoice(Csi402dbContext db, Booking booking, decimal monthlyRate, int? staffId)
+    {
+        var existing = (from i in db.Invoices where i.BookingId == booking.BookingId select i.InvoiceId).FirstOrDefault();
+        if (existing != null)
+        {
+            return existing;
+        }
+        staffId ??= (from u in db.Users
+                     where u.Role == "Accounting" && u.IsActive == true
+                     orderby u.UserId
+                     select (int?)u.UserId).FirstOrDefault();
+        if (staffId == null)
+        {
+            return null;
+        }
+
+        Invoice invoice = new();
+        invoice.InvoiceId = NewDocumentId("INV-" + DateTime.Now.Year + "-", (from i in db.Invoices select i.InvoiceId).ToList());
+        invoice.BookingId = booking.BookingId;
+        invoice.RentAmount = monthlyRate - (booking.DiscountAmount ?? 0);   // ค่าเช่าเดือนแรกหลังหักส่วนลด
+        invoice.DepositAmount = booking.Deposit;
+        invoice.VatAmount = 0;
+        invoice.TotalAmount = invoice.RentAmount + booking.Deposit;
+        invoice.IssuedDate = DateTime.Now;
+        invoice.IssuedBy = staffId.Value;
+        db.Invoices.Add(invoice);
+        return invoice.InvoiceId;
+    }
+
+    // ใบเสร็จ (การชำระละ 1 ใบ) ออกตอนอนุมัติ ถ้าการจองนี้ยังไม่มีใบแจ้งหนี้ (จองก่อนมีระบบนี้) ออกให้ด้วย ยังไม่ SaveChanges
     private string CreateDocuments(Payment payment, Booking booking, Room room, int staffId)
     {
         var year = DateTime.Now.Year;
 
-        var hasInvoice = (from i in _db.Invoices where i.BookingId == booking.BookingId select i).Any();
-        if (!hasInvoice)
-        {
-            Invoice invoice = new();
-            invoice.InvoiceId = NewDocumentId("INV-" + year + "-", (from i in _db.Invoices select i.InvoiceId).ToList());
-            invoice.BookingId = booking.BookingId;
-            invoice.RentAmount = room.MonthlyRate;
-            invoice.DepositAmount = booking.Deposit;
-            invoice.VatAmount = 0;
-            invoice.TotalAmount = room.MonthlyRate + booking.Deposit;
-            invoice.IssuedDate = DateTime.Now;
-            invoice.IssuedBy = staffId;
-            _db.Invoices.Add(invoice);
-        }
+        CreateInvoice(_db, booking, room.MonthlyRate, staffId);
 
         var receipt = (from r in _db.Receipts where r.PaymentId == payment.PaymentId select r).FirstOrDefault();
         if (receipt == null)
@@ -336,10 +354,12 @@ public class AccountingController : Controller
         doc.Zone = row.rm.Zone ?? "";
         doc.Period = row.b.StartDate.ToString("d MMM yyyy", _th) + " – " + row.b.EndDate.ToString("d MMM yyyy", _th);
         doc.Months = row.rm.MonthlyRate > 0 ? (int)(row.b.TotalRent / row.rm.MonthlyRate) : 0;
-        doc.RentAmount = invoice?.RentAmount ?? row.rm.MonthlyRate;
+        doc.DiscountAmount = row.b.DiscountAmount ?? 0;
+        doc.PromoCode = row.b.PromoCode;
+        doc.RentAmount = (invoice?.RentAmount ?? row.rm.MonthlyRate - doc.DiscountAmount) + doc.DiscountAmount;   // ค่าเช่าก่อนหักส่วนลด
         doc.DepositAmount = invoice?.DepositAmount ?? row.b.Deposit;
         doc.VatAmount = invoice?.VatAmount ?? 0;
-        doc.TotalAmount = invoice?.TotalAmount ?? doc.RentAmount + doc.DepositAmount;
+        doc.TotalAmount = invoice?.TotalAmount ?? doc.RentAmount - doc.DiscountAmount + doc.DepositAmount;
         doc.PaidAmount = row.p.Amount;
         doc.CustomerName = row.u.Fullname;
         doc.Company = row.u.CompanyName;

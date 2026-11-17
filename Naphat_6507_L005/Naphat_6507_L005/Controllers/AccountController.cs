@@ -8,16 +8,6 @@ public class AccountController : Controller
 {
     private readonly Csi402dbContext _db;
 
-    // Demo accounts for frontend simulation (staff accounts)
-    public static readonly Dictionary<string, (string password, string role, string name)> _users = new()
-    {
-        { "accounting1",  ("1234", "Accounting",      "บัญชีดี") },
-        { "inventory1",   ("1234", "Inventory",       "คลังสินค้า") },
-        { "cs1",          ("1234", "CustomerService", "บริการ") },
-        { "manager1",     ("1234", "Manager",         "ผู้จัดการ") },
-        { "admin",        ("1234", "Admin",           "ผู้ดูแลระบบ") },
-    };
-
     public AccountController(Csi402dbContext db)
     {
         _db = db;
@@ -34,16 +24,7 @@ public class AccountController : Controller
     [HttpPost]
     public IActionResult Login(LoginViewModel data)
     {
-        // ตรวจสอบ staff accounts ก่อน
-        if (_users.TryGetValue(data.Username.ToLower(), out var info) && info.password == data.Password)
-        {
-            HttpContext.Session.SetString("Username", data.Username);
-            HttpContext.Session.SetString("Role", info.role);
-            HttpContext.Session.SetString("FullName", info.name);
-            return RedirectByRole(info.role);
-        }
-
-        // ตรวจสอบจาก DB (users ที่ Register)
+        // ตรวจสอบจากตาราง user (ทั้งลูกค้าและพนักงานทุกฝ่าย)
         var dbUser = (from u in _db.Users
                       where u.Username == data.Username && u.PasswordHash == data.Password
                       select u).FirstOrDefault();
@@ -87,7 +68,7 @@ public class AccountController : Controller
 
         // ตรวจสอบซ้ำใน DB
         var exists = (from u in _db.Users where u.Username == data.Username select u).FirstOrDefault();
-        if (exists != null || _users.ContainsKey(data.Username.ToLower()))
+        if (exists != null)
         {
             ViewBag.Error = "ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว";
             return View(data);
@@ -122,7 +103,7 @@ public class AccountController : Controller
         "Inventory"       => RedirectToAction("Dashboard", "Inventory"),
         "CustomerService" => RedirectToAction("Dashboard", "CustomerService"),
         "Manager"         => RedirectToAction("Dashboard", "Manager"),
-        "Admin"           => RedirectToAction("Dashboard", "Admin"),
+        "Admin"           => RedirectToAction("Users", "Admin"),
         _                 => RedirectToAction("Login")
     };
 }

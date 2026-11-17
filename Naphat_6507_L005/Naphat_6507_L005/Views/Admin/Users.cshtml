@@ -2,6 +2,10 @@
 @{
     ViewData["Title"] = "จัดการผู้ใช้";
     Layout = "_Layout";
+
+    // ตัวเลขสรุปและตัวกรองส่งมาจาก AdminController.Users
+    var roleText = Naphat_6507_L005.Controllers.AdminController.RoleText;
+    var filterRole = ViewBag.FilterRole as string;
 }
 
 <div class="page-header">
@@ -10,12 +14,11 @@
             <h1><span class="material-symbols-outlined align-middle me-2" style="color:#06b6d4;">manage_accounts</span>จัดการผู้ใช้งาน</h1>
             <p>เพิ่ม ลบ แก้ไข และกำหนดสิทธิ์ผู้ใช้ในระบบ</p>
         </div>
-        <button class="btn btn-sm"
-                style="background:linear-gradient(135deg,#06b6d4,#0891b2); color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; font-weight:600;"
-                onclick="document.getElementById('addUserModal').style.display='flex'">
+        <a class="btn btn-sm" asp-controller="Admin" asp-action="AddUser"
+           style="background:linear-gradient(135deg,#06b6d4,#0891b2); color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; font-weight:600;">
             <span class="material-symbols-outlined align-middle me-1" style="font-size:0.9rem;">person_add</span>
             เพิ่มผู้ใช้ใหม่
-        </button>
+        </a>
     </div>
 </div>
 
@@ -31,10 +34,10 @@
 <!-- Stats -->
 <div class="row g-3 mb-4">
     @foreach (var s in new[] {
-        ("people","ผู้ใช้ทั้งหมด","34","ใช้งานอยู่ 23","#06b6d4"),
-        ("person","ลูกค้า","28","Active 20","#3b82f6"),
-        ("groups","Staff","6","Online 3","#10b981"),
-        ("no_accounts","ถูกระงับ","2","—","#ef4444"),
+        ("people","ผู้ใช้ทั้งหมด",((int)ViewBag.CountAll).ToString("N0"),"ใช้งานอยู่ " + ViewBag.CountActive,"#06b6d4"),
+        ("person","ลูกค้า",((int)ViewBag.CountCustomer).ToString("N0"),"บัญชีลูกค้า","#3b82f6"),
+        ("groups","พนักงาน",((int)ViewBag.CountStaff).ToString("N0"),"ทุกฝ่าย รวม Admin","#10b981"),
+        ("no_accounts","ถูกระงับ",((int)ViewBag.CountInactive).ToString("N0"),"เข้าสู่ระบบไม่ได้","#ef4444"),
     })
     {
         <div class="col-6 col-lg-3">
@@ -56,19 +59,23 @@
 <div class="section-card">
     <div class="section-card-header">
         <h2><span class="material-symbols-outlined" style="color:#06b6d4;">list_alt</span> รายชื่อผู้ใช้ทั้งหมด</h2>
-        <div class="d-flex gap-2">
-            <input type="text" class="form-control form-control-sm" placeholder="🔍 ค้นหา..." style="width:180px; border-radius:8px;" />
-            <select class="form-select form-select-sm" style="width:auto; border-radius:8px;">
-                <option>Role ทั้งหมด</option>
-                <option>Customer</option><option>Accounting</option><option>Inventory</option>
-                <option>CustomerService</option><option>Manager</option><option>Admin</option>
+        <!-- ค้นหา / กรองบทบาท: ฟอร์ม GET ส่งไป AdminController.Users -->
+        <form asp-controller="Admin" asp-action="Users" method="get" class="d-flex flex-wrap gap-2">
+            <input type="search" name="q" value="@ViewBag.Q" class="form-control form-control-sm" placeholder="ชื่อผู้ใช้ / ชื่อ / อีเมล" aria-label="ค้นหาผู้ใช้" style="width:190px; border-radius:8px;" />
+            <select name="role" class="form-select form-select-sm" style="width:auto; border-radius:8px;" aria-label="กรองตามบทบาท">
+                <option value="">ทุกบทบาท</option>
+                @foreach (var r in roleText)
+                {
+                    <option value="@r.Key" selected="@(filterRole == r.Key)">@r.Value</option>
+                }
             </select>
-        </div>
+            <button type="submit" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">ค้นหา</button>
+        </form>
     </div>
     <div class="table-responsive">
         <table class="table-custom w-100">
             <thead>
-                <tr><th>ชื่อผู้ใช้</th><th>ชื่อ-นามสกุล</th><th>Role</th><th>อีเมล</th><th>Login ล่าสุด</th><th>สถานะ</th><th>ดำเนินการ</th></tr>
+                <tr><th>ชื่อผู้ใช้</th><th>ชื่อ-นามสกุล</th><th>Role</th><th>อีเมล</th><th>วันที่สร้าง</th><th>สถานะ</th><th>ดำเนินการ</th></tr>
             </thead>
             <tbody>
                 @if (Model != null && Model.Count > 0)
@@ -94,12 +101,12 @@
                             <td style="font-size:0.875rem;">@user.Fullname</td>
                             <td>
                                 <span class="badge" style="background:@colorPair[0]; color:@colorPair[1]; font-size:0.72rem; border-radius:20px; padding:0.25rem 0.65rem;">
-                                    @user.Role
+                                    @(roleText.ContainsKey(user.Role) ? roleText[user.Role] : user.Role)
                                 </span>
                             </td>
                             <td style="font-size:0.78rem; color:#6c757d;">@(user.Email ?? "-")</td>
                             <td style="font-size:0.75rem; color:#9ca3af;">@user.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td><span class="badge-status badge-available">@(user.IsActive == true ? "ปกติ" : "ระงับ")</span></td>
+                            <td><span class="badge-status @(user.IsActive == true ? "badge-available" : "badge-occupied")">@(user.IsActive == true ? "ปกติ" : "ระงับ")</span></td>
                             <td>
                                 <div class="d-flex gap-1">
                                     <a class="btn btn-sm" style="background:#f0fdf4; color:#065f46; border:none; border-radius:6px; font-size:0.7rem; display:inline-flex; align-items:center;"
@@ -120,55 +127,9 @@
                 }
                 else
                 {
-                    <tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:2rem;">ยังไม่มีข้อมูลผู้ใช้</td></tr>
+                    <tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:2rem;">ไม่พบผู้ใช้ที่ตรงกับการค้นหา</td></tr>
                 }
             </tbody>
         </table>
-    </div>
-</div>
-
-<!-- Add User Modal -->
-<div id="addUserModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;" onclick="if(event.target===this) this.style.display='none'">
-    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:480px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="h5 fw-bold mb-0" style="color:#14213d;">เพิ่มผู้ใช้ใหม่</h3>
-            <button type="button" onclick="document.getElementById('addUserModal').style.display='none'"
-                    style="background:none; border:none; font-size:1.5rem; color:#9ca3af; cursor:pointer;">&times;</button>
-        </div>
-        <div class="row g-3">
-            <div class="col-6">
-                <label class="form-label small fw-semibold">ชื่อผู้ใช้ *</label>
-                <input type="text" class="form-control form-control-sm" placeholder="username" />
-            </div>
-            <div class="col-6">
-                <label class="form-label small fw-semibold">รหัสผ่าน *</label>
-                <input type="password" class="form-control form-control-sm" placeholder="••••••••" />
-            </div>
-            <div class="col-12">
-                <label class="form-label small fw-semibold">ชื่อ-นามสกุล *</label>
-                <input type="text" class="form-control form-control-sm" placeholder="ชื่อ นามสกุล" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label small fw-semibold">Role *</label>
-                <select class="form-select form-select-sm">
-                    <option>Customer</option><option>Accounting</option><option>Inventory</option>
-                    <option>CustomerService</option><option>Manager</option><option>Admin</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label small fw-semibold">อีเมล</label>
-                <input type="email" class="form-control form-control-sm" placeholder="email@domain.com" />
-            </div>
-        </div>
-        <div class="d-flex gap-2 mt-4">
-            <button type="button" class="btn flex-fill" style="background:linear-gradient(135deg,#06b6d4,#0891b2); color:#fff; border:none; border-radius:10px; padding:0.65rem; font-weight:600;"
-                    onclick="alert('สร้างผู้ใช้สำเร็จ!'); document.getElementById('addUserModal').style.display='none'">
-                สร้างผู้ใช้
-            </button>
-            <button type="button" class="btn btn-outline-secondary" style="border-radius:10px; padding:0.65rem 1.25rem;"
-                    onclick="document.getElementById('addUserModal').style.display='none'">
-                ยกเลิก
-            </button>
-        </div>
     </div>
 </div>

@@ -197,6 +197,10 @@
                         </dt>
                         <dd id="depositText">@quote.DepositText</dd>
                     </div>
+                    <div id="discountRow" hidden="@(quote.DiscountText == null)">
+                        <dt>ส่วนลดค่าเช่าเดือนแรก</dt>
+                        <dd id="discountText">@quote.DiscountText</dd>
+                    </div>
                     <div class="bk-total">
                         <dt>ชำระก่อนเข้าใช้</dt>
                         <dd id="totalText">@quote.TotalText</dd>
@@ -204,7 +208,7 @@
                 </dl>
                 <p class="cu-next" id="nextMonthsText" hidden="@(quote.NextMonthsText == null)">@quote.NextMonthsText</p>
 
-                <!-- โค้ดส่วนลด: มีแค่หน้าตา ยังไม่คิดส่วนลด -->
+                <!-- โค้ดส่วนลด: ตรวจที่ CustomerController.CheckPromo (กดใช้โค้ด = ขอยอดใหม่จาก PriceQuote ตอนกดจองตรวจซ้ำอีกครั้ง) -->
                 <div class="cu-promo bk-promo">
                     <div class="cu-field">
                         <label for="promoInput">โค้ดส่วนลด</label>
@@ -246,6 +250,8 @@
         document.getElementById('depositLabel').textContent = 'เงินประกัน ' + q.depositMonths + ' เดือน';
         document.getElementById('depositText').textContent = q.depositText;
         document.getElementById('totalText').textContent = q.totalText;
+        document.getElementById('discountText').textContent = q.discountText || '';
+        document.getElementById('discountRow').hidden = !q.discountText;
         const nextText = document.getElementById('nextMonthsText');
         nextText.textContent = q.nextMonthsText || '';
         nextText.hidden = !q.nextMonthsText;
@@ -256,10 +262,20 @@
     }
 
     function refreshQuote(startValue, monthsValue) {
-        const url = quoteUrl + '?months=' + encodeURIComponent(monthsValue) + (startValue ? '&start=' + encodeURIComponent(startValue) : '');
+        const promo = document.getElementById('promoInput').value.trim();
+        const url = quoteUrl + '?months=' + encodeURIComponent(monthsValue) + (startValue ? '&start=' + encodeURIComponent(startValue) : '')
+                    + (promo ? '&promo=' + encodeURIComponent(promo) : '');
         fetch(url, { headers: { 'Accept': 'application/json' } })
             .then(function (r) { return r.ok ? r.json() : null; })
-            .then(function (q) { if (q) showQuote(q); })
+            .then(function (q) {
+                if (!q) return;
+                showQuote(q);
+                // ผลการตรวจโค้ดจาก Controller
+                const message = document.getElementById('promoMessage');
+                message.textContent = q.promoMessage || '';
+                message.hidden = !q.promoMessage;
+                message.classList.toggle('is-ok', !!q.promoOk);
+            })
             .catch(function () { /* เน็ตหลุด: คงยอดเดิมไว้ ยอดจริงคิดใหม่ตอนกดจองอยู่แล้ว */ });
     }
 
@@ -273,12 +289,16 @@
         document.getElementById('taxIdLabel').textContent = isCompany ? 'เลขผู้เสียภาษี 13 หลัก' : 'เลขบัตรประชาชน 13 หลัก';
     }
 
-    // โค้ดส่วนลด: ยังไม่มีระบบส่วนลด แสดงข้อความแจ้งเฉยๆ
+    // โค้ดส่วนลด: ขอยอดใหม่พร้อมโค้ด (Controller ตรวจว่าใช้ได้ไหม และคิดส่วนลดให้)
     function applyPromo() {
         const code = document.getElementById('promoInput').value.trim();
-        const message = document.getElementById('promoMessage');
-        message.textContent = (code === '') ? 'พิมพ์โค้ดส่วนลดก่อนกดใช้โค้ด' : 'ยังใช้โค้ดส่วนลดไม่ได้ในตอนนี้';
-        message.hidden = false;
+        if (code === '') {
+            const message = document.getElementById('promoMessage');
+            message.textContent = 'พิมพ์โค้ดส่วนลดก่อนกดใช้โค้ด';
+            message.hidden = false;
+            return;
+        }
+        refreshQuote(document.getElementById('StartDate').value, document.getElementById('Months').value);
     }
 
     // ห้องมีผู้เช่าแล้วจะไม่มีฟอร์ม ไม่ต้องทำอะไรต่อ

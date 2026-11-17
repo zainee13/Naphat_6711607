@@ -75,7 +75,9 @@ public class ReceiptDocumentViewModel
     public string Period { get; set; }
     public int Months { get; set; }
 
-    public decimal RentAmount { get; set; }
+    public decimal RentAmount { get; set; }        // ค่าเช่าเดือนแรก (ก่อนหักส่วนลด)
+    public decimal DiscountAmount { get; set; }    // ส่วนลดจากโค้ด
+    public string? PromoCode { get; set; }
     public decimal DepositAmount { get; set; }
     public decimal VatAmount { get; set; }
     public decimal TotalAmount { get; set; }

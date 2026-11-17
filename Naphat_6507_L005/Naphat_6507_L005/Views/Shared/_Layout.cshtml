@@ -262,15 +262,15 @@
             @if (role == "Admin")
             {
                 <div class="nav-section-label">ระบบ</div>
-                <a asp-controller="Admin" asp-action="Dashboard"
-                   class="nav-item-link @(isActive("Admin","Dashboard") ? "active" : "")">
-                    <span class="material-symbols-outlined">admin_panel_settings</span>
-                    <span>ภาพรวมระบบ</span>
-                </a>
                 <a asp-controller="Admin" asp-action="Users"
-                   class="nav-item-link @(isActive("Admin","Users") ? "active" : "")">
+                   class="nav-item-link @(isActive("Admin","Users") || isActive("Admin","AddUser") || isActive("Admin","EditUser") ? "active" : "")">
                     <span class="material-symbols-outlined">manage_accounts</span>
                     <span>จัดการผู้ใช้</span>
+                </a>
+                <a asp-controller="Admin" asp-action="Promos"
+                   class="nav-item-link @(isActive("Admin","Promos") || isActive("Admin","AddPromo") || isActive("Admin","EditPromo") ? "active" : "")">
+                    <span class="material-symbols-outlined">sell</span>
+                    <span>โค้ดส่วนลด</span>
                 </a>
             }
 

@@ -115,7 +115,7 @@ public class CustomerController : Controller
         return string.IsNullOrEmpty(digits) ? taxId : GroupDigits(digits, new[] { 1, 4, 5, 2, 1 });
     }
 
-    // ผู้ใช้ที่ล็อกอินอยู่ (จากตาราง user) บัญชีพนักงานตัวอย่างจะไม่มีในตาราง ได้ null
+    // ผู้ใช้ที่ล็อกอินอยู่ (จากตาราง user)
     private User? GetCurrentUser()
     {
         var username = HttpContext.Session.GetString("Username");
@@ -240,9 +240,44 @@ public class CustomerController : Controller
     // ระยะสัญญาที่เลือกได้ (ค่าอื่นใช้ 6 เดือน)
     private static int ValidMonths(int months) => months == 1 || months == 3 || months == 6 || months == 12 ? months : 6;
 
+    // ===== โค้ดส่วนลด (ตาราง promocode ที่ Admin สร้าง) =====
+    // ลดเฉพาะค่าเช่าเดือนแรก: Percent = ลด % ของค่าเช่า, Amount = ลดเป็นบาท (ไม่เกินค่าเช่าเดือนแรก)
+    // ใช้ได้เมื่อ เปิดใช้งาน + อยู่ในช่วงวันที่ + สัญญาไม่น้อยกว่า MinMonths
+    public static (decimal discount, bool ok, string? message) CheckPromo(Csi402dbContext db, string? code, decimal monthlyRate, int months)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return (0, false, null);
+        }
+        var key = code.Trim().ToUpper();
+        var promo = (from p in db.Promocodes where p.Code == key select p).FirstOrDefault();
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        if (promo == null || !promo.IsActive)
+        {
+            return (0, false, "ไม่พบโค้ด " + key + " หรือโค้ดปิดใช้งานแล้ว");
+        }
+        if (promo.StartDate != null && today < promo.StartDate)
+        {
+            return (0, false, "โค้ดนี้ใช้ได้ตั้งแต่ " + promo.StartDate.Value.ToString("d MMM yyyy", _th));
+        }
+        if (promo.EndDate != null && today > promo.EndDate)
+        {
+            return (0, false, "โค้ดนี้หมดอายุแล้ว");
+        }
+        if (months < promo.MinMonths)
+        {
+            return (0, false, "โค้ดนี้ใช้ได้กับสัญญา " + promo.MinMonths + " เดือนขึ้นไป");
+        }
+        var discount = promo.DiscountType == "Percent"
+            ? Math.Round(monthlyRate * promo.DiscountValue / 100, 0)
+            : Math.Min(promo.DiscountValue, monthlyRate);
+        return (discount, true, "ใช้โค้ด " + key + " ลดค่าเช่าเดือนแรก ฿" + discount.ToString("N0"));
+    }
+
     // ยอดที่ต้องชำระก่อนเข้าใช้ (ค่าเช่าเดือนแรก + เงินประกัน ไม่มี VAT) และวันสิ้นสุดสัญญา
     // ที่เดียวที่คิดยอดสำหรับแสดงผล ใช้กฎเดียวกับตอนบันทึกการจอง (GetDepositMonths / GetEndDate)
-    public static PriceQuoteViewModel BuildQuote(decimal monthlyRate, DateTime start, int months)
+    // discount = ส่วนลดค่าเช่าเดือนแรกจากโค้ด (คิดจาก CheckPromo)
+    public static PriceQuoteViewModel BuildQuote(decimal monthlyRate, DateTime start, int months, decimal discount = 0)
     {
         months = ValidMonths(months);
         var depositMonths = GetDepositMonths(months);
@@ -253,7 +288,8 @@ public class CustomerController : Controller
         q.RentText = "฿" + monthlyRate.ToString("N0");
         q.DepositMonths = depositMonths;
         q.DepositText = "฿" + deposit.ToString("N0");
-        q.TotalText = "฿" + (monthlyRate + deposit).ToString("N0");
+        q.DiscountText = discount > 0 ? "−฿" + discount.ToString("N0") : null;
+        q.TotalText = "฿" + (monthlyRate + deposit - discount).ToString("N0");
         q.NextMonthsText = months > 1 ? "เดือนที่ 2–" + months + " ชำระเดือนละ ฿" + monthlyRate.ToString("N0") : null;
         q.EndDateText = GetEndDate(start.Date, months).ToString("d MMMM yyyy", _th);
         return q;
@@ -314,10 +350,80 @@ public class CustomerController : Controller
         }
         SetUserBag();
         CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
-        return View();
+
+        // ตัวเลขบนหน้าหลักนับจากตาราง room และ review
+        var rooms = (from r in _db.Rooms select r).ToList();
+        var stars = (from rv in _db.Reviews select rv.OverallRating).ToList();
+
+        HomeViewModel home = new();
+        home.RoomCount = rooms.Count;
+        home.FreeCount = rooms.Count(r => r.Status == "Available");
+        home.TotalArea = rooms.Sum(r => r.Size ?? 0);
+        home.ReviewCount = stars.Count;
+        home.AvgRating = stars.Count == 0 ? null : stars.Average().ToString("0.0");
+        home.UsedPercent = rooms.Count == 0 ? 0 : (int)Math.Round((rooms.Count - home.FreeCount) * 100.0 / rooms.Count);
+
+        // ห้องแนะนำ: ห้องว่างที่ราคาสูงสุด (ห้องใหญ่) ถ้าไม่มีห้องว่าง ใช้ห้องแรก
+        var featured = (from r in rooms where r.Status == "Available" orderby r.MonthlyRate descending select r).FirstOrDefault()
+                       ?? rooms.FirstOrDefault();
+        home.Featured = featured == null ? null : ToRoomViewModel(featured, GetRating(featured.RoomId));
+
+        // โปรโมชั่น: โค้ดที่เปิดใช้งานและยังไม่หมดอายุ (ใหม่สุด)
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        home.Promo = (from p in _db.Promocodes
+                      where p.IsActive && (p.StartDate == null || p.StartDate <= today) && (p.EndDate == null || p.EndDate >= today)
+                      orderby p.CreatedAt descending
+                      select p).FirstOrDefault();
+        if (home.Promo != null)
+        {
+            home.PromoBigText = home.Promo.DiscountType == "Percent"
+                ? "−" + home.Promo.DiscountValue.ToString("0.##") + "%"
+                : "−฿" + home.Promo.DiscountValue.ToString("N0");
+        }
+
+        // การ์ดขนาดห้อง: ราคาเริ่มต้นและช่วงพื้นที่ของแต่ละขนาด
+        var cards = new[]
+        {
+            ("s", new[] { "s" }, "S", "inventory_2", "SME & ร้านออนไลน์", "กระบะและรถ 4 ล้อเข้าได้", false),
+            ("m", new[] { "m" }, "M", "shelves", "Commercial Pallet", "โฟล์คลิฟต์เข้าได้ วางพาเลทได้", true),
+            ("l", new[] { "l" }, "L", "local_shipping", "Logistics + Dock", "รถพ่วง 18 ล้อเทียบ Dock ได้", false),
+            ("xl", new[] { "xl", "cold" }, "XL", "ac_unit", "Mega & Cold Chain", "คลังใหญ่พิเศษ และห้องเย็น", false),
+        };
+        foreach (var c in cards)
+        {
+            var group = (from r in rooms where c.Item2.Contains(r.SizeCat) select r).ToList();
+            if (group.Count == 0)
+            {
+                continue;
+            }
+            HomeSizeCardViewModel card = new();
+            card.Kind = c.Item1;
+            card.Letter = c.Item3;
+            card.Icon = c.Item4;
+            card.Title = c.Item5;
+            card.Text = c.Item6;
+            card.Popular = c.Item7;
+            card.MinPrice = (int)group.Min(r => r.MonthlyRate);
+            var minArea = group.Min(r => r.Size ?? 0);
+            var maxArea = group.Max(r => r.Size ?? 0);
+            card.RangeText = (minArea == maxArea ? minArea.ToString("N0") : minArea.ToString("N0") + "–" + maxArea.ToString("N0"))
+                             + " ตร.ม. · ว่าง " + group.Count(r => r.Status == "Available") + " ห้อง";
+            home.SizeCards.Add(card);
+        }
+        return View(home);
     }
 
-    public IActionResult Search()
+    // ช่วงงบต่อเดือนจากฟอร์มค้นหาหน้าหลัก (ค่า price=) -> ราคาต่ำสุด/สูงสุด
+    private static readonly Dictionary<string, (int min, int max, string text)> _priceRanges = new()
+    {
+        { "under20k", (0, 19999, "ต่ำกว่า ฿20,000") },
+        { "20k-50k", (20000, 50000, "฿20,000 – 50,000") },
+        { "50k-100k", (50001, 100000, "฿50,000 – 100,000") },
+        { "over100k", (100001, int.MaxValue, "฿100,000 ขึ้นไป") },
+    };
+
+    // price = ช่วงงบต่อเดือนที่เลือกจากหน้าหลัก กรองรายการห้องด้านล่างผัง (ผังยังแสดงครบทุกห้อง)
+    public IActionResult Search(string? price)
     {
         if (!IsLoggedIn)
         {
@@ -336,12 +442,20 @@ public class CustomerController : Controller
         {
             model.Add(ToRoomViewModel(r, GetRating(r.RoomId)));
         }
+
+        // รายการการ์ด: กรองตามงบ แล้วเรียงห้องว่างขึ้นก่อน ตามด้วยราคา
+        var range = price != null && _priceRanges.ContainsKey(price) ? _priceRanges[price] : ((int min, int max, string text)?)null;
+        ViewBag.PriceText = range?.text;
+        ViewBag.RoomList = (from m in model
+                            where range == null || (m.Price >= range.Value.min && m.Price <= range.Value.max)
+                            orderby m.Free ? 0 : 1, m.Price
+                            select m).ToList();
         return View(model);
     }
 
     // ยอดและวันสิ้นสุดสัญญา (JSON) หน้า RoomDetail / BookRoom ขอใหม่เมื่อลูกค้าเปลี่ยนวันเริ่มหรือระยะสัญญา
     [HttpGet]
-    public IActionResult PriceQuote(string id, DateTime? start, int months = 6)
+    public IActionResult PriceQuote(string id, DateTime? start, int months = 6, string? promo = null)
     {
         var room = FindRoom(id);
         if (room == null)
@@ -349,7 +463,11 @@ public class CustomerController : Controller
             return NotFound();
         }
         var startDate = start != null && start.Value.Date >= DateTime.Today ? start.Value.Date : DateTime.Today;
-        return Json(BuildQuote(room.MonthlyRate, startDate, months));
+        var check = CheckPromo(_db, promo, room.MonthlyRate, ValidMonths(months));
+        var quote = BuildQuote(room.MonthlyRate, startDate, months, check.discount);
+        quote.PromoOk = check.ok;
+        quote.PromoMessage = check.message;
+        return Json(quote);
     }
 
     public IActionResult RoomDetail(string id = "M-01")
@@ -515,7 +633,8 @@ public class CustomerController : Controller
         }
         ViewBag.Room = ToRoomViewModel(room, null);
         // ยอดที่แสดงถ้าต้องกลับไปหน้าฟอร์ม (กรอกผิด) ใช้วันและระยะสัญญาที่ลูกค้าเลือกไว้
-        ViewBag.Quote = BuildQuote(room.MonthlyRate, data.StartDate.Date >= DateTime.Today ? data.StartDate : DateTime.Today, data.Months);
+        var promoCheck = CheckPromo(_db, data.PromoCode, room.MonthlyRate, data.Months);
+        ViewBag.Quote = BuildQuote(room.MonthlyRate, data.StartDate.Date >= DateTime.Today ? data.StartDate : DateTime.Today, data.Months, promoCheck.discount);
 
         var user = GetCurrentUser();
         if (user == null)
@@ -582,6 +701,12 @@ public class CustomerController : Controller
             return View(data);
         }
 
+        if (!string.IsNullOrWhiteSpace(data.PromoCode) && !promoCheck.ok)
+        {
+            ViewBag.Error = promoCheck.message + " (ลบโค้ดออกถ้าไม่ต้องการใช้)";
+            return View(data);
+        }
+
         if (!data.AgreeTerms)
         {
             ViewBag.Error = "กรุณายอมรับเงื่อนไขสัญญาเช่าก่อนยืนยัน";
@@ -619,7 +744,8 @@ public class CustomerController : Controller
         booking.EndDate = DateOnly.FromDateTime(end);
         booking.TotalRent = room.MonthlyRate * data.Months;
         booking.Deposit = room.MonthlyRate * GetDepositMonths(data.Months);
-        booking.PromoCode = string.IsNullOrWhiteSpace(data.PromoCode) ? null : data.PromoCode.Trim();
+        booking.PromoCode = promoCheck.ok ? data.PromoCode!.Trim().ToUpper() : null;
+        booking.DiscountAmount = promoCheck.ok ? promoCheck.discount : null;
         booking.GoodsCategory = data.GoodsType;
         booking.Note = note;
         booking.BookingStatus = "Pending";
@@ -645,7 +771,13 @@ public class CustomerController : Controller
         room.Status = "Booked";
         _db.SaveChanges();
 
-        TempData["Success"] = "จองห้อง " + room.RoomId + " แล้ว (" + booking.BookingId + ") กรุณาชำระเงินเพื่อยืนยันการจอง";
+        // ออกใบแจ้งหนี้ให้ลูกค้าทันทีหลังจอง (ใบเสร็จออกตอนฝ่ายบัญชีอนุมัติการชำระ)
+        var invoiceId = AccountingController.CreateInvoice(_db, booking, room.MonthlyRate, null);
+        _db.SaveChanges();
+
+        TempData["Success"] = "จองห้อง " + room.RoomId + " แล้ว (" + booking.BookingId + ")"
+                              + (invoiceId == null ? "" : " ออกใบแจ้งหนี้ " + invoiceId)
+                              + " กรุณาชำระเงินเพื่อยืนยันการจอง";
         return RedirectToAction("Profile", new { tab = "payment", bookingId = booking.BookingId });
     }
 
@@ -743,7 +875,10 @@ public class CustomerController : Controller
             var depositMonths = GetDepositMonths(due.Months);
             ViewBag.DueDepositMonths = depositMonths;
             ViewBag.DueDeposit = due.Rate * depositMonths;
-            ViewBag.DueTotal = due.Rate + due.Rate * depositMonths;
+            var dueBookingRow = (from b in _db.Bookings where b.BookingId == due.Id select b).First();
+            ViewBag.DueDiscount = (int)(dueBookingRow.DiscountAmount ?? 0);
+            ViewBag.DuePromo = dueBookingRow.PromoCode;
+            ViewBag.DueTotal = due.Rate + due.Rate * depositMonths - (int)(dueBookingRow.DiscountAmount ?? 0);
             ViewBag.DueDate = due.BookedDate.AddDays(7).ToString("d MMM yyyy", _th);
 
             // ถ้าฝ่ายบัญชีเคยปฏิเสธการชำระของการจองนี้ ให้แสดงเหตุผลล่าสุด (เก็บไว้ใน booking.Note)
@@ -824,7 +959,7 @@ public class CustomerController : Controller
         var room = (from r in _db.Rooms where r.RoomId == booking.RoomId select r).First();
         Payment payment = new();
         payment.BookingId = booking.BookingId;
-        payment.Amount = room.MonthlyRate + booking.Deposit;
+        payment.Amount = room.MonthlyRate + booking.Deposit - (booking.DiscountAmount ?? 0);   // หักส่วนลดจากโค้ด
         payment.PaymentMethod = data.PayMethod;
         payment.PaymentDate = DateTime.Now;
         payment.PaymentStatus = "Pending";

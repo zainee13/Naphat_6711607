@@ -1,0 +1,83 @@
+@model Naphat_6507_L005.ViewModels.AddUserViewModel
+@{
+    ViewData["Title"] = "เพิ่มผู้ใช้ใหม่";
+    Layout = "_Layout";
+}
+
+<div class="page-header mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <a asp-action="Users" asp-controller="Admin" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
+            <span class="material-symbols-outlined align-middle" style="font-size:1rem;">arrow_back</span> ย้อนกลับ
+        </a>
+        <h1 class="h3 mb-0">
+            <span class="material-symbols-outlined align-middle me-2" style="color:#06b6d4;">person_add</span>
+            เพิ่มผู้ใช้ใหม่
+        </h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="section-card p-4" style="background:#fff; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
+            }
+
+            <!-- ส่งไปที่ AdminController.AddUser (POST) -->
+            <form asp-action="AddUser" asp-controller="Admin" method="post">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="Role">บทบาท *</label>
+                    <select class="form-select" asp-for="Role" required>
+                        @foreach (var r in Naphat_6507_L005.Controllers.AdminController.RoleText)
+                        {
+                            <option value="@r.Key">@r.Value</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="Username">ชื่อผู้ใช้งาน (Username) *</label>
+                    <input type="text" class="form-control" asp-for="Username" maxlength="100" autocomplete="off" required />
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="Password">รหัสผ่าน *</label>
+                        <input type="password" class="form-control" asp-for="Password" autocomplete="new-password" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="ConfirmPassword">ยืนยันรหัสผ่าน *</label>
+                        <input type="password" class="form-control" asp-for="ConfirmPassword" autocomplete="new-password" required />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="Fullname">ชื่อ - นามสกุล *</label>
+                    <input type="text" class="form-control" asp-for="Fullname" maxlength="150" required />
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="Email">อีเมล</label>
+                        <input type="email" class="form-control" asp-for="Email" maxlength="150" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="Phone">เบอร์โทรศัพท์</label>
+                        <input type="tel" class="form-control" asp-for="Phone" inputmode="tel" maxlength="12" placeholder="081 234 5678" />
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4 pt-2 border-top">
+                    <button type="submit" class="btn flex-fill" style="background:linear-gradient(135deg,#06b6d4,#0891b2); color:#fff; border:none; border-radius:10px; padding:0.6rem; font-weight:600;">
+                        <span class="material-symbols-outlined align-middle me-1" style="font-size:1.1rem;">person_add</span> สร้างผู้ใช้
+                    </button>
+                    <a asp-action="Users" asp-controller="Admin" class="btn btn-outline-secondary" style="border-radius:10px; padding:0.6rem 1.25rem;">
+                        ยกเลิก
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
