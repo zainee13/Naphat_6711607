@@ -9,16 +9,16 @@ public class TicketViewModel
 {
     public int TicketId { get; set; }
     public string No => "TK-" + TicketId.ToString("0000");
-    public string Category { get; set; }        // หมวดที่ลูกค้าเลือก (เก็บไว้หน้าหัวข้อ เช่น "[ไฟฟ้า] ...")
-    public string Title { get; set; }           // หัวข้อที่ตัดหมวดออกแล้ว
-    public string Priority { get; set; }        // High / Normal / Low
-    public string Status { get; set; }          // Open / InProgress / Resolved
-    public string CustomerName { get; set; }
+    public string Category { get; set; } = "";        // หมวดที่ลูกค้าเลือก (เก็บไว้หน้าหัวข้อ เช่น "[ไฟฟ้า] ...")
+    public string Title { get; set; } = "";           // หัวข้อที่ตัดหมวดออกแล้ว
+    public string Priority { get; set; } = "";        // High / Normal / Low
+    public string Status { get; set; } = "";          // Open / InProgress / Resolved
+    public string CustomerName { get; set; } = "";
     public string? Phone { get; set; }
     public string? Email { get; set; }
     public string? BookingId { get; set; }
     public string? RoomId { get; set; }
-    public string CreatedText { get; set; }
+    public string CreatedText { get; set; } = "";
     public string? ResolvedText { get; set; }
     public string? AssigneeName { get; set; }
     public List<TicketMessageViewModel> Messages { get; set; } = new();
@@ -32,10 +32,10 @@ public class TicketViewModel
 // ข้อความ 1 รายการในบทสนทนา (แยกออกมาจากช่อง Description)
 public class TicketMessageViewModel
 {
-    public string Author { get; set; }
+    public string Author { get; set; } = "";
     public bool IsStaff { get; set; }
-    public string TimeText { get; set; }
-    public string Text { get; set; }
+    public string TimeText { get; set; } = "";
+    public string Text { get; set; } = "";
 }
 
 // ===================== NewTicketViewModel =====================

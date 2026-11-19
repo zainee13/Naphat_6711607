@@ -8,44 +8,44 @@ namespace Naphat_6507_L005.ViewModels;
 // มาจากตาราง room + ข้อมูลเสริมที่ตารางยังไม่มีคอลัมน์ (อยู่ใน CustomerController._roomExtras)
 public class RoomViewModel
 {
-    public string Id { get; set; }
-    public string Kind { get; set; }        // s / m / l / xl / cold
+    public string Id { get; set; } = "";
+    public string Kind { get; set; } = "";        // s / m / l / xl / cold
     public bool Free { get; set; }
-    public string Grid { get; set; }        // ตำแหน่งบนผัง "แถวเริ่ม / คอลัมน์เริ่ม / แถวจบ / คอลัมน์จบ"
-    public string Area { get; set; }        // ตร.ม.
-    public string Height { get; set; }
-    public string Zone { get; set; }
-    public string Vehicle { get; set; }
-    public string Temp { get; set; }
-    public string FloorLoad { get; set; }
-    public string Dock { get; set; }
-    public string Power { get; set; }
-    public string Note { get; set; }        // ข้อความสั้นบนการ์ด
-    public string Desc { get; set; }        // คำอธิบายในหน้ารายละเอียด
+    public string Grid { get; set; } = "";        // ตำแหน่งบนผัง "แถวเริ่ม / คอลัมน์เริ่ม / แถวจบ / คอลัมน์จบ"
+    public string Area { get; set; } = "";        // ตร.ม.
+    public string Height { get; set; } = "";
+    public string Zone { get; set; } = "";
+    public string Vehicle { get; set; } = "";
+    public string Temp { get; set; } = "";
+    public string FloorLoad { get; set; } = "";
+    public string Dock { get; set; } = "";
+    public string Power { get; set; } = "";
+    public string Note { get; set; } = "";        // ข้อความสั้นบนการ์ด
+    public string Desc { get; set; } = "";        // คำอธิบายในหน้ารายละเอียด
     public int Price { get; set; }
     public int OldPrice { get; set; }
     public string? Rating { get; set; }    // คะแนนเฉลี่ยจากรีวิว (null = ยังไม่มีรีวิว)
-    public string Img { get; set; }         // ลิงก์รูป (หน้า view เติม ?w= ขนาดเอง)
+    public string Img { get; set; } = "";         // ลิงก์รูป (หน้า view เติม ?w= ขนาดเอง)
 }
 
 // ===================== BookingViewModel =====================
 // ข้อมูลจากฟอร์มจองห้อง (Customer/BookRoom POST)
 public class BookingViewModel
 {
-    public string RoomId { get; set; }
+    public string RoomId { get; set; } = "";
     public string TenantType { get; set; } = "corp";   // corp = บริษัท, person = บุคคลธรรมดา
-    public string CompanyName { get; set; }
-    public string TaxId { get; set; }
-    public string ContactName { get; set; }
-    public string Phone { get; set; }
-    public string Email { get; set; }
-    public string Address { get; set; }
+    public string? CompanyName { get; set; }
+    public string? TaxId { get; set; }
+    public string? ContactName { get; set; }
+    public string? Phone { get; set; }
+    public string? Email { get; set; }
+    public string? Address { get; set; }
     public DateTime StartDate { get; set; } = DateTime.Today;
     public int Months { get; set; } = 6;
-    public string GoodsType { get; set; }
-    public string MoveInService { get; set; }
-    public string Note { get; set; }
-    public string PromoCode { get; set; }
+    public string? GoodsType { get; set; }
+    public string? MoveInService { get; set; }
+    public string? Note { get; set; }
+    public string? PromoCode { get; set; }
     public bool AgreeTerms { get; set; }
     public List<DeclaredItemViewModel> Items { get; set; } = new();   // สินค้าที่ลูกค้าแจ้งว่าจะนำเข้า
 }
@@ -63,15 +63,15 @@ public class DeclaredItemViewModel
 // รายการจองที่แสดงในหน้า Profile
 public class MyBookingViewModel
 {
-    public string Id { get; set; }
-    public string Room { get; set; }
-    public string Zone { get; set; }
-    public string Period { get; set; }
+    public string Id { get; set; } = "";
+    public string Room { get; set; } = "";
+    public string Zone { get; set; } = "";
+    public string Period { get; set; } = "";
     public int Months { get; set; }
     public int Rate { get; set; }
-    public string Status { get; set; }     // pending / checking / active / ended / cancelled (ตัวเล็ก ใช้กับ CSS)
+    public string Status { get; set; } = "";     // pending / checking / active / ended / cancelled (ตัวเล็ก ใช้กับ CSS)
     public DateTime BookedDate { get; set; }
-    public string BookedOn { get; set; }
+    public string BookedOn { get; set; } = "";
     public bool CanReview { get; set; }    // เช่าแล้ว (ใช้งานอยู่ / สิ้นสุด) และยังไม่เคยรีวิวการจองนี้
 }
 
@@ -79,8 +79,8 @@ public class MyBookingViewModel
 // ข้อมูลจากฟอร์มแจ้งชำระเงิน (Customer/Pay POST)
 public class PaymentViewModel
 {
-    public string BookingId { get; set; }
-    public string PayMethod { get; set; }   // transfer / qr / card
+    public string BookingId { get; set; } = "";
+    public string PayMethod { get; set; } = "";   // transfer / qr / card
     public IFormFile? Slip { get; set; }
 }
 
@@ -88,10 +88,10 @@ public class PaymentViewModel
 // ประวัติการชำระในหน้า Profile
 public class PaymentHistoryViewModel
 {
-    public string No { get; set; }
-    public string Title { get; set; }
+    public string No { get; set; } = "";
+    public string Title { get; set; } = "";
     public int Amount { get; set; }
-    public string Detail { get; set; }
+    public string Detail { get; set; } = "";
     public bool IsRefund { get; set; }
     public string? ReceiptId { get; set; }   // มีใบเสร็จแล้ว ลูกค้ากดดูได้
     public DateTime Date { get; set; }       // ใช้เรียงรายการ (ชำระ + คืนเงิน)
@@ -101,23 +101,23 @@ public class PaymentHistoryViewModel
 // รีวิวห้อง ใช้ทั้งแสดงผลและรับค่าจากฟอร์ม (Customer/AddReview POST)
 public class ReviewViewModel
 {
-    public string RoomId { get; set; }
-    public string Name { get; set; }
+    public string RoomId { get; set; } = "";
+    public string Name { get; set; } = "";
     public int Stars { get; set; } = 5;
-    public string Date { get; set; }
-    public string Comment { get; set; }
+    public string Date { get; set; } = "";
+    public string Comment { get; set; } = "";
 }
 
 // ===================== ProfileViewModel =====================
 // ข้อมูลส่วนตัว / ที่อยู่ออกใบกำกับภาษี (Customer/SaveProfile POST)
 public class ProfileViewModel
 {
-    public string Fullname { get; set; }
-    public string Company { get; set; }
-    public string Phone { get; set; }
-    public string Email { get; set; }
-    public string TaxId { get; set; }
-    public string Address { get; set; }
+    public string Fullname { get; set; } = "";
+    public string Company { get; set; } = "";
+    public string Phone { get; set; } = "";
+    public string Email { get; set; } = "";
+    public string TaxId { get; set; } = "";
+    public string Address { get; set; } = "";
 }
 
 // ===================== PriceQuoteViewModel =====================
@@ -126,15 +126,15 @@ public class ProfileViewModel
 public class PriceQuoteViewModel
 {
     public int Months { get; set; }
-    public string RentText { get; set; }          // ค่าเช่าเดือนแรก
+    public string RentText { get; set; } = "";          // ค่าเช่าเดือนแรก
     public int DepositMonths { get; set; }
-    public string DepositText { get; set; }       // เงินประกัน
+    public string DepositText { get; set; } = "";       // เงินประกัน
     public string? DiscountText { get; set; }     // ส่วนลดจากโค้ด เช่น "−฿8,750" (null = ไม่มีส่วนลด)
     public string? PromoMessage { get; set; }     // ผลการตรวจโค้ด (ใช้ได้ / ใช้ไม่ได้เพราะอะไร)
     public bool PromoOk { get; set; }
-    public string TotalText { get; set; }         // ชำระก่อนเข้าใช้
+    public string TotalText { get; set; } = "";         // ชำระก่อนเข้าใช้
     public string? NextMonthsText { get; set; }   // "เดือนที่ 2–6 ชำระเดือนละ ..." (สัญญา 1 เดือนไม่มี)
-    public string EndDateText { get; set; }       // วันสิ้นสุดสัญญา
+    public string EndDateText { get; set; } = "";       // วันสิ้นสุดสัญญา
 }
 
 // ===================== HomeViewModel =====================

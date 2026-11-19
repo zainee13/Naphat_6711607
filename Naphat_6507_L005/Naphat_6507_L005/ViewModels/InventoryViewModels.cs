@@ -8,18 +8,18 @@ namespace Naphat_6507_L005.ViewModels;
 public class StockItemViewModel
 {
     public int StockId { get; set; }
-    public string BookingId { get; set; }
-    public string RoomId { get; set; }
-    public string CustomerName { get; set; }
-    public string ItemName { get; set; }
+    public string BookingId { get; set; } = "";
+    public string RoomId { get; set; } = "";
+    public string CustomerName { get; set; } = "";
+    public string ItemName { get; set; } = "";
     public string? Category { get; set; }
     public int Quantity { get; set; }
     public int MinQuantity { get; set; }
     public string? Unit { get; set; }
     public bool IsVerified { get; set; }            // ฝ่ายคลังตรวจรับแล้ว (คนแก้ล่าสุดไม่ใช่ลูกค้า)
     public bool IsLow => IsVerified && Quantity <= MinQuantity;   // ใกล้หมด: ตรวจรับแล้ว และเหลือเท่ากับหรือน้อยกว่าจำนวนขั้นต่ำ
-    public string UpdatedText { get; set; }
-    public string UpdatedByName { get; set; }
+    public string UpdatedText { get; set; } = "";
+    public string UpdatedByName { get; set; } = "";
 }
 
 // ===================== StockFormViewModel =====================
@@ -27,8 +27,8 @@ public class StockItemViewModel
 public class StockFormViewModel
 {
     public int StockId { get; set; }
-    public string BookingId { get; set; }
-    public string ItemName { get; set; }
+    public string BookingId { get; set; } = "";
+    public string ItemName { get; set; } = "";
     public string? Category { get; set; }
     public string? Unit { get; set; }
     public int MinQuantity { get; set; }
@@ -41,7 +41,7 @@ public class StockAdjustViewModel
 {
     public int StockId { get; set; }
     public int Amount { get; set; }
-    public string Direction { get; set; }      // in = รับเข้า, out = เบิกออก
+    public string Direction { get; set; } = "";      // in = รับเข้า, out = เบิกออก
     public string? ReturnTo { get; set; }      // กลับไปหน้าไหนหลังบันทึก (StockList / Alerts)
     public string? FilterBookingId { get; set; }
 }
@@ -50,12 +50,12 @@ public class StockAdjustViewModel
 // แถวในหน้า Inventory/Receive: การจองที่มีสินค้ารอตรวจรับ
 public class ReceiveBookingViewModel
 {
-    public string BookingId { get; set; }
-    public string RoomId { get; set; }
-    public string CustomerName { get; set; }
+    public string BookingId { get; set; } = "";
+    public string RoomId { get; set; } = "";
+    public string CustomerName { get; set; } = "";
     public string? Phone { get; set; }
-    public string StartDateText { get; set; }
-    public string BookingStatus { get; set; }   // Pending / Checking / Active
+    public string StartDateText { get; set; } = "";
+    public string BookingStatus { get; set; } = "";   // Pending / Checking / Active
     public int ItemCount { get; set; }
     public bool CanReceive => BookingStatus == "Active";   // ตรวจรับได้เมื่อชำระเงินแล้ว (การจองใช้งานอยู่)
 }
@@ -64,7 +64,7 @@ public class ReceiveBookingViewModel
 // ฟอร์มตรวจรับสินค้าของ 1 การจอง (Inventory/ReceiveItems POST)
 public class ReceiveFormViewModel
 {
-    public string BookingId { get; set; }
+    public string BookingId { get; set; } = "";
     public List<ReceiveItemViewModel> Items { get; set; } = new();
 }
 

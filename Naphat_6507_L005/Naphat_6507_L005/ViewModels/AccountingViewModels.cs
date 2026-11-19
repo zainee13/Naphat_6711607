@@ -8,21 +8,21 @@ namespace Naphat_6507_L005.ViewModels;
 public class AccountingPaymentViewModel
 {
     public int PaymentId { get; set; }
-    public string No { get; set; }            // PAY-00001
-    public string BookingId { get; set; }
-    public string RoomId { get; set; }
-    public string Zone { get; set; }
-    public string Period { get; set; }
+    public string No { get; set; } = "";            // PAY-00001
+    public string BookingId { get; set; } = "";
+    public string RoomId { get; set; } = "";
+    public string Zone { get; set; } = "";
+    public string Period { get; set; } = "";
     public int Months { get; set; }
     public decimal MonthlyRate { get; set; }
     public decimal Deposit { get; set; }
     public decimal Amount { get; set; }
-    public string MethodText { get; set; }
-    public string PaidDate { get; set; }
-    public string DueDate { get; set; }
+    public string MethodText { get; set; } = "";
+    public string PaidDate { get; set; } = "";
+    public string DueDate { get; set; } = "";
     public string? SlipUrl { get; set; }
-    public string Status { get; set; }        // Pending / Approved / Rejected
-    public string CustomerName { get; set; }
+    public string Status { get; set; } = "";        // Pending / Approved / Rejected
+    public string CustomerName { get; set; } = "";
     public string? Company { get; set; }
     public string? TaxId { get; set; }
     public string? Phone { get; set; }
@@ -36,7 +36,7 @@ public class AccountingPaymentViewModel
 public class RejectPaymentViewModel
 {
     public int PaymentId { get; set; }
-    public string Reason { get; set; }
+    public string Reason { get; set; } = "";
 }
 
 // ===================== InvoiceListItemViewModel =====================
@@ -44,12 +44,12 @@ public class RejectPaymentViewModel
 public class InvoiceListItemViewModel
 {
     public int PaymentId { get; set; }
-    public string PaymentNo { get; set; }
-    public string BookingId { get; set; }
-    public string RoomId { get; set; }
-    public string CustomerName { get; set; }
+    public string PaymentNo { get; set; } = "";
+    public string BookingId { get; set; } = "";
+    public string RoomId { get; set; } = "";
+    public string CustomerName { get; set; } = "";
     public decimal Amount { get; set; }
-    public string ApprovedDate { get; set; }
+    public string ApprovedDate { get; set; } = "";
     public string? InvoiceId { get; set; }   // null = ยังไม่ออกเอกสาร
     public string? ReceiptId { get; set; }
 }
@@ -59,20 +59,20 @@ public class InvoiceListItemViewModel
 // ใช้ทั้งฝ่ายบัญชี (Accounting/Document) และลูกค้า (Customer/Receipt)
 public class ReceiptDocumentViewModel
 {
-    public string ReceiptId { get; set; }
-    public string ReceiptDate { get; set; }
-    public string InvoiceId { get; set; }
-    public string InvoiceDate { get; set; }
-    public string IssuedByName { get; set; }
+    public string ReceiptId { get; set; } = "";
+    public string ReceiptDate { get; set; } = "";
+    public string InvoiceId { get; set; } = "";
+    public string InvoiceDate { get; set; } = "";
+    public string IssuedByName { get; set; } = "";
 
-    public string PaymentNo { get; set; }
-    public string PaidDate { get; set; }
-    public string MethodText { get; set; }
+    public string PaymentNo { get; set; } = "";
+    public string PaidDate { get; set; } = "";
+    public string MethodText { get; set; } = "";
 
-    public string BookingId { get; set; }
-    public string RoomId { get; set; }
-    public string Zone { get; set; }
-    public string Period { get; set; }
+    public string BookingId { get; set; } = "";
+    public string RoomId { get; set; } = "";
+    public string Zone { get; set; } = "";
+    public string Period { get; set; } = "";
     public int Months { get; set; }
 
     public decimal RentAmount { get; set; }        // ค่าเช่าเดือนแรก (ก่อนหักส่วนลด)
@@ -83,7 +83,7 @@ public class ReceiptDocumentViewModel
     public decimal TotalAmount { get; set; }
     public decimal PaidAmount { get; set; }
 
-    public string CustomerName { get; set; }
+    public string CustomerName { get; set; } = "";
     public string? Company { get; set; }
     public string? TaxId { get; set; }
     public string? Address { get; set; }
@@ -91,7 +91,7 @@ public class ReceiptDocumentViewModel
     public string? Email { get; set; }
 
     // ปุ่มย้อนกลับ (ฝ่ายบัญชีกลับหน้ารายการ / ลูกค้ากลับหน้าบัญชีของฉัน)
-    public string BackUrl { get; set; }
+    public string BackUrl { get; set; } = "";
 }
 
 // ===================== DailySummaryRowViewModel =====================
@@ -99,7 +99,7 @@ public class ReceiptDocumentViewModel
 public class DailySummaryRowViewModel
 {
     public DateTime Date { get; set; }
-    public string DateText { get; set; }
+    public string DateText { get; set; } = "";
     public int Count { get; set; }          // จำนวนการชำระที่อนุมัติวันนั้น
     public decimal Rent { get; set; }       // ค่าเช่า
     public decimal Deposit { get; set; }    // เงินประกัน
@@ -111,12 +111,12 @@ public class DailySummaryRowViewModel
 // การจองที่คืนเงินประกันได้ (Accounting/Refunds และหน้า Accounting/RefundDeposit)
 public class RefundBookingViewModel
 {
-    public string BookingId { get; set; }
-    public string RoomId { get; set; }
-    public string Zone { get; set; }
-    public string CustomerName { get; set; }
-    public string Period { get; set; }
-    public string EndDateText { get; set; }
+    public string BookingId { get; set; } = "";
+    public string RoomId { get; set; } = "";
+    public string Zone { get; set; } = "";
+    public string CustomerName { get; set; } = "";
+    public string Period { get; set; } = "";
+    public string EndDateText { get; set; } = "";
     public bool IsEnded { get; set; }       // ครบสัญญาแล้ว (เลยวันสิ้นสุด)
     public decimal Deposit { get; set; }
 }
@@ -125,23 +125,23 @@ public class RefundBookingViewModel
 // ข้อมูลจากฟอร์มคืนเงินประกัน (Accounting/RefundDeposit POST)
 public class RefundFormViewModel
 {
-    public string BookingId { get; set; }
+    public string BookingId { get; set; } = "";
     public decimal Deduction { get; set; }          // หักค่าเสียหาย (0 = คืนเต็ม)
     public string? DeductionReason { get; set; }
-    public string Method { get; set; }
+    public string Method { get; set; } = "";
 }
 
 // ===================== RefundHistoryViewModel =====================
 // ประวัติการคืนเงินในหน้า Accounting/Refunds
 public class RefundHistoryViewModel
 {
-    public string RefundId { get; set; }
-    public string BookingId { get; set; }
-    public string RoomId { get; set; }
-    public string CustomerName { get; set; }
+    public string RefundId { get; set; } = "";
+    public string BookingId { get; set; } = "";
+    public string RoomId { get; set; } = "";
+    public string CustomerName { get; set; } = "";
     public decimal Amount { get; set; }
     public string? Reason { get; set; }
     public string? Method { get; set; }
-    public string DateText { get; set; }
-    public string StaffName { get; set; }
+    public string DateText { get; set; } = "";
+    public string StaffName { get; set; } = "";
 }
