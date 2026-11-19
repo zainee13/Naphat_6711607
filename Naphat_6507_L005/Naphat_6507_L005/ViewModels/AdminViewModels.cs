@@ -43,3 +43,13 @@ public class PromoListItemViewModel
     public string StatusText { get; set; } = "";             // ใช้งานได้ / ปิด / หมดอายุ / ยังไม่เริ่ม
     public int UsedCount { get; set; }                       // จำนวนการจองที่ใช้โค้ดนี้
 }
+
+// ===================== UserRentalViewModel =====================
+// ห้องที่ลูกค้ากำลังเช่า / จองไว้ 1 รายการ (คอลัมน์ "การเช่า" ในหน้า Admin/Users)
+public class UserRentalViewModel
+{
+    public string RoomId { get; set; } = "";
+    public string BookingId { get; set; } = "";
+    public string Status { get; set; } = "";       // Pending / Checking / Active
+    public string StatusText { get; set; } = "";   // รอชำระ / รอตรวจ / กำลังเช่า
+}

@@ -6,6 +6,7 @@
     // ตัวเลขสรุปและตัวกรองส่งมาจาก AdminController.Users
     var roleText = Naphat_6507_L005.Controllers.AdminController.RoleText;
     var filterRole = ViewBag.FilterRole as string;
+    var rentals = (Dictionary<int, List<Naphat_6507_L005.ViewModels.UserRentalViewModel>>)ViewBag.Rentals;   // การเช่าของลูกค้าแต่ละคน
 }
 
 <div class="page-header">
@@ -35,7 +36,7 @@
 <div class="row g-3 mb-4">
     @foreach (var s in new[] {
         ("people","ผู้ใช้ทั้งหมด",((int)ViewBag.CountAll).ToString("N0"),"ใช้งานอยู่ " + ViewBag.CountActive,"#06b6d4"),
-        ("person","ลูกค้า",((int)ViewBag.CountCustomer).ToString("N0"),"บัญชีลูกค้า","#3b82f6"),
+        ("person","ลูกค้า",((int)ViewBag.CountCustomer).ToString("N0"),"กำลังเช่า " + ViewBag.CountRenting + " คน","#3b82f6"),
         ("groups","พนักงาน",((int)ViewBag.CountStaff).ToString("N0"),"ทุกฝ่าย รวม Admin","#10b981"),
         ("no_accounts","ถูกระงับ",((int)ViewBag.CountInactive).ToString("N0"),"เข้าสู่ระบบไม่ได้","#ef4444"),
     })
@@ -75,7 +76,7 @@
     <div class="table-responsive">
         <table class="table-custom w-100">
             <thead>
-                <tr><th>ชื่อผู้ใช้</th><th>ชื่อ-นามสกุล</th><th>Role</th><th>อีเมล</th><th>วันที่สร้าง</th><th>สถานะ</th><th>ดำเนินการ</th></tr>
+                <tr><th>ชื่อผู้ใช้</th><th>ชื่อ-นามสกุล</th><th>Role</th><th>การเช่า</th><th>อีเมล</th><th>วันที่สร้าง</th><th>สถานะ</th><th>ดำเนินการ</th></tr>
             </thead>
             <tbody>
                 @if (Model != null && Model.Count > 0)
@@ -104,6 +105,26 @@
                                     @(roleText.ContainsKey(user.Role) ? roleText[user.Role] : user.Role)
                                 </span>
                             </td>
+                            <td style="font-size:0.78rem;">
+                                @if (rentals.ContainsKey(user.UserId))
+                                {
+                                    foreach (var r in rentals[user.UserId])
+                                    {
+                                        <div class="d-flex align-items-center gap-1 flex-wrap" style="margin:2px 0;" title="@r.BookingId">
+                                            <span class="fw-semibold">@r.RoomId</span>
+                                            <span class="badge-status @(r.Status == "Active" ? "badge-occupied" : "badge-pending")">@r.StatusText</span>
+                                        </div>
+                                    }
+                                }
+                                else if (user.Role == "Customer")
+                                {
+                                    <span style="color:#9ca3af;">ไม่ได้เช่า</span>
+                                }
+                                else
+                                {
+                                    <span style="color:#9ca3af;">-</span>
+                                }
+                            </td>
                             <td style="font-size:0.78rem; color:#6c757d;">@(user.Email ?? "-")</td>
                             <td style="font-size:0.75rem; color:#9ca3af;">@user.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
                             <td><span class="badge-status @(user.IsActive == true ? "badge-available" : "badge-occupied")">@(user.IsActive == true ? "ปกติ" : "ระงับ")</span></td>
@@ -127,7 +148,7 @@
                 }
                 else
                 {
-                    <tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:2rem;">ไม่พบผู้ใช้ที่ตรงกับการค้นหา</td></tr>
+                    <tr><td colspan="8" style="text-align:center; color:#9ca3af; padding:2rem;">ไม่พบผู้ใช้ที่ตรงกับการค้นหา</td></tr>
                 }
             </tbody>
         </table>

@@ -55,6 +55,34 @@ public class AdminController : Controller
         ViewBag.CountStaff = all.Count(u => u.Role != "Customer");
         ViewBag.CountInactive = all.Count(u => u.IsActive != true);
 
+        // การเช่าของลูกค้า: การจองที่ยังไม่จบ (รอชำระ / รอตรวจ / ใช้งานอยู่) จัดกลุ่มตาม UserId
+        var statusText = new Dictionary<string, string>
+        {
+            { "Pending", "รอชำระ" },
+            { "Checking", "รอตรวจการชำระ" },
+            { "Active", "กำลังเช่า" },
+        };
+        var bookings = (from b in _db.Bookings
+                        where b.BookingStatus == "Pending" || b.BookingStatus == "Checking" || b.BookingStatus == "Active"
+                        orderby b.RoomId
+                        select b).ToList();
+        Dictionary<int, List<UserRentalViewModel>> rentals = new();
+        foreach (var b in bookings)
+        {
+            UserRentalViewModel item = new();
+            item.RoomId = b.RoomId;
+            item.BookingId = b.BookingId;
+            item.Status = b.BookingStatus;
+            item.StatusText = statusText[b.BookingStatus];
+            if (!rentals.ContainsKey(b.UserId))
+            {
+                rentals[b.UserId] = new List<UserRentalViewModel>();
+            }
+            rentals[b.UserId].Add(item);
+        }
+        ViewBag.Rentals = rentals;
+        ViewBag.CountRenting = (from b in bookings where b.BookingStatus == "Active" select b.UserId).Distinct().Count();
+
         var keyword = (q ?? "").Trim();
         if (role != null && !RoleText.ContainsKey(role))
         {
