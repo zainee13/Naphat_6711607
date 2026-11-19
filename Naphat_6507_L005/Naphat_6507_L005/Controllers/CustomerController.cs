@@ -32,23 +32,11 @@ public class CustomerController : Controller
         { "S-02",  new RoomViewModel { Grid = "6 / 3 / 7 / 6",   Vehicle = "4 ล้อ / 6 ล้อ",            Temp = "อุณหภูมิปกติ",   FloorLoad = "2 ตัน/ตร.ม.",   Dock = "ทางลาดโหลดสินค้าในร่ม",   Power = "220V / 380V",         Note = "ประตูม้วนไฟฟ้า",                           OldPrice = 18000 } },
     };
 
-    // รหัสห้องแบบเก่า (บางหน้ายังลิงก์ด้วยรหัสนี้) แปลงเป็นรหัสใหม่
-    private static readonly Dictionary<string, string> _oldRoomIds = new()
-    {
-        { "BN-A01", "M-01" },
-        { "WN-B12", "L-01" },
-        { "LC-C05", "CR-05" },
-        { "LK-D03", "L-02" },
-        { "BN-A07", "S-02" },
-        { "WN-E01", "XL-01" },
-    };
-
     // ชื่อวิธีชำระเงินที่แสดงในประวัติ
     public static readonly Dictionary<string, string> _payMethodText = new()
     {
         { "transfer", "โอนผ่าน SCB" },
         { "qr", "พร้อมเพย์ QR" },
-        { "card", "บัตรเครดิต / เดบิต" },
     };
 
     private static readonly CultureInfo _th = new("th-TH");
@@ -168,14 +156,10 @@ public class CustomerController : Controller
         return stars.Count == 0 ? null : stars.Average().ToString("0.0");
     }
 
-    // หาห้องตามรหัส (รองรับรหัสเก่า) ถ้าไม่เจอให้ใช้ M-01
+    // หาห้องตามรหัส ถ้าไม่ส่งรหัสมาหรือไม่เจอให้ใช้ M-01
     private Room? FindRoom(string? id)
     {
         id ??= "M-01";
-        if (_oldRoomIds.ContainsKey(id))
-        {
-            id = _oldRoomIds[id];
-        }
         var room = (from r in _db.Rooms where r.RoomId == id select r).FirstOrDefault();
         return room ?? (from r in _db.Rooms where r.RoomId == "M-01" select r).FirstOrDefault();
     }
@@ -184,7 +168,8 @@ public class CustomerController : Controller
     public const int PayWithinDays = 7;
 
     // ยกเลิกการจองที่ยังรอชำระ (Pending) เกินกำหนด: การจองเป็น Cancelled และห้องกลับมาว่าง
-    // ไม่มีงานตั้งเวลาในระบบ จึงเรียกตอนเปิดหน้าที่เกี่ยวข้อง (หน้าลูกค้า และหน้าภาพรวมฝ่ายบัญชี)
+    // ไม่มีงานตั้งเวลาในระบบ จึงเรียกตอนเปิดหน้าที่เกี่ยวข้อง (หน้าลูกค้า หน้าภาพรวมฝ่ายบัญชี และผู้จัดการ)
+    // พร้อมกันนี้คำนวณสถานะห้องทุกห้องใหม่ตามวันที่วันนี้
     public static int CancelExpiredBookings(Csi402dbContext db)
     {
         var limit = DateTime.Now.AddDays(-PayWithinDays);
@@ -200,20 +185,112 @@ public class CustomerController : Controller
         {
             db.SaveChanges();
         }
+
+        // คำนวณสถานะทุกห้องใหม่ (ห้องที่เพิ่งถูกยกเลิกกลับมาว่าง และห้องที่ถึงวันเริ่มเช่าแล้วเปลี่ยนเป็นมีผู้เช่า)
+        foreach (var roomId in (from r in db.Rooms select r.RoomId).ToList())
+        {
+            RefreshRoomStatus(db, roomId);
+        }
+        db.SaveChanges();   // บันทึกเฉพาะห้องที่สถานะเปลี่ยน
         return expired.Count;
     }
 
-    // ยกเลิกการจอง 1 รายการ (ยังไม่ SaveChanges): สถานะ Cancelled, จดเหตุผลใน Note, ห้องกลับมาว่าง
+    // ยกเลิกการจอง 1 รายการ (ยังไม่ SaveChanges): สถานะ Cancelled, จดเหตุผลใน Note
+    // สถานะห้องคำนวณใหม่ด้วย RefreshRoomStatus หลัง SaveChanges
     private static void CancelBooking(Csi402dbContext db, Booking booking, string noteLine)
     {
         booking.BookingStatus = "Cancelled";
         booking.Note = string.IsNullOrEmpty(booking.Note) ? noteLine : booking.Note + "\n" + noteLine;
+    }
 
-        var room = (from r in db.Rooms where r.RoomId == booking.RoomId select r).FirstOrDefault();
-        if (room != null && room.Status == "Booked")
+    // ===== ห้องว่างตามช่วงเวลา =====
+    // ห้อง 1 ห้องจองได้หลายช่วงเวลา ถ้าช่วงไม่ทับกัน เช่น มีผู้เช่าถึง 31 ม.ค. คนใหม่จองเริ่ม 1 ก.พ. ได้
+    // การจองที่ยัง "ถือห้อง" อยู่ = รอชำระ (Pending), รอตรวจ (Checking), ใช้งานอยู่ (Active)
+
+    // ช่วงเวลาที่ห้องถูกจองแล้วตั้งแต่วันนี้เป็นต้นไป เรียงตามวันเริ่ม
+    public static List<BookedPeriodViewModel> GetBookedPeriods(Csi402dbContext db, string roomId)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var rows = (from b in db.Bookings
+                    where b.RoomId == roomId && b.EndDate >= today
+                          && (b.BookingStatus == "Pending" || b.BookingStatus == "Checking" || b.BookingStatus == "Active")
+                    orderby b.StartDate
+                    select b).ToList();
+
+        List<BookedPeriodViewModel> list = new();
+        foreach (var b in rows)
+        {
+            BookedPeriodViewModel item = new();
+            item.BookingId = b.BookingId;
+            item.Start = b.StartDate;
+            item.End = b.EndDate;
+            item.Text = b.StartDate.ToString("d MMM yyyy", _th) + " – " + b.EndDate.ToString("d MMM yyyy", _th);
+            list.Add(item);
+        }
+        return list;
+    }
+
+    // ช่วง start–end ว่างไหม (ไม่ทับกับการจองที่ยังถือห้องอยู่)
+    // สองช่วงทับกันเมื่อ เริ่มของช่วงหนึ่ง <= จบของอีกช่วง และ จบของช่วงหนึ่ง >= เริ่มของอีกช่วง
+    public static bool IsPeriodFree(Csi402dbContext db, string roomId, DateOnly start, DateOnly end)
+    {
+        return !(from b in db.Bookings
+                 where b.RoomId == roomId
+                       && (b.BookingStatus == "Pending" || b.BookingStatus == "Checking" || b.BookingStatus == "Active")
+                       && b.StartDate <= end && b.EndDate >= start
+                 select b).Any();
+    }
+
+    // วันแรกที่ห้องว่าง นับจากวันนี้ (ถ้าวันนี้มีคนจองอยู่ ขยับไปวันถัดจากวันจบของช่วงนั้นเรื่อยๆ)
+    public static DateOnly GetNextFreeDate(List<BookedPeriodViewModel> periods)
+    {
+        var date = DateOnly.FromDateTime(DateTime.Today);
+        foreach (var p in periods)
+        {
+            if (p.Start <= date && p.End >= date)
+            {
+                date = p.End.AddDays(1);
+            }
+        }
+        return date;
+    }
+
+    // คำนวณสถานะห้องใหม่จากการจอง (เรียกหลัง SaveChanges แล้ว SaveChanges อีกครั้ง)
+    // มีการจองที่ใช้งานอยู่และเริ่มแล้ว = Occupied, มีการจองที่ยังไม่จบ (รอชำระ/รอตรวจ/ยังไม่ถึงวันเริ่ม) = Booked, ไม่มี = Available
+    public static void RefreshRoomStatus(Csi402dbContext db, string roomId)
+    {
+        var room = (from r in db.Rooms where r.RoomId == roomId select r).FirstOrDefault();
+        if (room == null)
+        {
+            return;
+        }
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var holding = (from b in db.Bookings
+                       where b.RoomId == roomId
+                             && (b.BookingStatus == "Active" || ((b.BookingStatus == "Pending" || b.BookingStatus == "Checking") && b.EndDate >= today))
+                       select b).ToList();
+
+        if (holding.Any(b => b.BookingStatus == "Active" && b.StartDate <= today))
+        {
+            room.Status = "Occupied";
+        }
+        else if (holding.Count > 0)
+        {
+            room.Status = "Booked";
+        }
+        else
         {
             room.Status = "Available";
         }
+    }
+
+    // ส่งช่วงที่ถูกจองและวันแรกที่ว่างให้หน้ารายละเอียดห้อง / หน้าจอง
+    private void SetBookedPeriodsBag(string roomId)
+    {
+        var periods = GetBookedPeriods(_db, roomId);
+        ViewBag.BookedPeriods = periods;
+        ViewBag.NextFreeDate = GetNextFreeDate(periods);
+        ViewBag.NextFreeText = GetNextFreeDate(periods).ToString("d MMMM yyyy", _th);
     }
 
     // จำนวนเดือนของเงินประกัน: สัญญา 1–3 เดือน = 1 เดือน, 6 เดือน = 2 เดือน, 12 เดือน = 3 เดือน
@@ -518,6 +595,7 @@ public class CustomerController : Controller
                                                     && !_db.Reviews.Any(rv => rv.BookingId == b.BookingId)
                                               select b).Any();
 
+        SetBookedPeriodsBag(room.RoomId);
         ViewBag.Quote = BuildQuote(room.MonthlyRate, DateTime.Today, 6);
         var rating = reviewList.Count == 0 ? null : reviewList.Average(r => r.Stars).ToString("0.0");
         return View(ToRoomViewModel(room, rating));
@@ -598,9 +676,12 @@ public class CustomerController : Controller
 
         // ค่าเริ่มต้นของฟอร์ม: ข้อมูลผู้เช่าจากตาราง user, วันเริ่มเช่าและระยะสัญญาอาจส่งมาจากหน้า RoomDetail
         var user = GetCurrentUser();
+        SetBookedPeriodsBag(room.RoomId);
         BookingViewModel data = new();
         data.RoomId = room.RoomId;
-        data.StartDate = startDate != null && startDate.Value.Date >= DateTime.Today ? startDate.Value.Date : DateTime.Today;
+        // วันเริ่มตั้งต้น: วันที่ส่งมาจากหน้ารายละเอียดห้อง ถ้าไม่มีใช้วันแรกที่ห้องว่าง
+        var nextFree = ((DateOnly)ViewBag.NextFreeDate).ToDateTime(TimeOnly.MinValue);
+        data.StartDate = startDate != null && startDate.Value.Date >= DateTime.Today ? startDate.Value.Date : nextFree;
         data.Months = ValidMonths(months);
         ViewBag.Quote = BuildQuote(room.MonthlyRate, data.StartDate, data.Months);
         data.ContactName = user?.Fullname ?? HttpContext.Session.GetString("FullName");
@@ -632,6 +713,7 @@ public class CustomerController : Controller
             return RedirectToAction("Search");
         }
         ViewBag.Room = ToRoomViewModel(room, null);
+        SetBookedPeriodsBag(room.RoomId);
         // ยอดที่แสดงถ้าต้องกลับไปหน้าฟอร์ม (กรอกผิด) ใช้วันและระยะสัญญาที่ลูกค้าเลือกไว้
         var promoCheck = CheckPromo(_db, data.PromoCode, room.MonthlyRate, data.Months);
         ViewBag.Quote = BuildQuote(room.MonthlyRate, data.StartDate.Date >= DateTime.Today ? data.StartDate : DateTime.Today, data.Months, promoCheck.discount);
@@ -640,12 +722,6 @@ public class CustomerController : Controller
         if (user == null)
         {
             ViewBag.Error = "บัญชีนี้จองห้องไม่ได้ กรุณาเข้าสู่ระบบด้วยบัญชีลูกค้าที่สมัครสมาชิก";
-            return View(data);
-        }
-
-        if (room.Status != "Available")
-        {
-            ViewBag.Error = "ห้องนี้มีผู้เช่าแล้ว จองไม่ได้";
             return View(data);
         }
 
@@ -677,6 +753,16 @@ public class CustomerController : Controller
         if (data.Months != 1 && data.Months != 3 && data.Months != 6 && data.Months != 12)
         {
             ViewBag.Error = "ระยะสัญญาไม่ถูกต้อง";
+            return View(data);
+        }
+
+        // ช่วงเวลาที่เลือกต้องไม่ทับกับการจองอื่นของห้องนี้
+        var periodStart = DateOnly.FromDateTime(data.StartDate.Date);
+        var periodEnd = DateOnly.FromDateTime(GetEndDate(data.StartDate.Date, data.Months));
+        if (!IsPeriodFree(_db, room.RoomId, periodStart, periodEnd))
+        {
+            ViewBag.Error = "ห้องนี้ถูกจองในช่วง " + periodStart.ToString("d MMM yyyy", _th) + " – " + periodEnd.ToString("d MMM yyyy", _th)
+                            + " แล้ว ว่างตั้งแต่ " + ViewBag.NextFreeText + " กรุณาเลือกวันเริ่มเช่าใหม่";
             return View(data);
         }
 
@@ -767,9 +853,8 @@ public class CustomerController : Controller
             _db.Stockitems.Add(stock);
         }
 
-        // ห้องถูกจองแล้ว คนอื่นจองซ้ำไม่ได้
-        room.Status = "Booked";
         _db.SaveChanges();
+        RefreshRoomStatus(_db, room.RoomId);   // ห้องมีการจองแล้ว: Booked (หรือ Occupied ถ้ามีผู้เช่าอยู่ตอนนี้)
 
         // ออกใบแจ้งหนี้ให้ลูกค้าทันทีหลังจอง (ใบเสร็จออกตอนฝ่ายบัญชีอนุมัติการชำระ)
         var invoiceId = AccountingController.CreateInvoice(_db, booking, room.MonthlyRate, null);
@@ -1224,32 +1309,7 @@ public class CustomerController : Controller
         });
     }
 
-    // หน้าตั๋วแบบเต็มหน้า (เก็บไว้เผื่อเข้าจากลิงก์เดิม) เปิดได้เฉพาะตั๋วของตัวเอง
-    public IActionResult Ticket(int id)
-    {
-        if (!IsLoggedIn)
-        {
-            return RedirectToAction("Login", "Account");
-        }
-        if (IsStaff)
-        {
-            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
-        }
-        SetUserBag();
-
-        var user = GetCurrentUser();
-        var ticket = user == null ? null : CustomerServiceController.GetTickets(_db, user.UserId, null, id, true).FirstOrDefault();
-        if (ticket == null)
-        {
-            TempData["Error"] = "ไม่พบเรื่องนี้";
-            return RedirectToAction("Profile");
-        }
-        MarkSeen(ticket);
-        return View(ticket);
-    }
-
-    // ลูกค้าตอบในเรื่อง (POST): ถ้าเรื่องปิดไปแล้ว จะเปิดใหม่ให้พนักงานเห็น
-    // Embed = true ส่งมาจากกล่องแชท กลับไปที่ ChatThread, ไม่งั้นกลับหน้าเต็ม Ticket
+    // ลูกค้าตอบในเรื่อง (POST): ถ้าเรื่องปิดไปแล้ว จะเปิดใหม่ให้พนักงานเห็น แล้วกลับไปหน้าแชทเรื่องนั้น
     [HttpPost]
     public IActionResult ReplyTicket(TicketReplyViewModel data)
     {
@@ -1261,7 +1321,7 @@ public class CustomerController : Controller
         {
             return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
         }
-        var backAction = data.Embed ? "ChatThread" : "Ticket";
+        var backAction = "ChatThread";
 
         var user = GetCurrentUser();
         var ticket = user == null ? null :
@@ -1271,7 +1331,7 @@ public class CustomerController : Controller
         if (ticket == null)
         {
             TempData["Error"] = "ไม่พบเรื่องนี้";
-            return RedirectToAction(data.Embed ? "Chat" : "Profile");
+            return RedirectToAction("Chat");
         }
         if (string.IsNullOrWhiteSpace(data.Message))
         {
@@ -1321,47 +1381,10 @@ public class CustomerController : Controller
 
         CancelBooking(_db, booking, "[ลูกค้ายกเลิก " + DateTime.Now.ToString("d MMM yyyy", _th) + "]");
         _db.SaveChanges();
+        RefreshRoomStatus(_db, booking.RoomId);
+        _db.SaveChanges();
 
         TempData["Success"] = "ยกเลิกการจอง " + booking.BookingId + " แล้ว";
         return RedirectToAction("Profile", new { tab = "bookings" });
-    }
-
-    public IActionResult MyBookings()
-    {
-        if (!IsLoggedIn)
-        {
-            return RedirectToAction("Login", "Account");
-        }
-        if (IsStaff)
-        {
-            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
-        }
-        return RedirectToAction("Profile", new { tab = "bookings" });
-    }
-
-    public IActionResult Payment(string? bookingId = null)
-    {
-        if (!IsLoggedIn)
-        {
-            return RedirectToAction("Login", "Account");
-        }
-        if (IsStaff)
-        {
-            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
-        }
-        return RedirectToAction("Profile", new { tab = "payment", bookingId });
-    }
-
-    public IActionResult Reviews()
-    {
-        if (!IsLoggedIn)
-        {
-            return RedirectToAction("Login", "Account");
-        }
-        if (IsStaff)
-        {
-            return RedirectToAction("Dashboard", StaffRole);   // พนักงานฝ่ายอื่นกลับไปหน้าฝ่ายตัวเอง
-        }
-        return RedirectToAction("RoomDetail", new { id = "M-01" });
     }
 }

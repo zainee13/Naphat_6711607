@@ -164,3 +164,13 @@ public class HomeSizeCardViewModel
     public int MinPrice { get; set; }
     public bool Popular { get; set; }
 }
+
+// ===================== BookedPeriodViewModel =====================
+// ช่วงเวลาที่ห้องถูกจองแล้ว 1 ช่วง (แสดงในหน้ารายละเอียดห้อง / หน้าจอง)
+public class BookedPeriodViewModel
+{
+    public string BookingId { get; set; } = "";
+    public DateOnly Start { get; set; }
+    public DateOnly End { get; set; }
+    public string Text { get; set; } = "";   // เช่น 1 ธ.ค. 2569 – 31 พ.ค. 2570
+}

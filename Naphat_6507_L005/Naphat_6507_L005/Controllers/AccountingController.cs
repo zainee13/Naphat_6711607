@@ -153,12 +153,15 @@ public class AccountingController : Controller
         payment.VerifiedBy = staff.UserId;
         payment.VerifiedAt = DateTime.Now;
 
-        // booking: ใช้งานได้ / ห้อง: มีผู้เช่าแล้ว
+        // booking: ใช้งานได้
         booking.BookingStatus = "Active";
-        room.Status = "Occupied";
 
         // ออกใบแจ้งหนี้ + ใบเสร็จอัตโนมัติ
         var receiptId = CreateDocuments(payment, booking, room, staff.UserId);
+        _db.SaveChanges();
+
+        // ห้อง: มีผู้เช่า (Occupied) ถ้าถึงวันเริ่มเช่าแล้ว ถ้ายังไม่ถึงยังเป็นถูกจอง (Booked)
+        CustomerController.RefreshRoomStatus(_db, room.RoomId);
         _db.SaveChanges();
 
         TempData["Success"] = "อนุมัติการชำระ PAY-" + payment.PaymentId.ToString("00000") + " แล้ว การจอง " + booking.BookingId
@@ -503,6 +506,83 @@ public class AccountingController : Controller
         return invoiceRent ?? Math.Max(amount - deposit, 0);
     }
 
+    // รายรับย้อนหลังรายเดือน (นับตามวันที่อนุมัติการชำระ / วันที่คืนเงิน) เดือนสุดท้าย = เดือนนี้
+    // ใช้ร่วมกับ ManagerController (ภาพรวมธุรกิจ / รายรับรายเดือน)
+    public static List<MonthlyRevenueViewModel> GetMonthlyRevenue(Csi402dbContext db, int monthCount)
+    {
+        var thisMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        var start = thisMonth.AddMonths(-(monthCount - 1));
+        var endExclusive = thisMonth.AddMonths(1);
+
+        var payments = (from p in db.Payments
+                        join b in db.Bookings on p.BookingId equals b.BookingId
+                        where p.PaymentStatus == "Approved" && p.VerifiedAt >= start && p.VerifiedAt < endExclusive
+                        select new
+                        {
+                            Date = p.VerifiedAt!.Value,
+                            p.Amount,
+                            b.Deposit,
+                            InvoiceRent = (from i in db.Invoices where i.BookingId == b.BookingId select (decimal?)i.RentAmount).FirstOrDefault()
+                        }).ToList();
+
+        var refunds = (from rf in db.Refunds
+                       where rf.RefundStatus == "Completed" && rf.RefundDate >= start && rf.RefundDate < endExclusive
+                       select new { Date = rf.RefundDate!.Value, rf.RefundAmount }).ToList();
+
+        // สร้างครบทุกเดือน (เดือนที่ไม่มีรายการ = 0)
+        List<MonthlyRevenueViewModel> months = new();
+        for (int i = 0; i < monthCount; i++)
+        {
+            MonthlyRevenueViewModel m = new();
+            m.Month = start.AddMonths(i);
+            m.MonthText = m.Month.ToString("MMM yyyy", _th);
+            months.Add(m);
+        }
+
+        foreach (var p in payments)
+        {
+            var month = (from m in months where m.Month.Year == p.Date.Year && m.Month.Month == p.Date.Month select m).First();
+            var rent = RentPart(p.Amount, p.Deposit, p.InvoiceRent);
+            month.Count++;
+            month.Rent += rent;
+            month.Deposit += p.Amount - rent;
+        }
+        foreach (var rf in refunds)
+        {
+            var month = (from m in months where m.Month.Year == rf.Date.Year && m.Month.Month == rf.Date.Month select m).First();
+            month.Refund += rf.RefundAmount;
+        }
+
+        // ความยาวแท่งกราฟ เทียบกับเดือนที่ค่าเช่าสูงสุด
+        var max = months.Max(m => m.Rent);
+        foreach (var m in months)
+        {
+            m.BarPercent = max == 0 ? 0 : (int)Math.Round(m.Rent * 100 / max);
+        }
+        return months;
+    }
+
+    // สรุปรายรับรายเดือน (ย้อนหลัง 12 เดือน) ของฝ่ายบัญชี
+    public IActionResult MonthlySummary()
+    {
+        if (!IsAccounting)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        SetUserBag();
+
+        var months = GetMonthlyRevenue(_db, 12);
+        ViewBag.TotalRent = months.Sum(m => m.Rent);
+        ViewBag.TotalDeposit = months.Sum(m => m.Deposit);
+        ViewBag.TotalRefund = months.Sum(m => m.Refund);
+        ViewBag.TotalNet = months.Sum(m => m.Net);
+        ViewBag.TotalCount = months.Sum(m => m.Count);
+        ViewBag.RangeText = months[0].MonthText + " – " + months[months.Count - 1].MonthText;
+
+        months.Reverse();   // เดือนล่าสุดอยู่บน
+        return View(months);
+    }
+
     // ===================== การคืนเงิน =====================
 
     // วิธีคืนเงินที่ให้เลือก
@@ -676,7 +756,8 @@ public class AccountingController : Controller
         var booking = (from b in _db.Bookings where b.BookingId == data.BookingId select b).First();
         var room = (from r in _db.Rooms where r.RoomId == booking.RoomId select r).First();
         booking.BookingStatus = "Ended";
-        room.Status = "Available";
+        _db.SaveChanges();
+        CustomerController.RefreshRoomStatus(_db, room.RoomId);   // ว่าง ถ้าไม่มีการจองช่วงถัดไป
         _db.SaveChanges();
 
         TempData["Success"] = "คืนเงินประกัน " + refund.RefundId + " ฿" + refund.RefundAmount.ToString("N0")

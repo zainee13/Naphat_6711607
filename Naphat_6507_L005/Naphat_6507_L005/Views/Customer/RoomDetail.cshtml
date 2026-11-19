@@ -2,7 +2,9 @@
 @{
     var room = Model;
     var reviews = ViewBag.Reviews as List<Naphat_6507_L005.ViewModels.ReviewViewModel> ?? new();
-    var quote = (Naphat_6507_L005.ViewModels.PriceQuoteViewModel)ViewBag.Quote;   // ยอดเริ่มต้น (เริ่มวันนี้ 6 เดือน)
+    var quote = (Naphat_6507_L005.ViewModels.PriceQuoteViewModel)ViewBag.Quote;
+    var periods = ViewBag.BookedPeriods as List<Naphat_6507_L005.ViewModels.BookedPeriodViewModel> ?? new();   // ช่วงที่ถูกจองแล้ว
+    var nextFree = (DateOnly)ViewBag.NextFreeDate;   // วันแรกที่ห้องว่าง   // ยอดเริ่มต้น (เริ่มวันนี้ 6 เดือน)
 
     ViewData["Title"] = "ห้อง " + room.Id;
     Layout = "_PublicLayout";
@@ -41,7 +43,7 @@
             }
             else
             {
-                <span class="cu-status is-taken">มีผู้เช่าแล้ว</span>
+                <span class="cu-status is-taken">มีผู้เช่า / ถูกจองแล้ว · จองได้ตั้งแต่ @ViewBag.NextFreeText</span>
             }
         </div>
         <p>@room.Zone, @room.Desc</p>
@@ -141,13 +143,27 @@
         <aside class="rd-book" aria-labelledby="priceTitle">
             <p class="rd-price" id="priceTitle"><strong>฿@room.Price.ToString("N0")</strong> ต่อเดือน</p>
 
-            @if (room.Free)
+            @if (periods.Count > 0)
             {
+                <!-- ช่วงที่ห้องถูกจองแล้ว (CustomerController.GetBookedPeriods) จองได้เฉพาะช่วงที่ไม่ทับ -->
+                <div class="cu-booked">
+                    <strong>ช่วงที่ถูกจองแล้ว</strong>
+                    <ul>
+                        @foreach (var p in periods)
+                        {
+                            <li>@p.Text</li>
+                        }
+                    </ul>
+                    <p>ว่างให้จองตั้งแต่ <strong>@ViewBag.NextFreeText</strong></p>
+                </div>
+            }
+
+            @* จองได้ทุกห้อง ถ้าช่วงเวลาไม่ทับกับการจองอื่น (ตรวจที่ CustomerController.BookRoom) *@
                 <!-- ส่งวันเริ่มเช่าและระยะสัญญาไปหน้า BookRoom -->
                 <form asp-controller="Customer" asp-action="BookRoom" asp-route-id="@room.Id" method="get">
                 <label class="cu-field">
                     <span>วันเริ่มเช่า</span>
-                    <input type="date" id="startDate" name="startDate" />
+                    <input type="date" id="startDate" name="startDate" value="@nextFree.ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
                 </label>
                 <label class="cu-field">
                     <span>ระยะสัญญา</span>
@@ -181,12 +197,6 @@
 
                 <button type="submit" class="cu-btn cu-btn--primary rd-cta">จองห้องนี้</button>
                 </form>
-            }
-            else
-            {
-                <p class="rd-taken-note">ห้องนี้มีผู้เช่าแล้ว ยังจองไม่ได้ในตอนนี้</p>
-                <a class="cu-btn rd-cta" asp-controller="Customer" asp-action="Search">เลือกห้องอื่นบนผัง</a>
-            }
         </aside>
     </div>
 </div>
@@ -223,8 +233,7 @@
     const durationSelect = document.getElementById('duration');
     if (durationSelect) {
         const startDate = document.getElementById('startDate');
-        startDate.valueAsDate = new Date();
-        startDate.min = startDate.value;   // เลือกวันย้อนหลังไม่ได้
+        // วันเริ่มตั้งต้น (วันแรกที่ห้องว่าง) และวันต่ำสุดตั้งมาจาก Controller แล้ว
 
         durationSelect.addEventListener('change', function () { refreshQuote(startDate.value, durationSelect.value); });
     }

@@ -45,61 +45,6 @@ public class ManagerController : Controller
         ViewBag.Role = "Manager";
     }
 
-    // รายรับย้อนหลังรายเดือน (นับตามวันที่ฝ่ายบัญชีอนุมัติ / วันที่คืนเงิน) ใช้กฎแยกค่าเช่าเดียวกับฝ่ายบัญชี
-    private List<MonthlyRevenueViewModel> GetMonthlyRevenue(int monthCount)
-    {
-        var thisMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-        var start = thisMonth.AddMonths(-(monthCount - 1));
-        var endExclusive = thisMonth.AddMonths(1);
-
-        var payments = (from p in _db.Payments
-                        join b in _db.Bookings on p.BookingId equals b.BookingId
-                        where p.PaymentStatus == "Approved" && p.VerifiedAt >= start && p.VerifiedAt < endExclusive
-                        select new
-                        {
-                            Date = p.VerifiedAt!.Value,
-                            p.Amount,
-                            b.Deposit,
-                            InvoiceRent = (from i in _db.Invoices where i.BookingId == b.BookingId select (decimal?)i.RentAmount).FirstOrDefault()
-                        }).ToList();
-
-        var refunds = (from rf in _db.Refunds
-                       where rf.RefundStatus == "Completed" && rf.RefundDate >= start && rf.RefundDate < endExclusive
-                       select new { Date = rf.RefundDate!.Value, rf.RefundAmount }).ToList();
-
-        // สร้างครบทุกเดือน (เดือนที่ไม่มีรายการ = 0)
-        List<MonthlyRevenueViewModel> months = new();
-        for (int i = 0; i < monthCount; i++)
-        {
-            MonthlyRevenueViewModel m = new();
-            m.Month = start.AddMonths(i);
-            m.MonthText = m.Month.ToString("MMM yyyy", _th);
-            months.Add(m);
-        }
-
-        foreach (var p in payments)
-        {
-            var month = (from m in months where m.Month.Year == p.Date.Year && m.Month.Month == p.Date.Month select m).First();
-            var rent = AccountingController.RentPart(p.Amount, p.Deposit, p.InvoiceRent);
-            month.Count++;
-            month.Rent += rent;
-            month.Deposit += p.Amount - rent;
-        }
-        foreach (var rf in refunds)
-        {
-            var month = (from m in months where m.Month.Year == rf.Date.Year && m.Month.Month == rf.Date.Month select m).First();
-            month.Refund += rf.RefundAmount;
-        }
-
-        // ความยาวแท่งกราฟ เทียบกับเดือนที่ค่าเช่าสูงสุด
-        var max = months.Max(m => m.Rent);
-        foreach (var m in months)
-        {
-            m.BarPercent = max == 0 ? 0 : (int)Math.Round(m.Rent * 100 / max);
-        }
-        return months;
-    }
-
     // ห้องทั้งหมด พร้อมการจองปัจจุบัน (รอชำระ / รอตรวจ / ใช้งานอยู่)
     private List<ManagerRoomViewModel> GetRooms()
     {
@@ -166,7 +111,7 @@ public class ManagerController : Controller
         CustomerController.CancelExpiredBookings(_db);   // ยกเลิกการจองที่ไม่ชำระเกินกำหนดก่อนแสดงผล
 
         // รายรับ 6 เดือนล่าสุด (เดือนสุดท้าย = เดือนนี้)
-        var revenue = GetMonthlyRevenue(6);
+        var revenue = AccountingController.GetMonthlyRevenue(_db, 6);
         var thisMonth = revenue[revenue.Count - 1];
         var lastMonth = revenue[revenue.Count - 2];
         ViewBag.Revenue = revenue;
@@ -239,7 +184,7 @@ public class ManagerController : Controller
         }
         SetUserBag();
 
-        var months = GetMonthlyRevenue(12);
+        var months = AccountingController.GetMonthlyRevenue(_db, 12);
         ViewBag.TotalRent = months.Sum(m => m.Rent);
         ViewBag.TotalDeposit = months.Sum(m => m.Deposit);
         ViewBag.TotalRefund = months.Sum(m => m.Refund);

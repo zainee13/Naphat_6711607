@@ -1,6 +1,7 @@
 @model Naphat_6507_L005.ViewModels.BookingViewModel
 @{
     var room = (Naphat_6507_L005.ViewModels.RoomViewModel)ViewBag.Room;
+    var periods = ViewBag.BookedPeriods as List<Naphat_6507_L005.ViewModels.BookedPeriodViewModel> ?? new();   // ช่วงที่ถูกจองแล้ว
     var isCompany = Model.TenantType != "person";
     var quote = (Naphat_6507_L005.ViewModels.PriceQuoteViewModel)ViewBag.Quote;   // ยอดเริ่มต้นจาก Controller
 
@@ -35,16 +36,22 @@
         <li><span>3</span>ชำระเงิน</li>
     </ol>
 
-    @if (!room.Free)
+    @if (periods.Count > 0)
     {
-        <!-- ห้องมีผู้เช่าแล้ว: ไม่แสดงฟอร์ม -->
-        <div class="bk-blocked">
-            <p><strong>ห้อง @room.Id มีผู้เช่าแล้ว</strong> จองไม่ได้ในตอนนี้</p>
-            <a class="cu-btn" asp-controller="Customer" asp-action="Search">เลือกห้องอื่นบนผัง</a>
-        </div>
+        <!-- ช่วงที่ห้องถูกจองแล้ว (CustomerController.GetBookedPeriods) จองได้เฉพาะช่วงที่ไม่ทับ -->
+                <div class="cu-booked bk-booked">
+                    <strong>ช่วงที่ถูกจองแล้ว</strong>
+                    <ul>
+                        @foreach (var p in periods)
+                        {
+                            <li>@p.Text</li>
+                        }
+                    </ul>
+                    <p>ว่างให้จองตั้งแต่ <strong>@ViewBag.NextFreeText</strong></p>
+                </div>
     }
-    else
-    {
+
+    @* จองได้ถ้าช่วงเวลาไม่ทับกับการจองอื่น (ตรวจที่ CustomerController.BookRoom POST) *@
         <form class="bk-layout" id="bookingForm" asp-controller="Customer" asp-action="BookRoom" method="post">
             <input type="hidden" asp-for="RoomId" />
 
@@ -233,7 +240,6 @@
                 <button type="submit" class="cu-btn cu-btn--primary bk-submit" id="submitButton">ยืนยันการจองและไปชำระเงิน</button>
             </aside>
         </form>
-    }
 </div>
 
 @section Scripts {

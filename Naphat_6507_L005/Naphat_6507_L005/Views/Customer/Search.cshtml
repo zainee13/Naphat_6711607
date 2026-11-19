@@ -102,7 +102,8 @@
 
             <!-- ข้อความสำหรับห้องที่มีผู้เช่าแล้ว -->
             <div class="fp-actions" id="actionsTaken" hidden>
-                <p class="fp-taken-note">ห้องนี้มีผู้เช่าแล้ว เลือกห้องอื่นบนผังได้เลย</p>
+                <p class="fp-taken-note">ห้องนี้มีผู้เช่าหรือถูกจองแล้ว แต่จองช่วงเวลาถัดไปได้</p>
+                <a class="cu-btn" id="btnDetailTaken" href="@detailUrl/@firstRoom.Id">ดูช่วงที่ว่าง</a>
             </div>
         </aside>
     </div>
@@ -200,6 +201,7 @@
         document.getElementById('actionsTaken').hidden = isFree;
         document.getElementById('btnBook').href = bookUrl + '/' + room.id;
         document.getElementById('btnDetail').href = detailUrl + '/' + room.id;
+        document.getElementById('btnDetailTaken').href = detailUrl + '/' + room.id;
     }
 
     roomButtons.forEach(function (button) {

@@ -51,5 +51,4 @@ public class TicketReplyViewModel
 {
     public int TicketId { get; set; }
     public string? Message { get; set; }
-    public bool Embed { get; set; }             // ส่งมาจากกล่องแชท (กลับไปหน้าในกล่องแชท)
 }

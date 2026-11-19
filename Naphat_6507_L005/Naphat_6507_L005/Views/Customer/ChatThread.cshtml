@@ -60,10 +60,9 @@
     }
 </div>
 
-<!-- ช่องพิมพ์: ส่งไปที่ CustomerController.ReplyTicket (Embed = กลับมาหน้านี้) -->
+<!-- ช่องพิมพ์: ส่งไปที่ CustomerController.ReplyTicket แล้วกลับมาหน้านี้ -->
 <form class="chat-compose" asp-controller="Customer" asp-action="ReplyTicket" method="post" id="chatForm">
     <input type="hidden" name="TicketId" value="@Model.TicketId" />
-    <input type="hidden" name="Embed" value="true" />
     <label class="visually-hidden" for="chatInput">พิมพ์ข้อความ</label>
     <textarea id="chatInput" name="Message" rows="1" required
               placeholder="@(Model.Status == "Resolved" ? "พิมพ์เพื่อเปิดเรื่องอีกครั้ง..." : "พิมพ์ข้อความ...")"></textarea>

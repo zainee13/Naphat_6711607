@@ -122,3 +122,10 @@
 /* ข้อความแจ้งผลจาก Controller (TempData / ViewBag): สีอ่อนบนพื้นเข้ม พอให้แยกสำเร็จ / ผิดพลาดออก */
 .cu-alert { margin: 0 0 16px; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(143, 214, 168, 0.3); background: var(--cu-ok-bg); color: var(--cu-ok); font-size: 14px; }
 .cu-alert--error { border-color: rgba(242, 163, 163, 0.3); background: var(--cu-err-bg); color: var(--cu-err); }
+
+/* ช่วงที่ห้องถูกจองแล้ว (หน้ารายละเอียดห้อง / หน้าจอง) */
+.cu-booked { border: 1px solid var(--cu-line); border-radius: 12px; padding: 14px 16px; margin: 0 0 16px; font-size: 14px; }
+.cu-booked strong { color: var(--cu-text); }
+.cu-booked ul { margin: 6px 0 8px; padding-left: 1.1em; color: var(--cu-muted); }
+.cu-booked p { margin: 0; color: var(--cu-muted); }
+.bk-booked { max-width: 36rem; margin-bottom: 20px; }

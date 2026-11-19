@@ -127,8 +127,8 @@
                 var queryTab = Context.Request.Query["tab"].ToString();
                 bool isDashboard = isActive("Customer", "Dashboard");
                 bool isSearch = isActive("Customer", "Search") || isActive("Customer", "RoomDetail") || isActive("Customer", "BookRoom");
-                bool isBookings = isActive("Customer", "MyBookings") || (isActive("Customer", "Profile") && queryTab == "bookings");
-                bool isPayment = isActive("Customer", "Payment") || (isActive("Customer", "Profile") && queryTab == "payment");
+                bool isBookings = isActive("Customer", "Profile") && queryTab == "bookings";
+                bool isPayment = isActive("Customer", "Profile") && queryTab == "payment";
                 bool isProfile = isActive("Customer", "Profile") && (queryTab == "info" || string.IsNullOrEmpty(queryTab));
 
                 <div class="nav-section-label">บริการลูกค้า</div>
@@ -177,7 +177,12 @@
                 <a asp-controller="Accounting" asp-action="DailySummary"
                    class="nav-item-link @(isActive("Accounting","DailySummary") ? "active" : "")">
                     <span class="material-symbols-outlined">bar_chart</span>
-                    <span>สรุปรายรับ</span>
+                    <span>สรุปรายรับรายวัน</span>
+                </a>
+                <a asp-controller="Accounting" asp-action="MonthlySummary"
+                   class="nav-item-link @(isActive("Accounting","MonthlySummary") ? "active" : "")">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span>สรุปรายรับรายเดือน</span>
                 </a>
                 <a asp-controller="Accounting" asp-action="Refunds"
                    class="nav-item-link @(isActive("Accounting","Refunds") ? "active" : "")">
