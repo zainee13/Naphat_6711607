@@ -65,7 +65,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="Phone">เบอร์โทรศัพท์</label>
-                        <input type="tel" class="form-control" asp-for="Phone" inputmode="tel" maxlength="12" placeholder="081 234 5678" />
+                        <input type="tel" class="form-control" asp-for="Phone" inputmode="numeric" pattern="0[689][0-9]{8}|0[1-57][0-9]{7}" maxlength="10" title="ตัวเลขเท่านั้น: มือถือ 10 หลัก หรือเบอร์บ้าน 9 หลัก ขึ้นต้นด้วย 0" placeholder="0812345678" />
                     </div>
                 </div>
 

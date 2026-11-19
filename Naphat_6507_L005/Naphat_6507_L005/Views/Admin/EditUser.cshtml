@@ -19,6 +19,10 @@
 <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-6">
         <div class="section-card p-4" style="background:#fff; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+            }
             <form asp-action="EditUser" asp-controller="Admin" method="post">
                 <input type="hidden" asp-for="UserId" />
 
@@ -45,7 +49,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold" style="font-size:0.875rem;">เบอร์โทรศัพท์</label>
-                        <input type="tel" class="form-control" asp-for="Phone" inputmode="tel" maxlength="12" />
+                        <input type="tel" class="form-control" asp-for="Phone" inputmode="numeric" pattern="0[689][0-9]{8}|0[1-57][0-9]{7}" maxlength="10" title="ตัวเลขเท่านั้น: มือถือ 10 หลัก หรือเบอร์บ้าน 9 หลัก ขึ้นต้นด้วย 0" placeholder="0812345678" />
                     </div>
                 </div>
 

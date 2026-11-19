@@ -117,6 +117,13 @@
                                 <button type="submit" class="cu-btn">ยกเลิก</button>
                             </form>
                         }
+                        @if (booking.CanReview)
+                        {
+                            <!-- ไปหน้าห้องแล้วเปิดฟอร์มรีวิวไว้ให้ (CustomerController.RoomDetail review=true) -->
+                            <a class="cu-btn" asp-controller="Customer" asp-action="RoomDetail" asp-route-id="@booking.Room" asp-route-review="true" asp-fragment="reviewTitle">
+                                <span class="material-symbols-outlined" aria-hidden="true" style="font-size:1.1rem;">rate_review</span> เขียนรีวิว
+                            </a>
+                        }
                     </div>
                 </li>
             }
@@ -322,7 +329,7 @@
                     </label>
                     <label class="cu-field">
                         <span>เบอร์โทร</span>
-                        <input type="tel" asp-for="Phone" autocomplete="tel" inputmode="tel" pattern="[0-9 \-]{9,12}" maxlength="12" placeholder="081 234 5678" required />
+                        <input type="tel" asp-for="Phone" inputmode="numeric" pattern="0[689][0-9]{8}|0[1-57][0-9]{7}" maxlength="10" title="ตัวเลขเท่านั้น: มือถือ 10 หลัก หรือเบอร์บ้าน 9 หลัก ขึ้นต้นด้วย 0" placeholder="0812345678" autocomplete="tel" required />
                     </label>
                     <label class="cu-field">
                         <span>อีเมล</span>
@@ -330,7 +337,7 @@
                     </label>
                     <label class="cu-field">
                         <span>เลขผู้เสียภาษี / เลขบัตรประชาชน</span>
-                        <input type="text" asp-for="TaxId" inputmode="numeric" pattern="[0-9 \-]{13,17}" maxlength="17" placeholder="1 2345 67890 12 3" />
+                        <input type="text" asp-for="TaxId" inputmode="numeric" pattern="[0-9]{13}" maxlength="13" title="ตัวเลข 13 หลักเท่านั้น" placeholder="1234567890123" />
                     </label>
                     <label class="cu-field pf-span-2">
                         <span>ที่อยู่ออกใบกำกับภาษี</span>

@@ -24,6 +24,8 @@ public class PromoFormViewModel
     public string DiscountType { get; set; } = "Percent";   // Percent / Amount
     public decimal DiscountValue { get; set; }
     public int MinMonths { get; set; } = 1;
+    public int? MaxUses { get; set; }                        // ใช้ได้ทั้งหมดกี่ครั้ง (ว่าง = ไม่จำกัด)
+    public int? MaxUsesPerUser { get; set; }                 // ลูกค้า 1 คนใช้ได้กี่ครั้ง (ว่าง = ไม่จำกัด)
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public bool IsActive { get; set; } = true;
@@ -41,7 +43,8 @@ public class PromoListItemViewModel
     public string PeriodText { get; set; } = "";             // ช่วงวันที่ใช้ได้
     public bool IsActive { get; set; }
     public string StatusText { get; set; } = "";             // ใช้งานได้ / ปิด / หมดอายุ / ยังไม่เริ่ม
-    public int UsedCount { get; set; }                       // จำนวนการจองที่ใช้โค้ดนี้
+    public int UsedCount { get; set; }                       // จำนวนการจองที่ใช้โค้ดนี้ (ไม่นับที่ยกเลิก)
+    public string UsedText { get; set; } = "";               // เช่น 3 / 50 ครั้ง
 }
 
 // ===================== UserRentalViewModel =====================

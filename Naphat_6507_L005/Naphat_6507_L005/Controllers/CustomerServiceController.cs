@@ -146,8 +146,11 @@ public class CustomerServiceController : Controller
         ViewBag.FullName = HttpContext.Session.GetString("FullName") ?? "พนักงานบริการลูกค้า";
         ViewBag.Role = "CustomerService";
 
-        // จำนวนตั๋วที่ยังไม่มีใครรับเรื่อง: _Layout ใช้แสดงป้ายตัวเลขที่เมนู
+        // จำนวนตั๋วที่ยังไม่มีใครรับเรื่อง
         ViewBag.OpenTicketCount = (from t in _db.Supporttickets where t.TicketStatus == "Open" select t).Count();
+
+        // จำนวนตั๋วที่รอเราตอบ (ตั๋วใหม่ หรือลูกค้าทักกลับมา): _Layout แสดงเป็นป้ายแจ้งเตือนที่เมนู "รายการ Ticket"
+        ViewBag.WaitingReplyCount = GetTickets(_db, null, null, null, true).Count(t => t.WaitingReply);
     }
 
     // พนักงานที่ล็อกอินอยู่ (ใช้บันทึก AssignedTo)
@@ -176,7 +179,7 @@ public class CustomerServiceController : Controller
         ViewBag.UrgentCount = (from t in _db.Supporttickets where t.TicketStatus != "Resolved" && t.Priority == "High" select t).Count();
         ViewBag.ResolvedToday = (from t in _db.Supporttickets where t.ResolvedAt >= today && t.ResolvedAt < tomorrow select t).Count();
 
-        var urgent = GetTickets(_db, null, null, null, false)
+        var urgent = GetTickets(_db, null, null, null, true)
                      .Where(t => t.Status != "Resolved" && t.Priority == "High")
                      .ToList();
         return View(urgent);
@@ -196,7 +199,10 @@ public class CustomerServiceController : Controller
             status = null;
         }
         ViewBag.FilterStatus = status;
-        return View(GetTickets(_db, null, status, null, false));
+
+        // ตั๋วที่ลูกค้ารอเราตอบขึ้นก่อน
+        var tickets = GetTickets(_db, null, status, null, true);
+        return View(tickets.OrderByDescending(t => t.WaitingReply).ToList());
     }
 
     // หน้าตั๋ว 1 ใบ: ข้อมูลลูกค้า + บทสนทนา + ปุ่มรับเรื่อง/ตอบ/ปรับความด่วน/ปิดตั๋ว

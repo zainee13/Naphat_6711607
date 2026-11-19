@@ -72,6 +72,7 @@ public class MyBookingViewModel
     public string Status { get; set; }     // pending / checking / active / ended / cancelled (ตัวเล็ก ใช้กับ CSS)
     public DateTime BookedDate { get; set; }
     public string BookedOn { get; set; }
+    public bool CanReview { get; set; }    // เช่าแล้ว (ใช้งานอยู่ / สิ้นสุด) และยังไม่เคยรีวิวการจองนี้
 }
 
 // ===================== PaymentViewModel =====================

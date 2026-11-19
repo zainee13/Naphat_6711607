@@ -66,6 +66,14 @@ public class AccountController : Controller
             return View(data);
         }
 
+        // เบอร์โทร (ไม่บังคับ) ถ้ากรอกต้องถูกต้อง
+        var phone = CustomerController.DigitsOnly(data.Phone);
+        if (!string.IsNullOrEmpty(phone) && CustomerController.PhoneError(phone) != null)
+        {
+            ViewBag.Error = CustomerController.PhoneError(phone);
+            return View(data);
+        }
+
         // ตรวจสอบซ้ำใน DB
         var exists = (from u in _db.Users where u.Username == data.Username select u).FirstOrDefault();
         if (exists != null)

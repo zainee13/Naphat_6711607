@@ -112,7 +112,7 @@
                 <!-- ฟอร์มเขียนรีวิว: เฉพาะคนที่เคยเช่าห้องนี้ (CustomerController ส่ง ViewBag.CanReview มา) -->
                 @if (ViewBag.CanReview == true)
                 {
-                <details class="rd-write">
+                <details class="rd-write" open="@(ViewBag.OpenReview == true)">
                     <summary class="cu-btn">เขียนรีวิว</summary>
                     <form asp-controller="Customer" asp-action="AddReview" method="post">
                         <input type="hidden" name="RoomId" value="@room.Id" />

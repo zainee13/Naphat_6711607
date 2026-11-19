@@ -42,7 +42,7 @@ CREATE TABLE `booking` (
 
 LOCK TABLES `booking` WRITE;
 /*!40000 ALTER TABLE `booking` DISABLE KEYS */;
-INSERT INTO `booking` VALUES ('BK-2026-001',16,'M-02','2026-11-18 00:25:15','2026-11-18','2027-02-17',114000.00,38000.00,NULL,NULL,'อาหารและเครื่องดื่ม','ผู้ติดต่อ: kuy gg\nบริการวันย้ายเข้า: โฟล์คลิฟต์ยกพาเลท (ฟรี)','Active');
+INSERT INTO `booking` VALUES ('BK-2026-001',16,'M-02','2026-11-18 00:25:15','2026-11-18','2027-02-17',114000.00,38000.00,NULL,NULL,'อาหารและเครื่องดื่ม','ผู้ติดต่อ: kuy gg\nบริการวันย้ายเข้า: โฟล์คลิฟต์ยกพาเลท (ฟรี)','Active'),('BK-2026-002',18,'S-02','2026-11-19 18:58:18','2026-12-01','2027-02-28',45000.00,15000.00,NULL,NULL,'เสื้อผ้าและแฟชั่น','ผู้ติดต่อ: test d\nบริการวันย้ายเข้า: โฟล์คลิฟต์ยกพาเลท (ฟรี)','Active');
 /*!40000 ALTER TABLE `booking` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `invoice`;
@@ -67,7 +67,7 @@ CREATE TABLE `invoice` (
 
 LOCK TABLES `invoice` WRITE;
 /*!40000 ALTER TABLE `invoice` DISABLE KEYS */;
-INSERT INTO `invoice` VALUES ('INV-2026-0001','BK-2026-001',38000.00,38000.00,0.00,76000.00,'2026-11-18 00:25:15',6);
+INSERT INTO `invoice` VALUES ('INV-2026-0001','BK-2026-001',38000.00,38000.00,0.00,76000.00,'2026-11-18 00:25:15',6),('INV-2026-0002','BK-2026-002',15000.00,15000.00,0.00,30000.00,'2026-11-19 18:58:18',6);
 /*!40000 ALTER TABLE `invoice` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `labstudent`;
@@ -106,12 +106,12 @@ CREATE TABLE `payment` (
   KEY `fk_payment_verifiedby` (`VerifiedBy`),
   CONSTRAINT `fk_payment_booking` FOREIGN KEY (`BookingId`) REFERENCES `booking` (`BookingId`),
   CONSTRAINT `fk_payment_verifiedby` FOREIGN KEY (`VerifiedBy`) REFERENCES `user` (`UserId`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `payment` WRITE;
 /*!40000 ALTER TABLE `payment` DISABLE KEYS */;
-INSERT INTO `payment` VALUES (10,'BK-2026-001',76000.00,'qr','2026-11-18 00:27:02','Approved','/uploads/slips/BK-2026-001-20261118002701.jpg','2026-11-25 00:25:15',6,'2026-11-18 00:28:16');
+INSERT INTO `payment` VALUES (10,'BK-2026-001',76000.00,'qr','2026-11-18 00:27:02','Approved','/uploads/slips/BK-2026-001-20261118002701.jpg','2026-11-25 00:25:15',6,'2026-11-18 00:28:16'),(12,'BK-2026-002',30000.00,'qr','2026-11-19 18:58:58','Approved','/uploads/slips/BK-2026-002-20261119185857.jpg','2026-11-26 18:58:18',6,'2026-11-19 19:02:39');
 /*!40000 ALTER TABLE `payment` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `promocode`;
@@ -123,6 +123,8 @@ CREATE TABLE `promocode` (
   `DiscountType` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `DiscountValue` decimal(10,2) NOT NULL,
   `MinMonths` int NOT NULL DEFAULT '1',
+  `MaxUses` int DEFAULT NULL,
+  `MaxUsesPerUser` int DEFAULT NULL,
   `StartDate` date DEFAULT NULL,
   `EndDate` date DEFAULT NULL,
   `IsActive` tinyint(1) NOT NULL DEFAULT '1',
@@ -133,7 +135,7 @@ CREATE TABLE `promocode` (
 
 LOCK TABLES `promocode` WRITE;
 /*!40000 ALTER TABLE `promocode` DISABLE KEYS */;
-INSERT INTO `promocode` VALUES ('MEGA35START','ลดค่าเช่าเดือนแรก 35% เมื่อทำสัญญา 6 เดือนขึ้นไป','Percent',35.00,6,NULL,NULL,1,'2026-11-18 00:02:49');
+INSERT INTO `promocode` VALUES ('MEGA35START','ลดค่าเช่าเดือนแรก 35% เมื่อทำสัญญา 6 เดือนขึ้นไป','Percent',35.00,6,NULL,NULL,NULL,NULL,1,'2026-11-18 00:02:49');
 /*!40000 ALTER TABLE `promocode` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `receipt`;
@@ -154,7 +156,7 @@ CREATE TABLE `receipt` (
 
 LOCK TABLES `receipt` WRITE;
 /*!40000 ALTER TABLE `receipt` DISABLE KEYS */;
-INSERT INTO `receipt` VALUES ('RCP-2026-0001',10,'2026-11-18 00:28:16',6);
+INSERT INTO `receipt` VALUES ('RCP-2026-0001',10,'2026-11-18 00:28:16',6),('RCP-2026-0002',12,'2026-11-19 19:02:39',6);
 /*!40000 ALTER TABLE `receipt` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `refund`;
@@ -219,7 +221,7 @@ CREATE TABLE `room` (
 
 LOCK TABLES `room` WRITE;
 /*!40000 ALTER TABLE `room` DISABLE KEYS */;
-INSERT INTO `room` VALUES ('CR-05','cold','ห้องเย็นฉนวน PIR หนา 100 มม. ไฟสำรองคู่ แจ้งเตือนเมื่ออุณหภูมิผิดปกติทาง SMS',200,'7 ม.','โซนห้องเย็น',40000.00,'Available','https://images.unsplash.com/photo-1741739813128-cb658a9a0f9a'),('L-01','l','รถพ่วง 18 ล้อเข้าได้ มี Dock Leveler ปรับระดับอัตโนมัติ 2 ช่องสำหรับเทียบตู้คอนเทนเนอร์',500,'10 ม.','โซน C1 (มี Dock)',75000.00,'Available','https://images.unsplash.com/photo-1780367261654-45395777b560'),('L-02','l','สำหรับสินค้ามูลค่าสูง ประตูนิรภัย 2 ชั้น กล้องบันทึกภาพย้อนหลัง 90 วัน',350,'10 ม.','โซน C2 (สินค้าปลอดภัย)',55000.00,'Available','https://images.unsplash.com/photo-1787363813793-5f7a380dce78'),('M-01','m','พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม. โฟล์คลิฟต์เข้าได้ วางพาเลทได้ 60–120 ตัว',150,'8 ม.','โซน B1 (มาตรฐาน)',25000.00,'Available','https://images.unsplash.com/photo-1644079446600-219068676743'),('M-02','m','ติดตั้ง Racking ได้ 3 ชั้น วางพาเลทได้ 120 ตัว มีระบบระบายอากาศ 24 ชม.',250,'8 ม.','โซน B2 (พาเลท)',38000.00,'Occupied','https://images.unsplash.com/photo-1714650601435-67a4d51a0798'),('S-01','s','ห้องไซส์เล็กชั้น 1 ประตูม้วนกว้าง 3.5 ม. เหมาะกับเอกสารและสต็อกสินค้าพร้อมส่ง',60,'6 ม.','โซน A1 (ชั้น 1)',12000.00,'Available','https://images.unsplash.com/photo-1694601618351-dbbbb2b8934f'),('S-02','s','ห้องกะทัดรัด ประตูม้วนไฟฟ้า เหมาะกับธุรกิจ SME และร้านค้าออนไลน์',80,'6 ม.','โซน A2 (SME)',15000.00,'Available','https://images.unsplash.com/photo-1618438502398-195e47778d6c'),('XL-01','xl','คลังโล่งขนาดใหญ่พิเศษ เพดานสูง 12 ม. หลังคา Solar Roof',1200,'12 ม.','โซน D1 (เมกะ)',180000.00,'Available','https://images.unsplash.com/photo-1694885169342-909981fb408a');
+INSERT INTO `room` VALUES ('CR-05','cold','ห้องเย็นฉนวน PIR หนา 100 มม. ไฟสำรองคู่ แจ้งเตือนเมื่ออุณหภูมิผิดปกติทาง SMS',200,'7 ม.','โซนห้องเย็น',40000.00,'Available','https://images.unsplash.com/photo-1741739813128-cb658a9a0f9a'),('L-01','l','รถพ่วง 18 ล้อเข้าได้ มี Dock Leveler ปรับระดับอัตโนมัติ 2 ช่องสำหรับเทียบตู้คอนเทนเนอร์',500,'10 ม.','โซน C1 (มี Dock)',75000.00,'Available','https://images.unsplash.com/photo-1780367261654-45395777b560'),('L-02','l','สำหรับสินค้ามูลค่าสูง ประตูนิรภัย 2 ชั้น กล้องบันทึกภาพย้อนหลัง 90 วัน',350,'10 ม.','โซน C2 (สินค้าปลอดภัย)',55000.00,'Available','https://images.unsplash.com/photo-1787363813793-5f7a380dce78'),('M-01','m','พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม. โฟล์คลิฟต์เข้าได้ วางพาเลทได้ 60–120 ตัว',150,'8 ม.','โซน B1 (มาตรฐาน)',25000.00,'Available','https://images.unsplash.com/photo-1644079446600-219068676743'),('M-02','m','ติดตั้ง Racking ได้ 3 ชั้น วางพาเลทได้ 120 ตัว มีระบบระบายอากาศ 24 ชม.',250,'8 ม.','โซน B2 (พาเลท)',38000.00,'Occupied','https://images.unsplash.com/photo-1714650601435-67a4d51a0798'),('S-01','s','ห้องไซส์เล็กชั้น 1 ประตูม้วนกว้าง 3.5 ม. เหมาะกับเอกสารและสต็อกสินค้าพร้อมส่ง',60,'6 ม.','โซน A1 (ชั้น 1)',12000.00,'Available','https://images.unsplash.com/photo-1694601618351-dbbbb2b8934f'),('S-02','s','ห้องกะทัดรัด ประตูม้วนไฟฟ้า เหมาะกับธุรกิจ SME และร้านค้าออนไลน์',80,'6 ม.','โซน A2 (SME)',15000.00,'Booked','https://images.unsplash.com/photo-1618438502398-195e47778d6c'),('XL-01','xl','คลังโล่งขนาดใหญ่พิเศษ เพดานสูง 12 ม. หลังคา Solar Roof',1200,'12 ม.','โซน D1 (เมกะ)',180000.00,'Available','https://images.unsplash.com/photo-1694885169342-909981fb408a');
 /*!40000 ALTER TABLE `room` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `stockitem`;
@@ -240,12 +242,12 @@ CREATE TABLE `stockitem` (
   KEY `fk_stock_updatedby` (`UpdatedBy`),
   CONSTRAINT `fk_stock_booking` FOREIGN KEY (`BookingId`) REFERENCES `booking` (`BookingId`),
   CONSTRAINT `fk_stock_updatedby` FOREIGN KEY (`UpdatedBy`) REFERENCES `user` (`UserId`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `stockitem` WRITE;
 /*!40000 ALTER TABLE `stockitem` DISABLE KEYS */;
-INSERT INTO `stockitem` VALUES (14,'BK-2026-001','น้ำขวด','อาหารและเครื่องดื่ม',52,30,'pack','2026-11-18 00:31:05',7);
+INSERT INTO `stockitem` VALUES (14,'BK-2026-001','น้ำขวด','อาหารและเครื่องดื่ม',52,30,'pack','2026-11-18 00:31:05',7),(17,'BK-2026-002','เสื้อผ้า','เสื้อผ้าและแฟชั่น',4,5,'กล่อง','2026-11-19 19:04:52',7),(18,'BK-2026-002','เครื่องประดับ','เสื้อผ้าและแฟชั่น',5,3,'กล่อง','2026-11-19 19:03:36',7);
 /*!40000 ALTER TABLE `stockitem` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `supportticket`;
@@ -294,12 +296,12 @@ CREATE TABLE `user` (
   `CreatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`UserId`),
   UNIQUE KEY `Username` (`Username`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (3,'123@gmail.com','123','ณภัทร นวหัสดินกุล34','0969382439',NULL,'Customer',NULL,NULL,NULL,1,'2026-11-10 14:58:31'),(5,'naphat.nav@spulive.net','123','NAPHAT NAVAHASDINKULL','0969382439','naphat.nav@spulive.net','Customer','67จำกัด','1111111111111','adad',1,'2026-11-10 19:51:41'),(6,'acc01','1234','พนักงานบัญชี',NULL,NULL,'Accounting',NULL,NULL,NULL,1,'2026-11-10 20:04:53'),(7,'inv01','1234','พนักงานคลังสินค้า',NULL,NULL,'Inventory',NULL,NULL,NULL,1,'2026-11-12 21:05:40'),(10,'cs01','1234','พนักงานบริการลูกค้า',NULL,NULL,'CustomerService',NULL,NULL,NULL,1,'2026-11-15 19:26:57'),(13,'manager01','1234','ผู้จัดการ',NULL,NULL,'Manager',NULL,NULL,NULL,1,'2026-11-17 23:59:43'),(14,'admin01','1234','ผู้ดูแลระบบ',NULL,NULL,'Admin',NULL,NULL,NULL,1,'2026-11-17 23:59:43'),(16,'kuy@gmail.com','123','kuy gg','022222222222','kuy@gmail.com','Customer',NULL,'1111111111111','aaaaaaa',1,'2026-11-18 00:14:56');
+INSERT INTO `user` VALUES (3,'123@gmail.com','123','ณภัทร นวหัสดินกุล34','0969382439',NULL,'Customer',NULL,NULL,NULL,1,'2026-11-10 14:58:31'),(5,'naphat.nav@spulive.net','123','NAPHAT NAVAHASDINKULL','0969382439','naphat.nav@spulive.net','Customer','67จำกัด','1111111111111','adad',1,'2026-11-10 19:51:41'),(6,'acc01','1234','พนักงานบัญชี',NULL,NULL,'Accounting',NULL,NULL,NULL,1,'2026-11-10 20:04:53'),(7,'inv01','1234','พนักงานคลังสินค้า',NULL,NULL,'Inventory',NULL,NULL,NULL,1,'2026-11-12 21:05:40'),(10,'cs01','1234','พนักงานบริการลูกค้า',NULL,NULL,'CustomerService',NULL,NULL,NULL,1,'2026-11-15 19:26:57'),(13,'manager01','1234','ผู้จัดการ',NULL,NULL,'Manager',NULL,NULL,NULL,1,'2026-11-17 23:59:43'),(14,'admin01','1234','ผู้ดูแลระบบ',NULL,NULL,'Admin',NULL,NULL,NULL,1,'2026-11-17 23:59:43'),(16,'kuy@gmail.com','123','kuy gg','022222222222','kuy@gmail.com','Customer',NULL,'1111111111111','aaaaaaa',1,'2026-11-18 00:14:56'),(18,'test@gmail.com','1234','test d','033333333333','test@gmail.com','Customer',NULL,'1111111111111','dawdadadadad',1,'2026-11-19 18:49:01');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

@@ -68,6 +68,7 @@
         int lowStockCount = ViewBag.LowStockCount ?? 0;
         int pendingReceiveCount = ViewBag.PendingReceiveCount ?? 0;
         int openTicketCount = ViewBag.OpenTicketCount ?? 0;   // ตั๋วที่ยังไม่มีคนรับ (CustomerServiceController.SetUserBag)
+        int waitingReplyCount = ViewBag.WaitingReplyCount ?? 0;   // ตั๋วที่ลูกค้ารอเราตอบ (ตั๋วใหม่ / ลูกค้าทักกลับ)
 
         Func<string, string, bool> isActive = (ctrl, act) =>
             currentController.Equals(ctrl, StringComparison.OrdinalIgnoreCase) &&
@@ -237,9 +238,9 @@
                    class="nav-item-link @(isActive("CustomerService","Tickets") || isActive("CustomerService","Ticket") ? "active" : "")">
                     <span class="material-symbols-outlined">confirmation_number</span>
                     <span>รายการ Ticket</span>
-                    @if (openTicketCount > 0)
+                    @if (waitingReplyCount > 0)
                     {
-                        <span class="nav-badge nav-badge--info" aria-label="ตั๋วเปิดใหม่ @openTicketCount ใบ">@openTicketCount</span>
+                        <span class="nav-badge" aria-label="ลูกค้ารอตอบ @waitingReplyCount เรื่อง" title="ลูกค้ารอตอบ @waitingReplyCount เรื่อง">@waitingReplyCount</span>
                     }
                 </a>
             }

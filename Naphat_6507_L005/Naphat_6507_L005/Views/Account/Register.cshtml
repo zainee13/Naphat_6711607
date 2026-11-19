@@ -50,8 +50,7 @@
                     <label class="form-label" asp-for="Phone">เบอร์โทรศัพท์</label>
                     <div class="auth-input">
                         <span class="material-symbols-outlined">call</span>
-                        <input type="tel" asp-for="Phone" class="form-control" inputmode="tel" maxlength="12"
-                               placeholder="08x xxx xxxx" autocomplete="tel" />
+                        <input type="tel" asp-for="Phone" inputmode="numeric" pattern="0[689][0-9]{8}|0[1-57][0-9]{7}" maxlength="10" title="ตัวเลขเท่านั้น: มือถือ 10 หลัก หรือเบอร์บ้าน 9 หลัก ขึ้นต้นด้วย 0" placeholder="0812345678" class="form-control" autocomplete="tel" />
                     </div>
                 </div>
 

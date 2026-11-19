@@ -139,6 +139,13 @@ public class AdminController : Controller
             return View(data);
         }
 
+        var phone = CustomerController.DigitsOnly(data.Phone);
+        if (!string.IsNullOrEmpty(phone) && CustomerController.PhoneError(phone) != null)
+        {
+            ViewBag.Error = CustomerController.PhoneError(phone);
+            return View(data);
+        }
+
         var username = data.Username.Trim();
         var exists = (from u in _db.Users where u.Username == username select u).Any();
         if (exists)
@@ -177,7 +184,6 @@ public class AdminController : Controller
             TempData["Error"] = "ไม่พบผู้ใช้นี้";
             return RedirectToAction("Users");
         }
-        user.Phone = CustomerController.FormatPhone(user.Phone);   // แสดงแบบเว้นวรรค (หน้านี้ไม่ SaveChanges ค่าใน DB ไม่เปลี่ยน)
         return View(user);
     }
 
@@ -188,6 +194,13 @@ public class AdminController : Controller
         if (!IsAdmin)
         {
             return RedirectToAction("Login", "Account");
+        }
+
+        var phone = CustomerController.DigitsOnly(data.Phone);
+        if (!string.IsNullOrEmpty(phone) && CustomerController.PhoneError(phone) != null)
+        {
+            TempData["Error"] = CustomerController.PhoneError(phone);
+            return RedirectToAction("EditUser", new { id = data.UserId });
         }
 
         var user = (from u in _db.Users where u.UserId == data.UserId select u).FirstOrDefault();
@@ -277,7 +290,12 @@ public class AdminController : Controller
                             : p.EndDate != null && today > p.EndDate ? "หมดอายุ"
                             : p.StartDate != null && today < p.StartDate ? "ยังไม่เริ่ม"
                             : "ใช้งานได้";
-            item.UsedCount = (from b in _db.Bookings where b.PromoCode == p.Code select b).Count();
+            item.UsedCount = (from b in _db.Bookings where b.PromoCode == p.Code && b.BookingStatus != "Cancelled" select b).Count();
+            item.UsedText = item.UsedCount + (p.MaxUses == null ? " ครั้ง (ไม่จำกัด)" : " / " + p.MaxUses + " ครั้ง");
+            if (p.IsActive && p.MaxUses != null && item.UsedCount >= p.MaxUses)
+            {
+                item.StatusText = "ใช้ครบแล้ว";
+            }
             list.Add(item);
         }
         return View(list);
@@ -302,6 +320,14 @@ public class AdminController : Controller
         {
             return data.DiscountType == "Percent" ? "ส่วนลดต้องอยู่ระหว่าง 1–100%" : "ส่วนลดต้องมากกว่า 0 บาท";
         }
+        if ((data.MaxUses != null && data.MaxUses < 1) || (data.MaxUsesPerUser != null && data.MaxUsesPerUser < 1))
+        {
+            return "จำนวนครั้งต้องเป็น 1 ขึ้นไป หรือเว้นว่างถ้าไม่จำกัด";
+        }
+        if (data.MaxUses != null && data.MaxUsesPerUser != null && data.MaxUsesPerUser > data.MaxUses)
+        {
+            return "จำนวนครั้งต่อคนต้องไม่มากกว่าจำนวนครั้งทั้งหมด";
+        }
         if (data.MinMonths < 1 || data.MinMonths > 12)
         {
             return "สัญญาขั้นต่ำต้องอยู่ระหว่าง 1–12 เดือน";
@@ -320,6 +346,8 @@ public class AdminController : Controller
         promo.DiscountType = data.DiscountType;
         promo.DiscountValue = data.DiscountValue;
         promo.MinMonths = data.MinMonths;
+        promo.MaxUses = data.MaxUses;
+        promo.MaxUsesPerUser = data.MaxUsesPerUser;
         promo.StartDate = data.StartDate == null ? null : DateOnly.FromDateTime(data.StartDate.Value);
         promo.EndDate = data.EndDate == null ? null : DateOnly.FromDateTime(data.EndDate.Value);
         promo.IsActive = data.IsActive;
@@ -394,6 +422,8 @@ public class AdminController : Controller
         data.DiscountType = promo.DiscountType;
         data.DiscountValue = promo.DiscountValue;
         data.MinMonths = promo.MinMonths;
+        data.MaxUses = promo.MaxUses;
+        data.MaxUsesPerUser = promo.MaxUsesPerUser;
         data.StartDate = promo.StartDate?.ToDateTime(TimeOnly.MinValue);
         data.EndDate = promo.EndDate?.ToDateTime(TimeOnly.MinValue);
         data.IsActive = promo.IsActive;

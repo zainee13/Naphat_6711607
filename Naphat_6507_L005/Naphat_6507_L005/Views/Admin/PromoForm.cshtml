@@ -75,6 +75,19 @@
 
                 <div class="row g-2 mb-3">
                     <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="MaxUses">ใช้ได้ทั้งหมด (ครั้ง)</label>
+                        <input type="number" class="form-control" asp-for="MaxUses" min="1" step="1" placeholder="เว้นว่าง = ไม่จำกัด" />
+                        <small class="text-muted" style="font-size:0.75rem;">เช่น 50 = ใช้ได้ 50 การจองแรก</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="MaxUsesPerUser">ลูกค้า 1 คนใช้ได้ (ครั้ง)</label>
+                        <input type="number" class="form-control" asp-for="MaxUsesPerUser" min="1" step="1" placeholder="เว้นว่าง = ไม่จำกัด" />
+                        <small class="text-muted" style="font-size:0.75rem;">เช่น 1 = คนละครั้งเดียว</small>
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
                         <label class="form-label fw-semibold" style="font-size:0.875rem;" asp-for="StartDate">ใช้ได้ตั้งแต่ (ไม่บังคับ)</label>
                         <input type="date" class="form-control" asp-for="StartDate" />
                     </div>

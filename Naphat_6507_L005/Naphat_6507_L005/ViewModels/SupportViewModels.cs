@@ -23,6 +23,9 @@ public class TicketViewModel
     public string? AssigneeName { get; set; }
     public List<TicketMessageViewModel> Messages { get; set; } = new();
     public int Unread { get; set; }             // ข้อความใหม่จากเจ้าหน้าที่ที่ลูกค้ายังไม่ได้เปิดอ่าน
+
+    // รอเจ้าหน้าที่ตอบ: ยังไม่ปิด และข้อความล่าสุดเป็นของลูกค้า (ตั๋วใหม่ หรือลูกค้าทักกลับมา) ต้องดึงแบบมีข้อความ
+    public bool WaitingReply => Status != "Resolved" && Messages.Count > 0 && !Messages[Messages.Count - 1].IsStaff;
 }
 
 // ===================== TicketMessageViewModel =====================

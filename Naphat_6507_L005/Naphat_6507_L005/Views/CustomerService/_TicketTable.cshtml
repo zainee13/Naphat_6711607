@@ -26,10 +26,15 @@
             {
                 foreach (var t in Model)
                 {
-                    <tr style="font-size:0.85rem;">
+                    <tr style="font-size:0.85rem; @(t.WaitingReply ? "background:#fff7ed;" : "")">
                         <td class="fw-semibold" style="color:#f59e0b;">@t.No</td>
                         <td>
-                            @t.Title<br />
+                            @t.Title
+                            @if (t.WaitingReply)
+                            {
+                                <span class="badge" style="background:#ef4444; color:#fff; margin-left:4px;">ลูกค้ารอตอบ</span>
+                            }
+                            <br />
                             <span style="color:#6c757d; font-size:0.78rem;">@t.Category</span>
                         </td>
                         <td>

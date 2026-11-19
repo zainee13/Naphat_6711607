@@ -59,8 +59,8 @@ public class CustomerController : Controller
     }
 
     // ===== เบอร์โทร / เลขผู้เสียภาษี =====
-    // ฐานข้อมูลเก็บตัวเลขล้วน ส่วนช่องกรอกในหน้าเว็บแสดงแบบเว้นวรรค (096 938 2439, 1 2345 67890 12 3)
-    // ลูกค้าจะพิมพ์ติดกันหรือเว้นวรรค/มีขีดก็ได้ Controller ตัดเหลือแต่ตัวเลขก่อนตรวจและบันทึก
+    // ฐานข้อมูลเก็บตัวเลขล้วน ช่องกรอกรับเฉพาะตัวเลขและล็อกความยาว (เบอร์ 10 หลัก, เลขภาษี 13 หลัก)
+    // Controller ตัดตัวที่ไม่ใช่ตัวเลขออก (กันคนวางข้อความที่มีขีด/เว้นวรรค) แล้วตรวจจำนวนหลักอีกครั้ง
 
     // เหลือแต่ตัวเลข
     public static string? DigitsOnly(string? value)
@@ -68,39 +68,34 @@ public class CustomerController : Controller
         return value == null ? null : new string(value.Where(char.IsDigit).ToArray());
     }
 
-    // แบ่งตัวเลขเป็นกลุ่มแล้วคั่นด้วยเว้นวรรค ถ้าจำนวนหลักไม่ตรงรูปแบบ คืนค่าเดิม
-    private static string GroupDigits(string digits, int[] sizes)
+    // ตรวจเบอร์โทร (รับตัวเลขล้วน) คืนข้อความผิดพลาด ถ้าถูกต้องคืน null
+    // ขึ้นต้นด้วย 0, มือถือ (06 / 08 / 09) 10 หลัก, เบอร์บ้าน (02 / 03 / 04 / 05 / 07) 9 หลัก
+    public static string? PhoneError(string? digits)
     {
-        if (digits.Length != sizes.Sum())
+        if (string.IsNullOrEmpty(digits) || digits[0] != '0')
         {
-            return digits;
+            return "เบอร์โทรต้องขึ้นต้นด้วย 0";
         }
-        List<string> parts = new();
-        int start = 0;
-        foreach (var size in sizes)
+        bool mobile = digits.Length >= 2 && (digits[1] == '6' || digits[1] == '8' || digits[1] == '9');
+        if (mobile && digits.Length != 10)
         {
-            parts.Add(digits.Substring(start, size));
-            start += size;
+            return "เบอร์มือถือต้องเป็นตัวเลข 10 หลัก (ตอนนี้ " + digits.Length + " หลัก)";
         }
-        return string.Join(" ", parts);
+        if (!mobile && digits.Length != 9)
+        {
+            return "เบอร์บ้านต้องเป็นตัวเลข 9 หลัก (ตอนนี้ " + digits.Length + " หลัก)";
+        }
+        return null;
     }
 
-    // เบอร์มือถือ 10 หลัก: 096 938 2439, เบอร์บ้าน 9 หลัก: 02 123 4567
-    public static string? FormatPhone(string? phone)
+    // ตรวจเลขผู้เสียภาษี / เลขบัตรประชาชน (รับตัวเลขล้วน) ต้อง 13 หลัก
+    public static string? TaxIdError(string? digits)
     {
-        var digits = DigitsOnly(phone);
-        if (string.IsNullOrEmpty(digits))
+        if (string.IsNullOrEmpty(digits) || digits.Length != 13)
         {
-            return phone;
+            return "เลขผู้เสียภาษี / เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก (ตอนนี้ " + (digits?.Length ?? 0) + " หลัก)";
         }
-        return digits.Length == 9 ? GroupDigits(digits, new[] { 2, 3, 4 }) : GroupDigits(digits, new[] { 3, 3, 4 });
-    }
-
-    // เลขผู้เสียภาษี / เลขบัตรประชาชน 13 หลัก: 1 2345 67890 12 3
-    public static string? FormatTaxId(string? taxId)
-    {
-        var digits = DigitsOnly(taxId);
-        return string.IsNullOrEmpty(digits) ? taxId : GroupDigits(digits, new[] { 1, 4, 5, 2, 1 });
+        return null;
     }
 
     // ผู้ใช้ที่ล็อกอินอยู่ (จากตาราง user)
@@ -319,8 +314,9 @@ public class CustomerController : Controller
 
     // ===== โค้ดส่วนลด (ตาราง promocode ที่ Admin สร้าง) =====
     // ลดเฉพาะค่าเช่าเดือนแรก: Percent = ลด % ของค่าเช่า, Amount = ลดเป็นบาท (ไม่เกินค่าเช่าเดือนแรก)
-    // ใช้ได้เมื่อ เปิดใช้งาน + อยู่ในช่วงวันที่ + สัญญาไม่น้อยกว่า MinMonths
-    public static (decimal discount, bool ok, string? message) CheckPromo(Csi402dbContext db, string? code, decimal monthlyRate, int months)
+    // ใช้ได้เมื่อ เปิดใช้งาน + อยู่ในช่วงวันที่ + สัญญาไม่น้อยกว่า MinMonths + ยังใช้ไม่ครบจำนวนครั้ง (รวม / ต่อคน)
+    // userId = ลูกค้าที่จะใช้โค้ด (ใช้นับว่าคนนี้ใช้ไปแล้วกี่ครั้ง)
+    public static (decimal discount, bool ok, string? message) CheckPromo(Csi402dbContext db, string? code, decimal monthlyRate, int months, int? userId)
     {
         if (string.IsNullOrWhiteSpace(code))
         {
@@ -345,6 +341,27 @@ public class CustomerController : Controller
         {
             return (0, false, "โค้ดนี้ใช้ได้กับสัญญา " + promo.MinMonths + " เดือนขึ้นไป");
         }
+
+        // จำนวนครั้งที่ใช้ไปแล้ว: นับการจองที่ใช้โค้ดนี้ ไม่นับที่ถูกยกเลิก
+        if (promo.MaxUses != null)
+        {
+            var used = (from b in db.Bookings where b.PromoCode == key && b.BookingStatus != "Cancelled" select b).Count();
+            if (used >= promo.MaxUses)
+            {
+                return (0, false, "โค้ดนี้ถูกใช้ครบ " + promo.MaxUses + " สิทธิ์แล้ว");
+            }
+        }
+        if (promo.MaxUsesPerUser != null && userId != null)
+        {
+            var usedByUser = (from b in db.Bookings
+                              where b.PromoCode == key && b.UserId == userId && b.BookingStatus != "Cancelled"
+                              select b).Count();
+            if (usedByUser >= promo.MaxUsesPerUser)
+            {
+                return (0, false, "คุณใช้โค้ดนี้ครบ " + promo.MaxUsesPerUser + " ครั้งแล้ว");
+            }
+        }
+
         var discount = promo.DiscountType == "Percent"
             ? Math.Round(monthlyRate * promo.DiscountValue / 100, 0)
             : Math.Min(promo.DiscountValue, monthlyRate);
@@ -412,6 +429,9 @@ public class CustomerController : Controller
             item.Status = row.Booking.BookingStatus.ToLower();
             item.BookedDate = row.Booking.BookingDate;
             item.BookedOn = row.Booking.BookingDate.ToString("d MMM yyyy", _th);
+            // เขียนรีวิวได้เมื่อเช่าแล้ว (ใช้งานอยู่หรือสิ้นสุดสัญญา) และการจองนี้ยังไม่เคยรีวิว (กฎเดียวกับ AddReview)
+            item.CanReview = (row.Booking.BookingStatus == "Active" || row.Booking.BookingStatus == "Ended")
+                             && !(from rv in _db.Reviews where rv.BookingId == row.Booking.BookingId select rv).Any();
             list.Add(item);
         }
         return list;
@@ -449,6 +469,7 @@ public class CustomerController : Controller
         var today = DateOnly.FromDateTime(DateTime.Today);
         home.Promo = (from p in _db.Promocodes
                       where p.IsActive && (p.StartDate == null || p.StartDate <= today) && (p.EndDate == null || p.EndDate >= today)
+                            && (p.MaxUses == null || (from b in _db.Bookings where b.PromoCode == p.Code && b.BookingStatus != "Cancelled" select b).Count() < p.MaxUses)
                       orderby p.CreatedAt descending
                       select p).FirstOrDefault();
         if (home.Promo != null)
@@ -540,14 +561,15 @@ public class CustomerController : Controller
             return NotFound();
         }
         var startDate = start != null && start.Value.Date >= DateTime.Today ? start.Value.Date : DateTime.Today;
-        var check = CheckPromo(_db, promo, room.MonthlyRate, ValidMonths(months));
+        var check = CheckPromo(_db, promo, room.MonthlyRate, ValidMonths(months), GetCurrentUser()?.UserId);
         var quote = BuildQuote(room.MonthlyRate, startDate, months, check.discount);
         quote.PromoOk = check.ok;
         quote.PromoMessage = check.message;
         return Json(quote);
     }
 
-    public IActionResult RoomDetail(string id = "M-01")
+    // review = true มาจากปุ่ม "เขียนรีวิว" ในหน้าการจองของฉัน (เปิดฟอร์มรีวิวไว้ให้เลย)
+    public IActionResult RoomDetail(string id = "M-01", bool review = false)
     {
         if (!IsLoggedIn)
         {
@@ -596,6 +618,7 @@ public class CustomerController : Controller
                                               select b).Any();
 
         SetBookedPeriodsBag(room.RoomId);
+        ViewBag.OpenReview = review;
         ViewBag.Quote = BuildQuote(room.MonthlyRate, DateTime.Today, 6);
         var rating = reviewList.Count == 0 ? null : reviewList.Average(r => r.Stars).ToString("0.0");
         return View(ToRoomViewModel(room, rating));
@@ -686,8 +709,8 @@ public class CustomerController : Controller
         ViewBag.Quote = BuildQuote(room.MonthlyRate, data.StartDate, data.Months);
         data.ContactName = user?.Fullname ?? HttpContext.Session.GetString("FullName");
         data.CompanyName = user?.CompanyName;
-        data.TaxId = FormatTaxId(user?.TaxId);
-        data.Phone = FormatPhone(user?.Phone);
+        data.TaxId = user?.TaxId;
+        data.Phone = user?.Phone;
         data.Email = user?.Email;
         data.Address = user?.Address;
         return View(data);
@@ -715,7 +738,7 @@ public class CustomerController : Controller
         ViewBag.Room = ToRoomViewModel(room, null);
         SetBookedPeriodsBag(room.RoomId);
         // ยอดที่แสดงถ้าต้องกลับไปหน้าฟอร์ม (กรอกผิด) ใช้วันและระยะสัญญาที่ลูกค้าเลือกไว้
-        var promoCheck = CheckPromo(_db, data.PromoCode, room.MonthlyRate, data.Months);
+        var promoCheck = CheckPromo(_db, data.PromoCode, room.MonthlyRate, data.Months, GetCurrentUser()?.UserId);
         ViewBag.Quote = BuildQuote(room.MonthlyRate, data.StartDate.Date >= DateTime.Today ? data.StartDate : DateTime.Today, data.Months, promoCheck.discount);
 
         var user = GetCurrentUser();
@@ -738,7 +761,14 @@ public class CustomerController : Controller
             return View(data);
         }
 
-        if (data.TaxId == null || data.TaxId.Length != 13 || !data.TaxId.All(char.IsDigit))
+        var phoneError = PhoneError(data.Phone);
+        if (phoneError != null)
+        {
+            ViewBag.Error = phoneError;
+            return View(data);
+        }
+
+        if (TaxIdError(data.TaxId) != null)
         {
             ViewBag.Error = isCompany ? "เลขผู้เสียภาษีต้องเป็นตัวเลข 13 หลัก" : "เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก";
             return View(data);
@@ -979,9 +1009,9 @@ public class CustomerController : Controller
         ProfileViewModel info = new();
         info.Fullname = user?.Fullname ?? HttpContext.Session.GetString("FullName") ?? "";
         info.Company = user?.CompanyName ?? "";
-        info.Phone = FormatPhone(user?.Phone) ?? "";
+        info.Phone = user?.Phone ?? "";
         info.Email = user?.Email ?? "";
-        info.TaxId = FormatTaxId(user?.TaxId) ?? "";
+        info.TaxId = user?.TaxId ?? "";
         info.Address = user?.Address ?? "";
         return View(info);
     }
@@ -1086,9 +1116,15 @@ public class CustomerController : Controller
             return RedirectToAction("Profile", new { tab = "info" });
         }
 
-        if (!string.IsNullOrWhiteSpace(data.TaxId) && (data.TaxId.Trim().Length != 13 || !data.TaxId.Trim().All(char.IsDigit)))
+        if (PhoneError(data.Phone) != null)
         {
-            TempData["Error"] = "เลขผู้เสียภาษี / เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก";
+            TempData["Error"] = PhoneError(data.Phone);
+            return RedirectToAction("Profile", new { tab = "info" });
+        }
+
+        if (!string.IsNullOrWhiteSpace(data.TaxId) && TaxIdError(data.TaxId) != null)
+        {
+            TempData["Error"] = TaxIdError(data.TaxId);
             return RedirectToAction("Profile", new { tab = "info" });
         }
 

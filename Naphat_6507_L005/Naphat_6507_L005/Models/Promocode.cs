@@ -16,6 +16,10 @@ public partial class Promocode
 
     public int MinMonths { get; set; }                  // ใช้ได้เมื่อสัญญาอย่างน้อยกี่เดือน
 
+    public int? MaxUses { get; set; }                   // ใช้ได้ทั้งหมดกี่ครั้ง (null = ไม่จำกัด)
+
+    public int? MaxUsesPerUser { get; set; }            // ลูกค้า 1 คนใช้ได้กี่ครั้ง (null = ไม่จำกัด)
+
     public DateOnly? StartDate { get; set; }
 
     public DateOnly? EndDate { get; set; }

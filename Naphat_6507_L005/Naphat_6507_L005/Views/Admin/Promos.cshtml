@@ -9,6 +9,7 @@
         { "ยังไม่เริ่ม", "badge-pending" },
         { "หมดอายุ", "badge-cancelled" },
         { "ปิดใช้งาน", "badge-occupied" },
+        { "ใช้ครบแล้ว", "badge-cancelled" },
     };
 }
 
@@ -57,7 +58,7 @@
                             <td class="fw-semibold" style="font-size:0.875rem;">@p.DiscountText</td>
                             <td style="font-size:0.85rem;">@p.MinMonths เดือน</td>
                             <td style="font-size:0.78rem; color:#6c757d;">@p.PeriodText</td>
-                            <td style="font-size:0.85rem;">@p.UsedCount การจอง</td>
+                            <td style="font-size:0.85rem;">@p.UsedText</td>
                             <td><span class="badge-status @(statusClass.ContainsKey(p.StatusText) ? statusClass[p.StatusText] : "")">@p.StatusText</span></td>
                             <td>
                                 <div class="d-flex gap-1">
