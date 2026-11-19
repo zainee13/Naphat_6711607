@@ -1,1 +1,4 @@
-{}
+{
+  // เปิด Terminal ใหม่แล้วอยู่ในโฟลเดอร์โปรเจกต์เลย ไม่ต้อง cd เอง (พิมพ์ dotnet run ได้ทันที)
+  "terminal.integrated.cwd": "${workspaceFolder}/Naphat_6507_L005/Naphat_6507_L005"
+}
