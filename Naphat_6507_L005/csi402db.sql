@@ -106,7 +106,7 @@ CREATE TABLE `payment` (
   KEY `fk_payment_verifiedby` (`VerifiedBy`),
   CONSTRAINT `fk_payment_booking` FOREIGN KEY (`BookingId`) REFERENCES `booking` (`BookingId`),
   CONSTRAINT `fk_payment_verifiedby` FOREIGN KEY (`VerifiedBy`) REFERENCES `user` (`UserId`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `payment` WRITE;
@@ -195,11 +195,12 @@ CREATE TABLE `review` (
   PRIMARY KEY (`ReviewId`),
   KEY `fk_review_booking` (`BookingId`),
   CONSTRAINT `fk_review_booking` FOREIGN KEY (`BookingId`) REFERENCES `booking` (`BookingId`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `review` WRITE;
 /*!40000 ALTER TABLE `review` DISABLE KEYS */;
+INSERT INTO `review` VALUES (3,'BK-2026-002',3,'พนักงานด่าผมไร้สาระ','2026-11-19 19:28:08');
 /*!40000 ALTER TABLE `review` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `room`;
@@ -242,7 +243,7 @@ CREATE TABLE `stockitem` (
   KEY `fk_stock_updatedby` (`UpdatedBy`),
   CONSTRAINT `fk_stock_booking` FOREIGN KEY (`BookingId`) REFERENCES `booking` (`BookingId`),
   CONSTRAINT `fk_stock_updatedby` FOREIGN KEY (`UpdatedBy`) REFERENCES `user` (`UserId`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `stockitem` WRITE;
@@ -271,11 +272,12 @@ CREATE TABLE `supportticket` (
   CONSTRAINT `fk_ticket_assignedto` FOREIGN KEY (`AssignedTo`) REFERENCES `user` (`UserId`),
   CONSTRAINT `fk_ticket_booking` FOREIGN KEY (`BookingId`) REFERENCES `booking` (`BookingId`),
   CONSTRAINT `fk_ticket_user` FOREIGN KEY (`UserId`) REFERENCES `user` (`UserId`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `supportticket` WRITE;
 /*!40000 ALTER TABLE `supportticket` DISABLE KEYS */;
+INSERT INTO `supportticket` VALUES (3,18,'BK-2026-002','[ความปลอดภัย] ของมีค่า','กลัวขโมย\n---\n[พนักงานบริการลูกค้า (เจ้าหน้าที่) · 19 พ.ย. 2569 19:17]\nไม่ต้องห่วงครับเรามีรปทที่เป็นอดีตหน่วยสำรวจครับ\n---\n[test d (ลูกค้า) · 19 พ.ย. 2569 19:18]\nโอเคครับสบายใจละ\n---\n[พนักงานบริการลูกค้า (เจ้าหน้าที่) · 19 พ.ย. 2569 19:19]\nรับทราบครับ\n---\n[test d (ลูกค้า) · 19 พ.ย. 2569 19:22]\nพี่ชืออะไรครับ\n---\n[พนักงานบริการลูกค้า (เจ้าหน้าที่) · 19 พ.ย. 2569 19:23]\nไร้สาระไออ้วน','Normal','Resolved',10,'2026-11-19 19:15:10','2026-11-19 19:23:26');
 /*!40000 ALTER TABLE `supportticket` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `user`;
@@ -296,12 +298,12 @@ CREATE TABLE `user` (
   `CreatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`UserId`),
   UNIQUE KEY `Username` (`Username`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (3,'123@gmail.com','123','ณภัทร นวหัสดินกุล34','0969382439',NULL,'Customer',NULL,NULL,NULL,1,'2026-11-10 14:58:31'),(5,'naphat.nav@spulive.net','123','NAPHAT NAVAHASDINKULL','0969382439','naphat.nav@spulive.net','Customer','67จำกัด','1111111111111','adad',1,'2026-11-10 19:51:41'),(6,'acc01','1234','พนักงานบัญชี',NULL,NULL,'Accounting',NULL,NULL,NULL,1,'2026-11-10 20:04:53'),(7,'inv01','1234','พนักงานคลังสินค้า',NULL,NULL,'Inventory',NULL,NULL,NULL,1,'2026-11-12 21:05:40'),(10,'cs01','1234','พนักงานบริการลูกค้า',NULL,NULL,'CustomerService',NULL,NULL,NULL,1,'2026-11-15 19:26:57'),(13,'manager01','1234','ผู้จัดการ',NULL,NULL,'Manager',NULL,NULL,NULL,1,'2026-11-17 23:59:43'),(14,'admin01','1234','ผู้ดูแลระบบ',NULL,NULL,'Admin',NULL,NULL,NULL,1,'2026-11-17 23:59:43'),(16,'kuy@gmail.com','123','kuy gg','022222222222','kuy@gmail.com','Customer',NULL,'1111111111111','aaaaaaa',1,'2026-11-18 00:14:56'),(18,'test@gmail.com','1234','test d','033333333333','test@gmail.com','Customer',NULL,'1111111111111','dawdadadadad',1,'2026-11-19 18:49:01');
+INSERT INTO `user` VALUES (3,'123@gmail.com','123','ณภัทร นวหัสดินกุล34','0969382439',NULL,'Customer',NULL,NULL,NULL,1,'2026-11-10 14:58:31'),(5,'naphat.nav@spulive.net','123','NAPHAT NAVAHASDINKULL','0969382439','naphat.nav@spulive.net','Customer','67จำกัด','1111111111111','adad',1,'2026-11-10 19:51:41'),(6,'acc01','1234','พนักงานบัญชี',NULL,NULL,'Accounting',NULL,NULL,NULL,1,'2026-11-10 20:04:53'),(7,'inv01','1234','พนักงานคลังสินค้า',NULL,NULL,'Inventory',NULL,NULL,NULL,1,'2026-11-12 21:05:40'),(10,'cs01','1234','พนักงานบริการลูกค้า',NULL,NULL,'CustomerService',NULL,NULL,NULL,1,'2026-11-15 19:26:57'),(13,'manager01','1234','ผู้จัดการ',NULL,NULL,'Manager',NULL,NULL,NULL,1,'2026-11-17 23:59:43'),(14,'admin01','1234','ผู้ดูแลระบบ',NULL,NULL,'Admin',NULL,NULL,NULL,1,'2026-11-17 23:59:43'),(16,'kuy@gmail.com','123','kuy gg',NULL,'kuy@gmail.com','Customer',NULL,'1111111111111','aaaaaaa',1,'2026-11-18 00:14:56'),(18,'test@gmail.com','1234','test d',NULL,'test@gmail.com','Customer',NULL,'1111111111111','dawdadadadad',1,'2026-11-19 18:49:01');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
