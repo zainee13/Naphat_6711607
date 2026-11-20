@@ -23,6 +23,16 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
 
+    @* หน้าพนักงานทุกฝ่ายใช้ staff.css เพิ่ม (ลูกค้าและผู้เยี่ยมชมไม่ใช้) *@
+    @{
+        var layoutRole = Context.Session.GetString("Role");
+        bool isStaff = layoutRole != null && layoutRole != "Customer";
+    }
+    @if (isStaff)
+    {
+        <link rel="stylesheet" href="~/css/staff.css" asp-append-version="true" />
+    }
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
@@ -75,7 +85,7 @@
             (string.IsNullOrEmpty(act) || currentAction.Equals(act, StringComparison.OrdinalIgnoreCase));
     }
 
-    <nav class="sidebar @(role == "Customer" || role == "Guest" ? "customer-sidebar" : "")">
+    <nav class="sidebar @(role == "Customer" || role == "Guest" ? "customer-sidebar" : "staff-sidebar")">
 
         <div class="sidebar-logo">
             <div class="brand">Logi<span>Manage</span></div>
@@ -286,7 +296,7 @@
 
 
     @* ====== Main Content ====== *@
-    <div class="main-content @(role == "Customer" || role == "Guest" ? "customer-shell" : "")">
+    <div class="main-content @(role == "Customer" || role == "Guest" ? "customer-shell" : "staff-shell")">
 
         <header class="topbar @(role == "Customer" || role == "Guest" ? "customer-topbar" : "")">
             <div class="topbar-title">@(ViewData["Title"] ?? "LogiManage")</div>

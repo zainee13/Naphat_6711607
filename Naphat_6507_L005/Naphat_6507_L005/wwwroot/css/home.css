@@ -520,3 +520,112 @@ main > .hm-section:last-child { padding-bottom: 112px; }
 @media (prefers-reduced-motion: reduce) {
     .cs-fab, .cs-badge, .cs-toast { animation: none; transition: none; }
 }
+
+/* ===== โปรโมชั่น: การ์ดคูปองเลื่อนดูแนวนอน ===== */
+.hm-promo-hint { margin: 0; max-width: 32rem; color: var(--hm-ash); font-size: 14px; }
+.hm-promos {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0 16px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(272px, 1fr);
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+}
+.hm-ticket {
+    --notch: 12px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    scroll-snap-align: start;
+    background: var(--hm-card);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform .2s ease, box-shadow .2s ease;
+    /* รอยหยักครึ่งวงกลมสองข้างแบบคูปอง */
+    -webkit-mask: radial-gradient(circle var(--notch) at 0 calc(100% - 71px), transparent 98%, #000) left / 51% 100% no-repeat,
+                  radial-gradient(circle var(--notch) at 100% calc(100% - 71px), transparent 98%, #000) right / 51% 100% no-repeat;
+    mask: radial-gradient(circle var(--notch) at 0 calc(100% - 71px), transparent 98%, #000) left / 51% 100% no-repeat,
+          radial-gradient(circle var(--notch) at 100% calc(100% - 71px), transparent 98%, #000) right / 51% 100% no-repeat;
+}
+.hm-ticket::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--hm-grad);
+}
+.hm-ticket:hover { transform: translateY(-4px); box-shadow: 0 16px 30px -12px rgba(244, 90, 51, 0.35); }
+.hm-ticket-top { padding: 26px 22px 18px; flex: 1; }
+.hm-ticket-big {
+    font-size: 46px;
+    line-height: 1;
+    font-weight: 600;
+    background: var(--hm-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+.hm-ticket-desc { margin: 12px 0 14px; font-size: 14px; line-height: 1.5; color: var(--hm-ivory, #f2f2f2); min-height: 42px; }
+.hm-ticket-cond { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.hm-ticket-cond li { font-size: 12px; padding: 3px 10px; border-radius: 40px; border: 1px solid var(--hm-hairline); color: var(--hm-ash); }
+.hm-ticket-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    height: 71px;
+    padding: 0 22px;
+    border-top: 2px dashed var(--hm-hairline);
+}
+.hm-ticket-code {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 6px 10px;
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--hm-ivory, #f2f2f2);
+    cursor: pointer;
+    font: inherit;
+    transition: border-color .15s ease, background-color .15s ease;
+}
+.hm-ticket-code code { color: inherit; font-size: 13px; letter-spacing: 0.06em; font-family: var(--hm-font); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hm-ticket-code .material-symbols-outlined { font-size: 16px; opacity: 0.7; }
+.hm-ticket-code:hover { border-color: rgba(255, 255, 255, 0.6); background: rgba(255, 255, 255, 0.04); }
+.hm-ticket-code.is-copied { border-color: #8fd6a8; color: #8fd6a8; }
+.hm-ticket-use {
+    flex: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 40px;
+    background: var(--hm-grad);
+    color: #fff;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.hm-ticket-use:hover { color: #fff; filter: brightness(1.08); }
+.hm-ticket-soon { flex: none; font-size: 12px; color: var(--hm-ash); padding: 8px 4px; }
+.hm-ticket-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 40px;
+    background: rgba(244, 90, 51, 0.15);
+    color: #ffb08f;
+}
+.hm-ticket.is-upcoming .hm-ticket-big { opacity: 0.55; }
+.hm-ticket.is-upcoming .hm-ticket-badge { background: rgba(143, 184, 255, 0.15); color: #8fb8ff; }
+
+@media (prefers-reduced-motion: reduce) {
+    .hm-ticket { transition: none; }
+}

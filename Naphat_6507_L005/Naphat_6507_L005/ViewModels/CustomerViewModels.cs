@@ -120,6 +120,19 @@ public class ProfileViewModel
     public string Address { get; set; } = "";
 }
 
+// ===================== PromoOptionViewModel =====================
+// โปรโมชั่น 1 ตัวในรายการให้เลือกตอนจอง (หน้า BookRoom)
+public class PromoOptionViewModel
+{
+    public string Code { get; set; } = "";
+    public string BigText { get; set; } = "";             // เช่น −35% หรือ −฿3,000
+    public string Description { get; set; } = "";
+    public int MinMonths { get; set; }                     // หน้าจอปิดตัวเลือกถ้าระยะสัญญาที่เลือกน้อยกว่านี้
+    public List<string> Terms { get; set; } = new();       // ข้อกำหนดของโค้ดนี้
+    public string? BadgeText { get; set; }                 // เช่น เหลือ 30 สิทธิ์
+    public bool UserLimitReached { get; set; }             // ลูกค้าคนนี้ใช้ครบสิทธิ์แล้ว (เลือกไม่ได้)
+}
+
 // ===================== PriceQuoteViewModel =====================
 // ยอดที่ต้องชำระก่อนเข้าใช้ + วันสิ้นสุดสัญญา คิดที่ CustomerController.BuildQuote ที่เดียว
 // หน้า RoomDetail / BookRoom แสดงค่านี้ และขอค่าใหม่จาก Customer/PriceQuote เมื่อเปลี่ยนวันหรือระยะสัญญา
@@ -147,10 +160,20 @@ public class HomeViewModel
     public string? AvgRating { get; set; }          // คะแนนรีวิวเฉลี่ย (null = ยังไม่มีรีวิว)
     public int ReviewCount { get; set; }
     public int UsedPercent { get; set; }            // อัตราการเช่าทั้งคลัง
-    public Naphat_6507_L005.Models.Promocode? Promo { get; set; }   // โค้ดส่วนลดที่โชว์บนหน้าหลัก (null = ไม่มีโปรโมชั่น)
-    public string? PromoBigText { get; set; }       // เช่น −35% หรือ −฿5,000
+    public List<HomePromoViewModel> Promos { get; set; } = new();   // โปรโมชั่นทั้งหมดที่โชว์บนหน้าหลัก
     public RoomViewModel? Featured { get; set; }    // ห้องแนะนำ
     public List<HomeSizeCardViewModel> SizeCards { get; set; } = new();
+}
+
+// โปรโมชั่น 1 ใบบนหน้าหลัก (มาจากตาราง promocode ที่ Admin สร้าง)
+public class HomePromoViewModel
+{
+    public string Code { get; set; } = "";
+    public string BigText { get; set; } = "";       // เช่น −35% หรือ −฿3,000
+    public string Description { get; set; } = "";
+    public List<string> Conditions { get; set; } = new();   // เงื่อนไขสั้นๆ เช่น สัญญา 6 เดือนขึ้นไป
+    public bool IsUpcoming { get; set; }            // ยังไม่ถึงวันเริ่ม (โชว์ว่า "เร็วๆ นี้" กดใช้ไม่ได้)
+    public string? BadgeText { get; set; }          // ป้ายมุมการ์ด เช่น เหลือ 3 สิทธิ์ / เริ่ม 12 ธ.ค.
 }
 
 // การ์ดขนาดห้อง 1 ใบบนหน้าหลัก

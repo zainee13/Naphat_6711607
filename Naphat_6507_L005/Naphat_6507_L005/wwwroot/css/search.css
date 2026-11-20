@@ -8,103 +8,263 @@
 .fp-head h2 { font-family: var(--cu-display); font-weight: 500; color: var(--cu-text); font-size: 21px; margin: 0; }
 .fp-head p { margin: 4px 0 0; color: var(--cu-muted); font-size: 14px; }
 
-.fp-board {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 21rem;
-    gap: 12px;
-    align-items: start;
-}
-
+/* ---------- กรอบผัง (เป็นจุดอ้างอิงของป๊อปอัป) ---------- */
 .fp-plan-wrap {
-    background: var(--cu-card);
+    position: relative;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px) 0 0 / 24px 24px,
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px) 0 0 / 24px 24px,
+        var(--cu-card);
     border-radius: 12px;
-    padding: 20px;
+    padding: 20px 20px 16px;
 }
+.fp-plan-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; font-size: 13px; color: var(--cu-muted); }
+.fp-plan-top > span:first-child { display: inline-flex; align-items: center; gap: 6px; color: var(--cu-text); font-weight: 500; }
+.fp-plan-top .material-symbols-outlined { font-size: 18px; }
+.fp-plan-hint { color: var(--cu-faint); }
 
+/* ผนังคลัง: กรอบหนาล้อมรอบทุกห้อง */
 .fp-plan {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    grid-template-rows: repeat(5, minmax(42px, 1fr)) minmax(50px, auto);
-    gap: 6px;
-    aspect-ratio: 12 / 6;
+    grid-template-rows: repeat(3, minmax(58px, 1fr)) 40px repeat(3, minmax(48px, 1fr));
+    gap: 14px 8px;
+    padding: 12px 12px 18px;
+    border: 3px solid #3a3a3a;
+    border-bottom-width: 0;
+    border-radius: 10px 10px 0 0;
+    background: radial-gradient(120% 90% at 50% 0%, #161616 0%, #0b0b0b 70%);
 }
 
-/* ห้องว่าง: พื้นยกขึ้น เส้นขอบบาง / ห้องเย็น: ขีดด้านบนสีฟ้าอ่อน / มีผู้เช่า: ลายขีดจาง */
+/* ---------- ห้อง: กล่องนูน 3D มองจากด้านบน ----------
+   --depth = ความหนาของกล่อง (ห้องใหญ่หนากว่า) / --side = สีด้านข้างกล่อง
+   ด้านข้างกล่องทำจาก box-shadow แบบไม่เบลอ ชี้แล้วลอยขึ้น กดแล้วยุบลง */
 .fp-unit {
-    --tone: var(--cu-line);
+    --depth: 6px;
+    --side: #343434;
+    --glow: 0 0 0 transparent;
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: stretch;
     text-align: left;
     padding: 8px 10px;
-    border: 1px solid var(--cu-line);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 8px;
-    background: var(--cu-slab);
+    background: linear-gradient(180deg, #232323, #1a1a1a);
     color: var(--cu-text);
     cursor: pointer;
     font: inherit;
-    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
     min-width: 0;
     overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 var(--depth) 0 var(--side), 0 calc(var(--depth) + 6px) 14px rgba(0, 0, 0, 0.7), var(--glow);
+    transition: transform .2s cubic-bezier(.2, .8, .3, 1.2), box-shadow .2s ease, border-color .2s ease;
+    animation: fp-rise .5s cubic-bezier(.2, .8, .3, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 60ms);
 }
-.fp-unit:hover { background: #262626; border-color: rgba(255, 255, 255, 0.35); }
-.fp-unit--cold { box-shadow: inset 0 3px 0 var(--cu-cold); }
+.fp-unit--xl { --depth: 10px; }
+.fp-unit--l { --depth: 8px; }
+.fp-unit--s { --depth: 5px; }
+
+/* แสงไฟส่องตามเมาส์ (JS ตั้งค่า --mx / --my) */
+.fp-unit::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(180px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, 0.09), transparent 60%);
+    opacity: 0;
+    transition: opacity .2s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+.fp-unit:hover::before { opacity: 1; }
+
+.fp-unit:hover {
+    --glow: 0 0 18px rgba(244, 90, 51, 0.35);
+    transform: translateY(-4px);
+    border-color: rgba(244, 90, 51, 0.75);
+    box-shadow: 0 calc(var(--depth) + 4px) 0 var(--side), 0 calc(var(--depth) + 14px) 22px rgba(0, 0, 0, 0.6), var(--glow);
+    z-index: 2;
+}
+.fp-unit:active {
+    transform: translateY(calc(var(--depth) - 2px));
+    box-shadow: 0 2px 0 var(--side), 0 4px 8px rgba(0, 0, 0, 0.5);
+    transition-duration: .06s;
+}
+
+/* ห้องเย็น: ผิวฟ้าอ่อน ด้านข้างฟ้าเข้ม */
+.fp-unit--cold { --side: #2c4670; background: linear-gradient(180deg, #1f2a3a, #19202b); border-color: rgba(143, 184, 255, 0.4); }
+.fp-unit--cold:hover { --glow: 0 0 18px rgba(143, 184, 255, 0.4); border-color: var(--cu-cold); }
+
+/* มีผู้เช่า: กล่องเตี้ยลง ลายขีดจาง */
 .fp-unit.is-taken {
+    --depth: 3px;
+    --side: #262626;
     background: repeating-linear-gradient(-45deg, #141414 0 6px, #1a1a1a 6px 12px);
     color: var(--cu-faint);
     border-style: dashed;
 }
-.fp-unit.is-selected { background: var(--cu-grad); color: #fff; border-color: transparent; z-index: 1; }
-.fp-unit--cold.is-selected { box-shadow: inset 0 3px 0 var(--cu-cold); }
-.fp-unit.is-taken.is-selected { background: var(--cu-taken); color: var(--cu-text); border-color: var(--cu-taken); }
-.fp-unit:focus-visible { outline: 2px solid var(--cu-text); outline-offset: 3px; z-index: 2; }
 
-.fp-unit-code { font-family: var(--cu-display); font-weight: 500; font-size: clamp(13px, 1.4vw, 19px); line-height: 1; }
-.fp-unit--xl .fp-unit-code { font-size: clamp(22px, 3vw, 36px); }
-.fp-unit-area { font-size: 12px; opacity: 0.85; white-space: nowrap; }
+/* ห้องที่กดเลือก: ผิวส้ม ด้านข้างส้มเข้ม */
+.fp-unit.is-selected,
+.fp-unit.is-selected:hover {
+    --side: #8f1d0e;
+    --glow: 0 0 22px rgba(244, 90, 51, 0.45);
+    background: var(--cu-grad);
+    color: #fff;
+    border-color: transparent;
+    z-index: 3;
+    transform: translateY(-4px);
+    box-shadow: 0 calc(var(--depth) + 4px) 0 var(--side), 0 calc(var(--depth) + 14px) 22px rgba(0, 0, 0, 0.6), var(--glow);
+}
+.fp-unit.is-taken.is-selected { --side: #3a3a3a; --glow: 0 0 0 transparent; background: var(--cu-taken); color: var(--cu-text); }
+.fp-unit:focus-visible { outline: 2px solid var(--cu-text); outline-offset: 3px; z-index: 3; }
 
-.fp-legend { display: flex; flex-wrap: wrap; gap: 8px 24px; list-style: none; margin: 16px 0 0; padding: 0; font-size: 13px; color: var(--cu-muted); }
+@keyframes fp-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+}
+
+.fp-unit-top, .fp-unit-bottom { display: flex; justify-content: space-between; align-items: center; gap: 6px; min-width: 0; }
+.fp-unit-code { font-family: var(--cu-display); font-weight: 600; font-size: clamp(13px, 1.4vw, 18px); line-height: 1; }
+.fp-unit--xl .fp-unit-code { font-size: clamp(20px, 2.6vw, 32px); }
+/* ภาพประกอบห้อง: รูปจริงของห้องเป็นพื้นหลัง มีไล่เงาดำให้อ่านตัวหนังสือออก */
+.fp-unit-photo {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.45;
+    transition: opacity .25s ease, transform .4s ease, filter .25s ease;
+    pointer-events: none;
+}
+.fp-unit-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 10, 10, 0.75) 0%, rgba(10, 10, 10, 0.4) 50%, rgba(10, 10, 10, 0.85) 100%);
+}
+.fp-unit > :not(.fp-unit-photo) { position: relative; z-index: 1; }
+.fp-unit:hover .fp-unit-photo { opacity: 0.7; transform: scale(1.06); }
+.fp-unit--cold .fp-unit-photo { filter: saturate(0.6) hue-rotate(10deg); }
+.fp-unit.is-taken .fp-unit-photo { opacity: 0.18; filter: grayscale(1); }
+.fp-unit.is-taken:hover .fp-unit-photo { opacity: 0.3; }
+.fp-unit.is-selected .fp-unit-photo { opacity: 0.35; mix-blend-mode: luminosity; }
+.fp-unit-area { font-size: 11px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fp-unit-price { font-size: 12px; font-weight: 600; white-space: nowrap; }
+
+/* จุดเขียวกะพริบ = ห้องว่าง / กุญแจ = มีผู้เช่า */
+.fp-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--cu-ok); flex: none; display: inline-block; box-shadow: 0 0 0 0 rgba(143, 214, 168, 0.7); animation: fp-pulse 1.8s infinite; }
+@keyframes fp-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(143, 214, 168, 0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(143, 214, 168, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(143, 214, 168, 0); }
+}
+.fp-lock { font-size: 16px; color: var(--cu-faint); }
+
+/* ทางเดินรถกลางคลัง */
+.fp-aisle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--cu-faint);
+    border-radius: 6px;
+    background: repeating-linear-gradient(90deg, transparent 0 22px, rgba(255, 255, 255, 0.12) 22px 40px) center / 100% 2px no-repeat, #141414;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.fp-aisle > span { background: #141414; padding: 0 6px; }
+.fp-aisle .material-symbols-outlined { font-size: 18px; color: var(--cu-muted); }
+
+/* ถนนหน้าคลัง + ประตูทางเข้า */
+.fp-road {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #1a1a1a;
+    border: 3px solid #3a3a3a;
+    border-radius: 0 0 10px 10px;
+    font-size: 12px;
+    color: var(--cu-muted);
+}
+.fp-road-line { flex: 1; height: 2px; background: repeating-linear-gradient(90deg, #f2f2f2 0 18px, transparent 18px 32px); opacity: 0.35; }
+.fp-gate { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.fp-gate .material-symbols-outlined { font-size: 18px; color: var(--cu-muted); }
+
+.fp-legend { display: flex; flex-wrap: wrap; gap: 8px 24px; list-style: none; margin: 14px 0 0; padding: 0; font-size: 13px; color: var(--cu-muted); }
 .fp-legend li { display: flex; align-items: center; gap: 8px; }
 .fp-sw { width: 14px; height: 14px; border-radius: 4px; display: inline-block; background: var(--cu-slab); border: 1px solid rgba(255, 255, 255, 0.35); }
-.fp-sw--cold { box-shadow: inset 0 3px 0 var(--cu-cold); }
-.fp-sw--taken { border-style: dashed; background: repeating-linear-gradient(-45deg, #141414 0 3px, #222222 3px 6px); }
+.fp-sw--cold { border-color: var(--cu-cold); background: rgba(143, 184, 255, 0.2); }
 
-/* ---------- แผงรายละเอียด ---------- */
-.fp-detail {
-    background: var(--cu-card);
+/* ---------- ป๊อปอัปรายละเอียดห้อง (อยู่ในกรอบผัง) ---------- */
+.fp-pop {
+    position: absolute;
+    z-index: 10;
+    width: 20rem;
+    max-width: calc(100% - 20px);
+    background: #161616;
+    border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 12px;
-    padding: 28px;
-    position: sticky;
-    top: 96px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+    animation: fp-pop-in .18s ease-out;
 }
-.fp-detail-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.fp-detail-code { font-family: var(--cu-display); font-weight: 500; font-size: 42px; line-height: 1; color: var(--cu-text); }
-.fp-detail-zone { color: var(--cu-muted); font-size: 14px; margin: 12px 0 20px; }
+.fp-pop[hidden] { display: none; }
+@keyframes fp-pop-in {
+    from { opacity: 0; transform: translateY(6px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+}
+.fp-pop-close {
+    position: absolute; top: 8px; right: 8px; z-index: 1;
+    width: 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center;
+    border: 0; background: rgba(0, 0, 0, 0.65); color: #fff; cursor: pointer;
+}
+.fp-pop-close:hover { background: rgba(0, 0, 0, 0.9); }
+.fp-pop-close .material-symbols-outlined { font-size: 18px; }
+.fp-pop-img { aspect-ratio: 16 / 7; background: var(--cu-slab); }
+.fp-pop-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fp-pop.is-taken .fp-pop-img img { filter: grayscale(1); opacity: 0.5; }
+.fp-pop-body { padding: 14px 16px 16px; }
+.fp-pop-head { display: flex; align-items: center; gap: 8px; }
+.fp-pop-head strong { font-family: var(--cu-display); font-weight: 600; font-size: 24px; line-height: 1; }
+.fp-pop-head .cu-status { margin-left: auto; }
+.fp-pop-head .material-symbols-outlined { font-size: 22px; color: var(--cu-orange); }
+.fp-pop-zone { color: var(--cu-muted); font-size: 13px; margin: 8px 0 12px; }
 
-.fp-spec { margin: 0 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.fp-spec dt { font-weight: 400; font-size: 12px; color: var(--cu-muted); }
-.fp-spec dd { margin: 4px 0 0; font-weight: 500; font-size: 15px; }
+.fp-spec { margin: 0 0 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fp-spec dt { font-weight: 400; font-size: 11px; color: var(--cu-muted); }
+.fp-spec dd { margin: 2px 0 0; font-weight: 500; font-size: 13px; }
 
-.fp-price { display: flex; align-items: baseline; gap: 8px; padding: 16px 0; border-top: 1px solid var(--cu-line); color: var(--cu-muted); font-size: 14px; }
-.fp-price strong { font-family: var(--cu-display); font-weight: 500; font-size: 28px; color: var(--cu-text); font-variant-numeric: tabular-nums; }
+.fp-price { display: flex; align-items: baseline; gap: 8px; padding: 10px 0; border-top: 1px solid var(--cu-line); color: var(--cu-muted); font-size: 13px; }
+.fp-price strong { font-family: var(--cu-display); font-weight: 600; font-size: 22px; color: var(--cu-text); font-variant-numeric: tabular-nums; }
 
 .fp-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.fp-actions[hidden] { display: none; }
-.fp-taken-note { font-size: 14px; color: var(--cu-muted); margin: 0 0 4px; }
+.fp-actions [hidden] { display: none; }
+.fp-taken-note { font-size: 13px; color: var(--cu-muted); margin: 0 0 8px; }
+.fp-taken-note[hidden] { display: none; }
 
-@media (max-width: 1100px) {
-    .fp-board { grid-template-columns: 1fr; }
-    .fp-detail { position: static; }
+@media (prefers-reduced-motion: reduce) {
+    .fp-dot, .fp-pop, .fp-unit { animation: none; }
+    .fp-unit, .fp-unit-photo { transition: none; }
 }
 
 @media (max-width: 720px) {
     .fp-plan-wrap { padding: 10px; }
-    .fp-plan { gap: 4px; aspect-ratio: 12 / 9; grid-template-rows: repeat(5, minmax(34px, 1fr)) minmax(44px, auto); }
+    .fp-plan-hint { display: none; }
+    .fp-plan { gap: 10px 4px; padding: 6px 6px 12px; grid-template-rows: repeat(3, minmax(48px, 1fr)) 28px repeat(3, minmax(40px, 1fr)); }
     .fp-unit { padding: 5px 6px; border-radius: 6px; }
-    .fp-unit-area { display: none; }
-    .fp-unit--xl .fp-unit-area { display: block; }
-    .fp-detail { padding: 24px; }
+    .fp-unit-area, .fp-unit-price { display: none; }
+    .fp-unit--xl .fp-unit-price { display: block; }
+    .fp-aisle span:not(.material-symbols-outlined) { display: none; }
+    .fp-pop { width: auto; right: 10px; max-height: calc(100% - 20px); overflow-y: auto; }
+    .fp-pop-img { display: none; }
+    .fp-pop-head { padding-right: 34px; }
+    .fp-pop-close { background: rgba(255, 255, 255, 0.08); }
 }
 
 /* ---------- รายการห้องทั้งหมด (ใต้ผัง) ---------- */
@@ -136,3 +296,8 @@
 .sr-card-price { margin: 0; color: var(--cu-muted); font-size: 14px; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
 .sr-card-price strong { font-family: var(--cu-display); font-weight: 500; font-size: 21px; color: var(--cu-text); }
 .sr-card-price s { color: var(--cu-faint); }
+
+/* แถบบอกว่ากำลังใช้โค้ดส่วนลดจากหน้าหลัก */
+.sr-promo-note { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 8px !important; padding: 6px 14px; border-radius: 40px; background: rgba(244, 90, 51, 0.12); color: #ffb08f !important; font-size: 14px; }
+.sr-promo-note strong { color: #fff; letter-spacing: 0.04em; }
+.sr-promo-note .material-symbols-outlined { font-size: 18px; }

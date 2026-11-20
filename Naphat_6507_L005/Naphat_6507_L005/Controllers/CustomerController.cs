@@ -25,11 +25,11 @@ public class CustomerController : Controller
         { "XL-01", new RoomViewModel { Grid = "1 / 1 / 6 / 6",   Vehicle = "คอนเทนเนอร์ทุกขนาด",       Temp = "อุณหภูมิปกติ",   FloorLoad = "5 ตัน/ตร.ม.",   Dock = "Dock Leveler 4 ช่อง",     Power = "หม้อแปลงแยก 250 kVA", Note = "คลังโล่งขนาดใหญ่พิเศษ",                   OldPrice = 210000 } },
         { "L-01",  new RoomViewModel { Grid = "1 / 6 / 4 / 10",  Vehicle = "รถพ่วง 18 ล้อ / ตู้ 40ft", Temp = "อุณหภูมิปกติ",   FloorLoad = "5 ตัน/ตร.ม.",   Dock = "Dock Leveler 2 ช่อง",     Power = "3 เฟส 380V (200A)",   Note = "มี Dock Leveler เทียบตู้คอนเทนเนอร์",     OldPrice = 85000 } },
         { "L-02",  new RoomViewModel { Grid = "1 / 10 / 4 / 13", Vehicle = "10 ล้อ / เทรลเลอร์",       Temp = "อุณหภูมิปกติ",   FloorLoad = "4 ตัน/ตร.ม.",   Dock = "Dock Leveler 1 ช่อง",     Power = "3 เฟส 380V (150A)",   Note = "ควบคุมการเข้าออกเฉพาะบุคคล",              OldPrice = 0 } },
-        { "M-02",  new RoomViewModel { Grid = "4 / 6 / 7 / 9",   Vehicle = "10 ล้อ",                   Temp = "อุณหภูมิปกติ",   FloorLoad = "3.5 ตัน/ตร.ม.", Dock = "ชานชาลาสูง 1.2 ม.",       Power = "3 เฟส 380V (100A)",   Note = "Racking 3 ชั้น วางได้ 120 พาเลท",          OldPrice = 0 } },
-        { "M-01",  new RoomViewModel { Grid = "4 / 9 / 7 / 11",  Vehicle = "6 ล้อ / 10 ล้อ",           Temp = "อุณหภูมิปกติ",   FloorLoad = "3 ตัน/ตร.ม.",   Dock = "ชานชาลาพร้อมทางลาด",      Power = "3 เฟส 380V (50A)",    Note = "พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม.",      OldPrice = 29000 } },
-        { "CR-05", new RoomViewModel { Grid = "4 / 11 / 7 / 13", Vehicle = "10 ล้อตู้เย็น",             Temp = "−18°C ถึง +5°C", FloorLoad = "3 ตัน/ตร.ม.",   Dock = "Air Lock Loading Bay",    Power = "3 เฟส + ไฟสำรอง",     Note = "ควบคุม −18°C ถึง +5°C ดูอุณหภูมิผ่านมือถือ", OldPrice = 48000 } },
-        { "S-01",  new RoomViewModel { Grid = "6 / 1 / 7 / 3",   Vehicle = "กระบะ / 4 ล้อ",            Temp = "อุณหภูมิปกติ",   FloorLoad = "1.5 ตัน/ตร.ม.", Dock = "ทางลาดเทียบรถกระบะ",      Power = "220V 1 เฟส",          Note = "ชั้น 1 เข้าถึงง่าย",                       OldPrice = 0 } },
-        { "S-02",  new RoomViewModel { Grid = "6 / 3 / 7 / 6",   Vehicle = "4 ล้อ / 6 ล้อ",            Temp = "อุณหภูมิปกติ",   FloorLoad = "2 ตัน/ตร.ม.",   Dock = "ทางลาดโหลดสินค้าในร่ม",   Power = "220V / 380V",         Note = "ประตูม้วนไฟฟ้า",                           OldPrice = 18000 } },
+        { "M-02",  new RoomViewModel { Grid = "5 / 6 / 8 / 9",   Vehicle = "10 ล้อ",                   Temp = "อุณหภูมิปกติ",   FloorLoad = "3.5 ตัน/ตร.ม.", Dock = "ชานชาลาสูง 1.2 ม.",       Power = "3 เฟส 380V (100A)",   Note = "Racking 3 ชั้น วางได้ 120 พาเลท",          OldPrice = 0 } },
+        { "M-01",  new RoomViewModel { Grid = "5 / 9 / 8 / 11",  Vehicle = "6 ล้อ / 10 ล้อ",           Temp = "อุณหภูมิปกติ",   FloorLoad = "3 ตัน/ตร.ม.",   Dock = "ชานชาลาพร้อมทางลาด",      Power = "3 เฟส 380V (50A)",    Note = "พื้นอีพ็อกซี่รับน้ำหนัก 3 ตัน/ตร.ม.",      OldPrice = 29000 } },
+        { "CR-05", new RoomViewModel { Grid = "5 / 11 / 8 / 13", Vehicle = "10 ล้อตู้เย็น",             Temp = "−18°C ถึง +5°C", FloorLoad = "3 ตัน/ตร.ม.",   Dock = "Air Lock Loading Bay",    Power = "3 เฟส + ไฟสำรอง",     Note = "ควบคุม −18°C ถึง +5°C ดูอุณหภูมิผ่านมือถือ", OldPrice = 48000 } },
+        { "S-01",  new RoomViewModel { Grid = "6 / 1 / 8 / 3",   Vehicle = "กระบะ / 4 ล้อ",            Temp = "อุณหภูมิปกติ",   FloorLoad = "1.5 ตัน/ตร.ม.", Dock = "ทางลาดเทียบรถกระบะ",      Power = "220V 1 เฟส",          Note = "ชั้น 1 เข้าถึงง่าย",                       OldPrice = 0 } },
+        { "S-02",  new RoomViewModel { Grid = "6 / 3 / 8 / 6",   Vehicle = "4 ล้อ / 6 ล้อ",            Temp = "อุณหภูมิปกติ",   FloorLoad = "2 ตัน/ตร.ม.",   Dock = "ทางลาดโหลดสินค้าในร่ม",   Power = "220V / 380V",         Note = "ประตูม้วนไฟฟ้า",                           OldPrice = 18000 } },
     };
 
     // ชื่อวิธีชำระเงินที่แสดงในประวัติ
@@ -312,6 +312,64 @@ public class CustomerController : Controller
     // ระยะสัญญาที่เลือกได้ (ค่าอื่นใช้ 6 เดือน)
     private static int ValidMonths(int months) => months == 1 || months == 3 || months == 6 || months == 12 ? months : 6;
 
+    // ===== รายการโปรโมชั่นให้เลือกตอนจอง (หน้า BookRoom) =====
+    // โชว์เฉพาะโค้ดที่ใช้ได้ตอนนี้: เปิดใช้งาน + ถึงวันเริ่มแล้ว + ยังไม่หมดอายุ + ยังใช้ไม่ครบสิทธิ์รวม
+    // ส่วนเงื่อนไขระยะสัญญา (MinMonths) หน้าจอเช็คตามระยะสัญญาที่เลือก และ CheckPromo ตรวจซ้ำตอนกดจอง
+    private void SetPromoOptionsBag()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        int? userId = GetCurrentUser()?.UserId;
+        var promos = (from p in _db.Promocodes
+                      where p.IsActive && (p.StartDate == null || p.StartDate <= today) && (p.EndDate == null || p.EndDate >= today)
+                      orderby p.CreatedAt
+                      select p).ToList();
+
+        List<PromoOptionViewModel> options = new();
+        foreach (var p in promos)
+        {
+            int used = (from b in _db.Bookings where b.PromoCode == p.Code && b.BookingStatus != "Cancelled" select b).Count();
+            if (p.MaxUses != null && used >= p.MaxUses)
+            {
+                continue;   // ใช้ครบสิทธิ์รวมแล้ว
+            }
+            int usedByMe = userId == null ? 0
+                : (from b in _db.Bookings where b.PromoCode == p.Code && b.UserId == userId && b.BookingStatus != "Cancelled" select b).Count();
+
+            PromoOptionViewModel option = new();
+            option.Code = p.Code;
+            option.BigText = p.DiscountType == "Percent"
+                ? "−" + p.DiscountValue.ToString("0.##") + "%"
+                : "−฿" + p.DiscountValue.ToString("N0");
+            option.Description = p.Description ?? "ลดค่าเช่าเดือนแรก";
+            option.MinMonths = p.MinMonths;
+            option.UserLimitReached = p.MaxUsesPerUser != null && usedByMe >= p.MaxUsesPerUser;
+            if (p.MaxUses != null)
+            {
+                option.BadgeText = "เหลือ " + (p.MaxUses.Value - used) + " สิทธิ์";
+            }
+
+            // ข้อกำหนดของโค้ดนี้ (เขียนจากค่าในตาราง promocode)
+            option.Terms.Add(p.DiscountType == "Percent"
+                ? "ลด " + p.DiscountValue.ToString("0.##") + "% ของค่าเช่าเดือนแรก"
+                : "ลด ฿" + p.DiscountValue.ToString("N0") + " จากค่าเช่าเดือนแรก (ไม่เกินค่าเช่าเดือนแรก)");
+            option.Terms.Add(p.MinMonths > 1 ? "ต้องทำสัญญา " + p.MinMonths + " เดือนขึ้นไป" : "ใช้ได้ทุกระยะสัญญา");
+            if (p.MaxUsesPerUser != null)
+            {
+                option.Terms.Add("ลูกค้า 1 คนใช้ได้ " + p.MaxUsesPerUser + " ครั้ง" + (usedByMe > 0 ? " (คุณใช้ไปแล้ว " + usedByMe + " ครั้ง)" : ""));
+            }
+            if (p.MaxUses != null)
+            {
+                option.Terms.Add("จำกัด " + p.MaxUses + " สิทธิ์ (ใช้ไปแล้ว " + used + ")");
+            }
+            if (p.EndDate != null)
+            {
+                option.Terms.Add("ใช้ได้ถึง " + p.EndDate.Value.ToDateTime(TimeOnly.MinValue).ToString("d MMM yyyy", new System.Globalization.CultureInfo("th-TH")));
+            }
+            options.Add(option);
+        }
+        ViewBag.PromoOptions = options;
+    }
+
     // ===== โค้ดส่วนลด (ตาราง promocode ที่ Admin สร้าง) =====
     // ลดเฉพาะค่าเช่าเดือนแรก: Percent = ลด % ของค่าเช่า, Amount = ลดเป็นบาท (ไม่เกินค่าเช่าเดือนแรก)
     // ใช้ได้เมื่อ เปิดใช้งาน + อยู่ในช่วงวันที่ + สัญญาไม่น้อยกว่า MinMonths + ยังใช้ไม่ครบจำนวนครั้ง (รวม / ต่อคน)
@@ -465,19 +523,50 @@ public class CustomerController : Controller
                        ?? rooms.FirstOrDefault();
         home.Featured = featured == null ? null : ToRoomViewModel(featured, GetRating(featured.RoomId));
 
-        // โปรโมชั่น: โค้ดที่เปิดใช้งานและยังไม่หมดอายุ (ใหม่สุด)
+        // โปรโมชั่น: โค้ดที่เปิดใช้งาน ยังไม่หมดอายุ และยังใช้ไม่ครบสิทธิ์ (รวมโค้ดที่ยังไม่ถึงวันเริ่ม โชว์เป็น "เร็วๆ นี้")
         var today = DateOnly.FromDateTime(DateTime.Today);
-        home.Promo = (from p in _db.Promocodes
-                      where p.IsActive && (p.StartDate == null || p.StartDate <= today) && (p.EndDate == null || p.EndDate >= today)
-                            && (p.MaxUses == null || (from b in _db.Bookings where b.PromoCode == p.Code && b.BookingStatus != "Cancelled" select b).Count() < p.MaxUses)
-                      orderby p.CreatedAt descending
-                      select p).FirstOrDefault();
-        if (home.Promo != null)
+        var promos = (from p in _db.Promocodes
+                      where p.IsActive && (p.EndDate == null || p.EndDate >= today)
+                      orderby p.CreatedAt
+                      select p).ToList();
+        foreach (var p in promos)
         {
-            home.PromoBigText = home.Promo.DiscountType == "Percent"
-                ? "−" + home.Promo.DiscountValue.ToString("0.##") + "%"
-                : "−฿" + home.Promo.DiscountValue.ToString("N0");
+            int used = (from b in _db.Bookings where b.PromoCode == p.Code && b.BookingStatus != "Cancelled" select b).Count();
+            if (p.MaxUses != null && used >= p.MaxUses)
+            {
+                continue;   // ใช้ครบสิทธิ์แล้ว ไม่ต้องโชว์
+            }
+
+            HomePromoViewModel card = new();
+            card.Code = p.Code;
+            card.BigText = p.DiscountType == "Percent"
+                ? "−" + p.DiscountValue.ToString("0.##") + "%"
+                : "−฿" + p.DiscountValue.ToString("N0");
+            card.Description = p.Description ?? "ลดค่าเช่าเดือนแรก";
+            card.Conditions.Add(p.MinMonths > 1 ? "สัญญา " + p.MinMonths + " เดือนขึ้นไป" : "ทุกระยะสัญญา");
+            if (p.MaxUsesPerUser != null)
+            {
+                card.Conditions.Add("คนละ " + p.MaxUsesPerUser + " ครั้ง");
+            }
+            if (p.EndDate != null)
+            {
+                card.Conditions.Add("ถึง " + p.EndDate.Value.ToDateTime(TimeOnly.MinValue).ToString("d MMM yy", new System.Globalization.CultureInfo("th-TH")));
+            }
+
+            card.IsUpcoming = p.StartDate != null && p.StartDate > today;
+            if (card.IsUpcoming)
+            {
+                card.BadgeText = "เริ่ม " + p.StartDate!.Value.ToDateTime(TimeOnly.MinValue).ToString("d MMM", new System.Globalization.CultureInfo("th-TH"));
+            }
+            else if (p.MaxUses != null)
+            {
+                card.BadgeText = "เหลือ " + (p.MaxUses.Value - used) + " สิทธิ์";
+            }
+            home.Promos.Add(card);
         }
+
+        // โค้ดที่ใช้ได้ตอนนี้ขึ้นก่อน โค้ดที่ยังไม่เริ่มไว้ท้าย
+        home.Promos = (from c in home.Promos orderby c.IsUpcoming select c).ToList();
 
         // การ์ดขนาดห้อง: ราคาเริ่มต้นและช่วงพื้นที่ของแต่ละขนาด
         var cards = new[]
@@ -521,7 +610,8 @@ public class CustomerController : Controller
     };
 
     // price = ช่วงงบต่อเดือนที่เลือกจากหน้าหลัก กรองรายการห้องด้านล่างผัง (ผังยังแสดงครบทุกห้อง)
-    public IActionResult Search(string? price)
+    // promo = โค้ดส่วนลดที่กดมาจากการ์ดโปรโมชั่นหน้าหลัก (ส่งต่อไปหน้าจองให้กรอกไว้เลย)
+    public IActionResult Search(string? price, string? promo)
     {
         if (!IsLoggedIn)
         {
@@ -544,6 +634,7 @@ public class CustomerController : Controller
         // รายการการ์ด: กรองตามงบ แล้วเรียงห้องว่างขึ้นก่อน ตามด้วยราคา
         var range = price != null && _priceRanges.ContainsKey(price) ? _priceRanges[price] : ((int min, int max, string text)?)null;
         ViewBag.PriceText = range?.text;
+        ViewBag.Promo = string.IsNullOrWhiteSpace(promo) ? null : promo.Trim().ToUpper();
         ViewBag.RoomList = (from m in model
                             where range == null || (m.Price >= range.Value.min && m.Price <= range.Value.max)
                             orderby m.Free ? 0 : 1, m.Price
@@ -677,7 +768,7 @@ public class CustomerController : Controller
     }
 
     [HttpGet]
-    public IActionResult BookRoom(string id = "M-01", DateTime? startDate = null, int months = 6)
+    public IActionResult BookRoom(string id = "M-01", DateTime? startDate = null, int months = 6, string? promo = null)
     {
         if (!IsLoggedIn)
         {
@@ -700,6 +791,7 @@ public class CustomerController : Controller
         // ค่าเริ่มต้นของฟอร์ม: ข้อมูลผู้เช่าจากตาราง user, วันเริ่มเช่าและระยะสัญญาอาจส่งมาจากหน้า RoomDetail
         var user = GetCurrentUser();
         SetBookedPeriodsBag(room.RoomId);
+        SetPromoOptionsBag();
         BookingViewModel data = new();
         data.RoomId = room.RoomId;
         // วันเริ่มตั้งต้น: วันที่ส่งมาจากหน้ารายละเอียดห้อง ถ้าไม่มีใช้วันแรกที่ห้องว่าง
@@ -713,6 +805,7 @@ public class CustomerController : Controller
         data.Phone = user?.Phone;
         data.Email = user?.Email;
         data.Address = user?.Address;
+        data.PromoCode = string.IsNullOrWhiteSpace(promo) ? null : promo.Trim().ToUpper();   // มาจากการ์ดโปรโมชั่นหน้าหลัก
         return View(data);
     }
 
@@ -737,6 +830,7 @@ public class CustomerController : Controller
         }
         ViewBag.Room = ToRoomViewModel(room, null);
         SetBookedPeriodsBag(room.RoomId);
+        SetPromoOptionsBag();
         // ยอดที่แสดงถ้าต้องกลับไปหน้าฟอร์ม (กรอกผิด) ใช้วันและระยะสัญญาที่ลูกค้าเลือกไว้
         var promoCheck = CheckPromo(_db, data.PromoCode, room.MonthlyRate, data.Months, GetCurrentUser()?.UserId);
         ViewBag.Quote = BuildQuote(room.MonthlyRate, data.StartDate.Date >= DateTime.Today ? data.StartDate : DateTime.Today, data.Months, promoCheck.discount);

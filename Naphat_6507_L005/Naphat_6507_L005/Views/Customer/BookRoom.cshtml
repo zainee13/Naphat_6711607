@@ -1,5 +1,7 @@
 @model Naphat_6507_L005.ViewModels.BookingViewModel
 @{
+    // โปรโมชั่นที่เลือกได้ตอนจอง (CustomerController.SetPromoOptionsBag)
+    var promoOptions = (List<Naphat_6507_L005.ViewModels.PromoOptionViewModel>)(ViewBag.PromoOptions ?? new List<Naphat_6507_L005.ViewModels.PromoOptionViewModel>());
     var room = (Naphat_6507_L005.ViewModels.RoomViewModel)ViewBag.Room;
     var periods = ViewBag.BookedPeriods as List<Naphat_6507_L005.ViewModels.BookedPeriodViewModel> ?? new();   // ช่วงที่ถูกจองแล้ว
     var isCompany = Model.TenantType != "person";
@@ -215,16 +217,81 @@
                 </dl>
                 <p class="cu-next" id="nextMonthsText" hidden="@(quote.NextMonthsText == null)">@quote.NextMonthsText</p>
 
-                <!-- โค้ดส่วนลด: ตรวจที่ CustomerController.CheckPromo (กดใช้โค้ด = ขอยอดใหม่จาก PriceQuote ตอนกดจองตรวจซ้ำอีกครั้ง) -->
+                <!-- โค้ดส่วนลด: เลือกจากรายการโปร หรือพิมพ์โค้ดเอง
+                     ตรวจที่ CustomerController.CheckPromo (เลือก/กดใช้โค้ด = ขอยอดใหม่จาก PriceQuote ตอนกดจองตรวจซ้ำอีกครั้ง) -->
                 <div class="cu-promo bk-promo">
-                    <div class="cu-field">
+                    <div class="bk-promo-head">
                         <label for="promoInput">โค้ดส่วนลด</label>
-                        <div class="cu-promo-row">
-                            <input type="text" id="promoInput" name="PromoCode" value="@Model.PromoCode" autocomplete="off" placeholder="เช่น MEGA35START" />
-                            <button type="button" class="cu-btn" id="promoButton">ใช้โค้ด</button>
-                        </div>
+                        @if (promoOptions.Count > 0)
+                        {
+                            <button type="button" class="bk-promo-open" id="promoOpen" aria-expanded="false" aria-controls="promoPanel">
+                                <span class="material-symbols-outlined" aria-hidden="true">sell</span>
+                                เลือกโปรโมชั่น (@promoOptions.Count)
+                            </button>
+                        }
+                    </div>
+                    <div class="cu-promo-row">
+                        <input type="text" id="promoInput" name="PromoCode" value="@Model.PromoCode" autocomplete="off" placeholder="เช่น MEGA35START" />
+                        <button type="button" class="cu-btn" id="promoButton">ใช้โค้ด</button>
                     </div>
                     <p class="cu-promo-msg" id="promoMessage" role="status" hidden></p>
+
+                    @if (promoOptions.Count > 0)
+                    {
+                        <!-- รายการโปรโมชั่นที่ใช้ได้ตอนนี้ (CustomerController.SetPromoOptionsBag) -->
+                        <div class="bk-promo-panel" id="promoPanel" hidden>
+                            <div class="bk-promo-panel-head">
+                                <strong>เลือกโปรโมชั่น</strong>
+                                <button type="button" class="bk-promo-close" id="promoClose" aria-label="ปิด">
+                                    <span class="material-symbols-outlined">close</span>
+                                </button>
+                            </div>
+
+                            <ul class="bk-promo-list">
+                                @foreach (var option in promoOptions)
+                                {
+                                    <li class="bk-promo-item" data-code="@option.Code" data-min="@option.MinMonths" data-locked="@(option.UserLimitReached ? "1" : "0")">
+                                        <button type="button" class="bk-promo-pick">
+                                            <span class="bk-promo-big">@option.BigText</span>
+                                            <span class="bk-promo-info">
+                                                <strong>@option.Code</strong>
+                                                <span>@option.Description</span>
+                                                <span class="bk-promo-why" hidden></span>
+                                            </span>
+                                            @if (option.BadgeText != null)
+                                            {
+                                                <span class="bk-promo-badge">@option.BadgeText</span>
+                                            }
+                                        </button>
+                                        <details class="bk-promo-terms">
+                                            <summary>ข้อกำหนดของโค้ดนี้</summary>
+                                            <ul>
+                                                @foreach (var term in option.Terms)
+                                                {
+                                                    <li>@term</li>
+                                                }
+                                            </ul>
+                                        </details>
+                                    </li>
+                                }
+                            </ul>
+
+                            <details class="bk-promo-rules">
+                                <summary>ข้อกำหนดการใช้โค้ดส่วนลด</summary>
+                                <ol>
+                                    <li>ใช้ได้ 1 โค้ดต่อการจอง 1 ครั้ง</li>
+                                    <li>ส่วนลดใช้กับค่าเช่าเดือนแรกเท่านั้น ไม่รวมเงินประกัน</li>
+                                    <li>ส่วนลดแบบจำนวนเงิน ลดได้ไม่เกินค่าเช่าเดือนแรก</li>
+                                    <li>ต้องตรงตามเงื่อนไขของโค้ด เช่น ระยะสัญญาขั้นต่ำ ช่วงวันที่ และจำนวนสิทธิ์</li>
+                                    <li>ระบบตรวจโค้ดอีกครั้งตอนกดยืนยันการจอง ถ้าโค้ดหมดสิทธิ์ก่อน จะจองไม่สำเร็จจนกว่าจะเอาโค้ดออก</li>
+                                    <li>ถ้าการจองถูกยกเลิก สิทธิ์ของโค้ดจะคืนให้ใช้ใหม่ได้</li>
+                                    <li>ส่วนลดแลกเป็นเงินสดหรือโอนให้ผู้อื่นไม่ได้</li>
+                                </ol>
+                            </details>
+
+                            <button type="button" class="bk-promo-none" id="promoNone">ไม่ใช้โค้ดส่วนลด</button>
+                        </div>
+                    }
                 </div>
 
                 <label class="bk-agree">
@@ -319,6 +386,65 @@
         });
 
         document.getElementById('promoButton').addEventListener('click', applyPromo);
+
+        // ===== รายการโปรโมชั่นให้เลือก (แค่เปิด/ปิดและกรอกโค้ดให้ การตรวจจริงอยู่ที่ Controller) =====
+        const promoPanel = document.getElementById('promoPanel');
+        if (promoPanel) {
+            const promoOpen = document.getElementById('promoOpen');
+            const promoInput = document.getElementById('promoInput');
+
+            // ปิดโค้ดที่ใช้ไม่ได้กับระยะสัญญาที่เลือก หรือที่ลูกค้าใช้ครบสิทธิ์แล้ว
+            function updatePromoItems() {
+                const months = parseInt(monthsInput.value, 10);
+                const current = promoInput.value.trim().toUpperCase();
+                promoPanel.querySelectorAll('.bk-promo-item').forEach(function (item) {
+                    const why = item.querySelector('.bk-promo-why');
+                    let reason = '';
+                    if (item.dataset.locked === '1') {
+                        reason = 'คุณใช้โค้ดนี้ครบสิทธิ์แล้ว';
+                    } else if (months < parseInt(item.dataset.min, 10)) {
+                        reason = 'ต้องทำสัญญา ' + item.dataset.min + ' เดือนขึ้นไป';
+                    }
+                    why.textContent = reason;
+                    why.hidden = reason === '';
+                    item.classList.toggle('is-disabled', reason !== '');
+                    item.querySelector('.bk-promo-pick').disabled = reason !== '';
+                    item.classList.toggle('is-selected', item.dataset.code === current);
+                });
+            }
+
+            function togglePanel(open) {
+                promoPanel.hidden = !open;
+                promoOpen.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (open) {
+                    updatePromoItems();
+                }
+            }
+
+            promoOpen.addEventListener('click', function () { togglePanel(promoPanel.hidden); });
+            document.getElementById('promoClose').addEventListener('click', function () { togglePanel(false); });
+
+            promoPanel.querySelectorAll('.bk-promo-pick').forEach(function (pick) {
+                pick.addEventListener('click', function () {
+                    promoInput.value = pick.closest('.bk-promo-item').dataset.code;
+                    applyPromo();
+                    togglePanel(false);
+                });
+            });
+
+            document.getElementById('promoNone').addEventListener('click', function () {
+                promoInput.value = '';
+                document.getElementById('promoMessage').hidden = true;
+                refreshQuote(startInput.value, monthsInput.value);
+                togglePanel(false);
+            });
+
+            monthsInput.addEventListener('change', updatePromoItems);
+        }
+        // มาจากการ์ดโปรโมชั่นหน้าหลัก: มีโค้ดกรอกไว้แล้ว ตรวจโค้ดและคิดยอดใหม่เลย
+        if (document.getElementById('promoInput').value.trim() !== '') {
+            applyPromo();
+        }
         document.getElementById('promoInput').addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault();   // ไม่ให้กด Enter แล้วส่งฟอร์มจอง

@@ -144,9 +144,9 @@
     </div>
 </section>
 
-<!-- ===== เปรียบเทียบ + โปรโมชั่น ===== -->
+<!-- ===== เปรียบเทียบ ===== -->
 <section class="hm-section">
-    <div class="hm-container hm-split">
+    <div class="hm-container">
         <div class="hm-card hm-compare">
             <div class="hm-compare-head">
                 <span class="hm-eyebrow">คลังแบบเดิม</span>
@@ -175,19 +175,78 @@
             </div>
         </div>
 
-        @if (Model.Promo != null)
-        {
-            <!-- โค้ดส่วนลดที่ Admin เปิดใช้งาน (ตาราง promocode) -->
-            <div class="hm-card hm-promo">
-                <span class="hm-eyebrow">โปรโมชั่น</span>
-                <div class="hm-promo-big">@Model.PromoBigText</div>
-                <h3>ลดค่าเช่าเดือนแรก</h3>
-                <p>@(Model.Promo.Description ?? (Model.Promo.MinMonths > 1 ? "เมื่อทำสัญญา " + Model.Promo.MinMonths + " เดือนขึ้นไป" : "ทุกระยะสัญญา"))</p>
-                <div class="hm-promo-code">
-                    <code>@Model.Promo.Code</code>
-                    <a asp-controller="Customer" asp-action="Search" class="hm-btn hm-btn--ghost hm-btn--sm">ใช้โค้ด</a>
-                </div>
-            </div>
-        }
     </div>
 </section>
+
+@if (Model.Promos.Count > 0)
+{
+    <!-- ===== โปรโมชั่น: โค้ดส่วนลดทั้งหมดที่ Admin เปิดใช้งาน (ตาราง promocode) ===== -->
+    <section class="hm-section" id="promotions">
+        <div class="hm-container">
+            <div class="hm-section-head">
+                <div>
+                    <span class="hm-eyebrow">โปรโมชั่น</span>
+                    <h2>โค้ดส่วนลดค่าเช่าเดือนแรก</h2>
+                </div>
+                <p class="hm-promo-hint">กด "ใช้โค้ดนี้" แล้วเลือกห้อง ระบบจะกรอกโค้ดในหน้าจองให้</p>
+            </div>
+
+            <ul class="hm-promos">
+                @foreach (var promo in Model.Promos)
+                {
+                    <li class="hm-ticket @(promo.IsUpcoming ? "is-upcoming" : "")">
+                        @if (promo.BadgeText != null)
+                        {
+                            <span class="hm-ticket-badge">@promo.BadgeText</span>
+                        }
+                        <div class="hm-ticket-top">
+                            <div class="hm-ticket-big">@promo.BigText</div>
+                            <p class="hm-ticket-desc">@promo.Description</p>
+                            <ul class="hm-ticket-cond">
+                                @foreach (var c in promo.Conditions)
+                                {
+                                    <li>@c</li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="hm-ticket-bottom">
+                            <button type="button" class="hm-ticket-code" data-code="@promo.Code" title="คัดลอกโค้ด">
+                                <code>@promo.Code</code>
+                                <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
+                            </button>
+                            @if (promo.IsUpcoming)
+                            {
+                                <span class="hm-ticket-soon">เร็วๆ นี้</span>
+                            }
+                            else
+                            {
+                                <a asp-controller="Customer" asp-action="Search" asp-route-promo="@promo.Code" class="hm-ticket-use">ใช้โค้ดนี้</a>
+                            }
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </section>
+}
+
+@section Scripts {
+<script>
+    // ปุ่มคัดลอกโค้ดส่วนลด (แค่ลูกเล่นหน้าตา)
+    document.querySelectorAll('.hm-ticket-code').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const code = button.dataset.code;
+            const icon = button.querySelector('.material-symbols-outlined');
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(code);
+            }
+            icon.textContent = 'check';
+            button.classList.add('is-copied');
+            setTimeout(function () {
+                icon.textContent = 'content_copy';
+                button.classList.remove('is-copied');
+            }, 1500);
+        });
+    });
+</script>
+}

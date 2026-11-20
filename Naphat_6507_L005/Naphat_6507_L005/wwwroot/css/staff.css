@@ -1,0 +1,420 @@
+/* =========================================================
+   หน้าพนักงานทุกฝ่าย (บัญชี คลัง บริการลูกค้า ผู้จัดการ แอดมิน)
+   แนวทาง: สไตล์แอปสมัยใหม่แบบ 21st.dev / shadcn
+   - พื้นเทาอ่อนมีลายจุด การ์ดขาวขอบบาง มุมโค้ง เงาเบา
+   - เมนูซ้ายสีอ่อน เมนูที่เลือกเป็นการ์ดขาวยกขึ้น
+   - ไอคอนอยู่ในกล่องสีอ่อน (ใช้สีเดิมที่แต่ละหน้ากำหนดไว้)
+   โหลดต่อจาก theme.css เฉพาะผู้ใช้ที่เป็นพนักงาน (_Layout.cshtml)
+   ใช้ !important ในบางจุดเพื่อทับ style="" ที่เขียนไว้ในหน้าเดิม
+   ========================================================= */
+.staff-shell,
+.staff-sidebar {
+    --st-bg: #f4f4f5;          /* zinc-100 */
+    --st-card: #ffffff;
+    --st-line: #e4e4e7;        /* zinc-200 */
+    --st-line-2: #f4f4f5;
+    --st-text: #18181b;        /* zinc-900 */
+    --st-muted: #71717a;       /* zinc-500 */
+    --st-faint: #a1a1aa;       /* zinc-400 */
+    --st-accent: #ff5b1f;
+    --st-shadow: 0 1px 2px rgba(24, 24, 27, 0.05), 0 1px 3px rgba(24, 24, 27, 0.04);
+    --st-shadow-lg: 0 10px 30px -12px rgba(24, 24, 27, 0.18);
+}
+
+.staff-shell {
+    background:
+        radial-gradient(circle, rgba(24, 24, 27, 0.07) 1px, transparent 1.2px) 0 0 / 22px 22px,
+        var(--st-bg) !important;
+}
+
+/* ---------- แถบบน: โปร่งแสง เบลอ ---------- */
+.staff-shell .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--st-line) !important;
+    padding: 0.75rem 2.5rem;
+}
+.staff-shell .topbar-title { font-size: 0.88rem; font-weight: 500; color: var(--st-muted); }
+.staff-shell .topbar-title::before { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18); }
+.staff-shell .topbar .btn-outline-danger {
+    border: 1px solid var(--st-line) !important;
+    color: var(--st-text) !important;
+    background: #fff !important;
+    box-shadow: var(--st-shadow);
+}
+.staff-shell .topbar .btn-outline-danger:hover { color: #b91c1c !important; border-color: #fecaca !important; background: #fef2f2 !important; }
+
+/* ---------- พื้นที่เนื้อหา ---------- */
+.staff-shell .main-inner {
+    padding: 2rem 2.5rem 4rem;
+    max-width: 1320px;
+    width: 100%;
+}
+.staff-shell .main-footer { border-top: 0; padding-left: 2.5rem; background: transparent; color: var(--st-faint); }
+
+/* เนื้อหาค่อยๆ เลื่อนขึ้นตอนเปิดหน้า */
+.staff-shell .main-inner > * { animation: st-rise .45s cubic-bezier(.2, .8, .3, 1) backwards; }
+.staff-shell .main-inner > *:nth-child(2) { animation-delay: .05s; }
+.staff-shell .main-inner > *:nth-child(3) { animation-delay: .1s; }
+.staff-shell .main-inner > *:nth-child(4) { animation-delay: .15s; }
+.staff-shell .main-inner > *:nth-child(n+5) { animation-delay: .2s; }
+@keyframes st-rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* ---------- หัวข้อหน้า: การ์ดใหญ่มีแสงไล่สี + ไอคอนในกล่อง ---------- */
+.staff-shell .page-header {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.75rem !important;
+    background: var(--st-card);
+    border: 1px solid var(--st-line);
+    border-radius: 16px;
+    box-shadow: var(--st-shadow);
+}
+.staff-shell .page-header::before {
+    content: "";
+    position: absolute;
+    top: -120px;
+    right: -60px;
+    width: 340px;
+    height: 260px;
+    background: radial-gradient(closest-side, rgba(255, 91, 31, 0.16), transparent),
+                radial-gradient(closest-side at 30% 70%, rgba(99, 102, 241, 0.12), transparent);
+    filter: blur(10px);
+    pointer-events: none;
+}
+.staff-shell .page-header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(24, 24, 27, 0.08) 1px, transparent 1.2px) 0 0 / 16px 16px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 45%, #000);
+    mask-image: linear-gradient(90deg, transparent 45%, #000);
+    pointer-events: none;
+}
+.staff-shell .page-header > * { position: relative; z-index: 1; }
+.staff-shell .page-header > .d-flex { flex: 1; }
+.staff-shell .page-header h1 {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    font-size: 1.6rem !important;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--st-text) !important;
+    margin-bottom: 0.35rem;
+}
+.staff-shell .page-header h1 .material-symbols-outlined {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: 0 !important;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    color: #fff !important;
+    background: linear-gradient(135deg, #ff8a4c, #ff3d12);
+    box-shadow: 0 6px 16px -6px rgba(255, 91, 31, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.staff-shell .page-header p { font-size: 0.92rem !important; color: var(--st-muted) !important; margin: 0; padding-left: calc(44px + 0.85rem); }
+.staff-shell .page-header .breadcrumb { display: none; }
+
+/* ---------- ตัวเลขสรุป: การ์ดขาว ไอคอนในกล่องสีอ่อน ---------- */
+.staff-shell .kpi-card {
+    position: relative;
+    height: 100%;
+    background: var(--st-card) !important;
+    border: 1px solid var(--st-line) !important;
+    border-radius: 14px !important;
+    box-shadow: var(--st-shadow) !important;
+    padding: 1.15rem 1.25rem !important;
+    overflow: hidden;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.staff-shell .kpi-card:hover {
+    transform: translateY(-2px);
+    border-color: #d4d4d8 !important;
+    box-shadow: var(--st-shadow-lg) !important;
+}
+/* ไอคอนตัวแรกในการ์ด = กล่องไอคอน (สีมาจาก style="color:..." ของหน้าเดิม) */
+.staff-shell .kpi-card .material-symbols-outlined:first-child,
+.staff-shell .kpi-card .kpi-icon {
+    display: inline-grid !important;
+    place-items: center;
+    flex: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    font-size: 1.35rem !important;
+    background: color-mix(in srgb, currentColor 12%, #fff);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 18%, transparent);
+}
+.staff-shell .kpi-card .kpi-value {
+    font-size: 1.45rem !important;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--st-text) !important;
+    font-variant-numeric: tabular-nums;
+}
+.staff-shell .kpi-card .kpi-label {
+    font-size: 0.8rem !important;
+    color: var(--st-muted) !important;
+    margin-top: 0.15rem;
+}
+/* เส้นแสงจางๆ ด้านล่างการ์ดตอนชี้ */
+.staff-shell .kpi-card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--st-accent), transparent);
+    opacity: 0;
+    transition: opacity .2s ease;
+}
+.staff-shell .kpi-card:hover::after { opacity: 0.8; }
+.staff-shell .row.g-3.mb-4:has(.kpi-card) { margin-bottom: 1.75rem !important; }
+
+/* ---------- กล่องเนื้อหา ---------- */
+.staff-shell .section-card,
+.staff-shell .card {
+    background: var(--st-card) !important;
+    border: 1px solid var(--st-line) !important;
+    border-radius: 16px !important;
+    box-shadow: var(--st-shadow) !important;
+    padding: 0 !important;
+    margin-bottom: 1.75rem;
+    overflow: hidden;
+}
+.staff-shell .section-card > :not(.section-card-header):not(.table-responsive),
+.staff-shell .card > :not(.section-card-header):not(.table-responsive) { margin-left: 1.5rem; margin-right: 1.5rem; }
+.staff-shell .section-card > :last-child:not(.table-responsive),
+.staff-shell .card > :last-child:not(.table-responsive) { margin-bottom: 1.5rem; }
+.staff-shell .section-card > :first-child:not(.section-card-header),
+.staff-shell .card > :first-child:not(.section-card-header) { margin-top: 1.5rem; }
+.staff-shell .section-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem !important;
+    margin: 0 0 0 0 !important;
+    border-bottom: 1px solid var(--st-line) !important;
+    background: linear-gradient(180deg, #fafafa, #fff);
+}
+.staff-shell .section-card-header h2,
+.staff-shell .section-card h2,
+.staff-shell .section-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    color: var(--st-text) !important;
+    margin: 0;
+}
+.staff-shell .section-card-header h2 .material-symbols-outlined {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    background: color-mix(in srgb, currentColor 12%, #fff);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 18%, transparent);
+}
+
+/* ---------- ตาราง: หัวตารางพื้นเทา แถวมีไฮไลต์ตอนชี้ ---------- */
+.staff-shell .table-responsive { margin: 0; }
+.staff-shell .table-custom { border-collapse: collapse; }
+.staff-shell .table-custom thead th {
+    background: #fafafa !important;
+    font-family: var(--lm-font);
+    font-size: 0.76rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    color: var(--st-muted);
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--st-line);
+    white-space: nowrap;
+}
+.staff-shell .table-custom tbody td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--st-line-2);
+    font-size: 0.9rem !important;
+    color: var(--st-text) !important;
+    vertical-align: middle;
+    transition: background-color .15s ease;
+}
+.staff-shell .table-custom thead th:first-child,
+.staff-shell .table-custom tbody td:first-child { padding-left: 1.5rem; }
+.staff-shell .table-custom thead th:last-child,
+.staff-shell .table-custom tbody td:last-child { padding-right: 1.5rem; }
+.staff-shell .table-custom tbody tr:last-child td { border-bottom: 0; }
+.staff-shell .table-custom tbody tr:hover td { background: #fafafa; }
+.staff-shell .table-custom tbody td span[style*="color"],
+.staff-shell .table-custom tbody td small { color: var(--st-muted) !important; font-size: 0.8rem !important; }
+.staff-shell .table-custom .avatar { border-radius: 8px !important; }
+
+/* แถว "ไม่มีรายการ": มีไอคอนกล่องว่างให้ดูไม่โล่ง */
+.staff-shell .table-custom tbody td[colspan] {
+    padding: 3rem 1rem !important;
+    text-align: center;
+    color: var(--st-faint) !important;
+}
+.staff-shell .table-custom tbody td[colspan]::before {
+    content: "inbox";
+    font-family: 'Material Symbols Outlined';
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 0.75rem;
+    border-radius: 14px;
+    font-size: 1.6rem;
+    color: var(--st-muted);
+    background: #fafafa;
+    border: 1px dashed #d4d4d8;
+}
+.staff-shell .table-custom tbody tr:hover td[colspan] { background: transparent; }
+
+/* ---------- ปุ่ม ---------- */
+.staff-shell .btn {
+    border-radius: 9px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+    transition: transform .12s ease, box-shadow .15s ease, background-color .15s ease, border-color .15s ease;
+}
+.staff-shell .btn:active { transform: scale(0.97); }
+.staff-shell .btn .material-symbols-outlined { font-size: 1rem !important; }
+.staff-shell .btn-sm[style] {
+    background: #fff !important;
+    color: var(--st-text) !important;
+    border: 1px solid var(--st-line) !important;
+    box-shadow: var(--st-shadow);
+    font-size: 0.82rem !important;
+    padding: 0.38rem 0.8rem !important;
+}
+.staff-shell .btn-sm[style]:hover { border-color: #a1a1aa !important; background: #fafafa !important; }
+.staff-shell .page-header .btn-sm[style]:not(.btn-outline-secondary),
+.staff-shell .section-card-header .btn-sm[style]:not(.btn-outline-secondary),
+.staff-shell .btn-primary {
+    background: var(--st-text) !important;
+    border-color: var(--st-text) !important;
+    color: #fff !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.staff-shell .page-header .btn-sm[style]:not(.btn-outline-secondary):hover,
+.staff-shell .section-card-header .btn-sm[style]:not(.btn-outline-secondary):hover,
+.staff-shell .btn-primary:hover { background: #27272a !important; border-color: #27272a !important; }
+.staff-shell .btn-outline-secondary { border-color: var(--st-line); color: var(--st-text); background: #fff; box-shadow: var(--st-shadow); }
+.staff-shell .btn-outline-secondary:hover { background: #fafafa; color: var(--st-text); border-color: #a1a1aa; }
+
+/* ---------- ป้ายสถานะ ---------- */
+.staff-shell .badge,
+.staff-shell .badge-status {
+    font-weight: 500 !important;
+    font-size: 0.74rem !important;
+    padding: 0.28rem 0.65rem !important;
+    border-radius: 999px !important;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/* ---------- ฟอร์ม ---------- */
+.staff-shell .form-label { font-size: 0.84rem; font-weight: 500 !important; color: var(--st-text); margin-bottom: 0.4rem; }
+.staff-shell .form-label .material-symbols-outlined { font-size: 1rem; color: var(--st-muted); vertical-align: -3px; }
+.staff-shell .form-control,
+.staff-shell .form-select {
+    border-color: var(--st-line);
+    border-radius: 9px !important;
+    padding: 0.55rem 0.8rem;
+    box-shadow: var(--st-shadow);
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.staff-shell .form-control:focus,
+.staff-shell .form-select:focus { border-color: #a1a1aa; box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.08); }
+.staff-shell .form-control-sm,
+.staff-shell .form-select-sm { padding: 0.38rem 0.7rem; }
+.staff-shell .mb-3:has(> .form-label) { margin-bottom: 1.15rem !important; }
+
+/* ---------- ข้อความแจ้ง ---------- */
+.staff-shell .alert {
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+.staff-shell .alert-success { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+.staff-shell .alert-danger { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+.staff-shell .alert-warning { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+.staff-shell .stock-alert-bar { border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #fecaca; }
+
+/* ---------- เมนูซ้าย: พื้นสีอ่อน เมนูที่เลือกเป็นการ์ดขาว ---------- */
+.sidebar.staff-sidebar {
+    background: #fafafa !important;
+    border-right: 1px solid var(--st-line);
+    box-shadow: none;
+}
+.staff-sidebar .sidebar-logo { border-bottom: 1px solid var(--st-line); }
+.staff-sidebar .sidebar-logo .brand { color: var(--st-text); }
+.staff-sidebar .sidebar-logo .sub { color: var(--st-faint); }
+.staff-sidebar .sidebar-user {
+    background: #fff;
+    border: 1px solid var(--st-line);
+    box-shadow: var(--st-shadow);
+}
+.staff-sidebar .sidebar-user .user-name { color: var(--st-text); }
+.staff-sidebar .sidebar-user .user-role { color: var(--st-muted); }
+.staff-sidebar .nav-section-label { color: var(--st-faint); padding-top: 1.15rem; }
+.staff-sidebar .nav-item-link {
+    color: #52525b;
+    padding: 0.55rem 0.7rem;
+    margin: 2px 0;
+    border: 1px solid transparent;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.staff-sidebar .nav-item-link .material-symbols-outlined { color: var(--st-faint); }
+.staff-sidebar .nav-item-link:hover { background: #f4f4f5; color: var(--st-text); }
+.staff-sidebar .nav-item-link:hover .material-symbols-outlined { color: var(--st-text); }
+.staff-sidebar .nav-item-link.active {
+    background: #fff;
+    color: var(--st-text);
+    border-color: var(--st-line);
+    box-shadow: var(--st-shadow);
+}
+.staff-sidebar .nav-item-link.active .material-symbols-outlined { color: var(--st-accent); }
+.staff-sidebar .nav-item-link.nav-alert { background: #fef2f2; color: #991b1b; }
+.staff-sidebar .nav-item-link.nav-alert:hover { background: #fee2e2; color: #7f1d1d; }
+.staff-sidebar .sidebar-nav::-webkit-scrollbar-thumb { background: #d4d4d8; }
+
+@media (prefers-reduced-motion: reduce) {
+    .staff-shell .main-inner > * { animation: none; }
+}
+
+@media (max-width: 991.98px) {
+    .staff-shell .topbar { padding: 0.75rem 1.25rem; }
+    .staff-shell .main-inner { padding: 1.25rem 1.25rem 3rem; }
+    .staff-shell .page-header { padding: 1.25rem; }
+    .staff-shell .page-header h1 { font-size: 1.3rem !important; }
+    .staff-shell .page-header p { padding-left: 0; }
+}

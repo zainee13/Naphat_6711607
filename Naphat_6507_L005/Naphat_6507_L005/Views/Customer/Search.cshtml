@@ -6,15 +6,14 @@
     var rooms = Model;
     var freeCount = rooms.Count(r => r.Free);
 
-    // ห้องที่เลือกไว้ตอนเปิดหน้า
-    var firstRoom = rooms.First(r => r.Id == "M-01");
-
     // รายการการ์ด (กรองตามงบและเรียงแล้ว) ส่งมาจาก CustomerController.Search
     var roomList = (List<Naphat_6507_L005.ViewModels.RoomViewModel>)ViewBag.RoomList;
     var priceText = ViewBag.PriceText as string;
 
     var detailUrl = Url.Action("RoomDetail", "Customer");
     var bookUrl = Url.Action("BookRoom", "Customer");
+    var promoCode = ViewBag.Promo as string;   // โค้ดที่กดมาจากหน้าหลัก (ถ้ามี)
+    var promoQuery = promoCode == null ? "" : "?promo=" + Uri.EscapeDataString(promoCode);
 }
 
 @section Styles {
@@ -27,85 +26,124 @@
     <!-- หัวข้อ -->
     <header class="cu-head">
         <h1>ค้นหาห้องคลังสินค้า</h1>
-        <p>ว่าง <strong>@freeCount</strong> จาก @rooms.Count ห้อง แตะห้องบนผังเพื่อดูรายละเอียดและจอง</p>
+        @if (promoCode != null)
+        {
+            <p class="sr-promo-note"><span class="material-symbols-outlined" aria-hidden="true">sell</span> ใช้โค้ด <strong>@promoCode</strong> อยู่ เลือกห้องแล้วกดจอง ระบบจะกรอกโค้ดให้</p>
+        }
+        <p>ว่าง <strong>@freeCount</strong> จาก @rooms.Count ห้อง กดห้องบนผังเพื่อดูรายละเอียดและจอง</p>
     </header>
 
-    <div class="fp-board">
-
-        <!-- ผังคลังสินค้า -->
-        <div class="fp-plan-wrap">
-            <div class="fp-plan" role="group" aria-label="ผังห้องคลังสินค้า">
-                @foreach (var room in rooms)
-                {
-                    var isSelected = room.Id == firstRoom.Id;
-                    var takenClass = room.Free ? "" : "is-taken";
-                    var selectedClass = isSelected ? "is-selected" : "";
-                    var statusText = room.Free ? "ว่าง" : "มีผู้เช่าแล้ว";
-
-                    <button type="button"
-                            class="fp-unit fp-unit--@room.Kind @takenClass @selectedClass"
-                            style="grid-area:@room.Grid;"
-                            aria-pressed="@(isSelected ? "true" : "false")"
-                            aria-label="ห้อง @room.Id @room.Area ตารางเมตร @statusText"
-                            data-id="@room.Id"
-                            data-free="@(room.Free ? "1" : "0")"
-                            data-kind="@room.Kind"
-                            data-area="@room.Area"
-                            data-ceil="@room.Height"
-                            data-truck="@room.Vehicle"
-                            data-power="@room.Power"
-                            data-price="@room.Price.ToString("N0")"
-                            data-zone="@room.Zone"
-                            data-note="@room.Note">
-                        <span class="fp-unit-code">@room.Id</span>
-                        <span class="fp-unit-area">@room.Area ตร.ม.</span>
-                    </button>
-                }
-            </div>
-
-            <ul class="fp-legend">
-                <li><i class="fp-sw"></i>ว่าง</li>
-                <li><i class="fp-sw fp-sw--cold"></i>ห้องเย็น (ว่าง)</li>
-                <li><i class="fp-sw fp-sw--taken"></i>มีผู้เช่าแล้ว</li>
-            </ul>
+    <!-- ผังคลังสินค้า: กดห้องแล้วมีป๊อปอัปรายละเอียดเด้งขึ้นในกรอบผัง -->
+    <div class="fp-plan-wrap" id="planWrap">
+        <div class="fp-plan-top">
+            <span><span class="material-symbols-outlined">explore</span> ผังคลังสินค้า LogiManage</span>
+            <span class="fp-plan-hint">ชี้หรือกดห้องเพื่อดูรายละเอียด</span>
         </div>
 
-        <!-- รายละเอียดห้องที่เลือก (JS จะเปลี่ยนข้อมูลเมื่อกดห้องบนผัง) -->
-        <aside class="fp-detail" id="roomDetail" aria-live="polite">
-            <div class="fp-detail-head">
-                <div class="fp-detail-code" id="detailId">@firstRoom.Id</div>
-                <span class="cu-status" id="detailStatus">ว่าง พร้อมส่งมอบ</span>
+        <div class="fp-plan" role="group" aria-label="ผังห้องคลังสินค้า">
+            @foreach (var room in rooms)
+            {
+                var order = rooms.IndexOf(room);   // ลำดับห้อง ใช้หน่วงเวลาให้ห้องค่อยๆ เด้งขึ้นทีละห้อง
+                var takenClass = room.Free ? "" : "is-taken";
+                var statusText = room.Free ? "ว่าง" : "มีผู้เช่าแล้ว";
+                // ไอคอนตามประเภทห้อง (Material Symbols)
+                var icon = room.Kind switch
+                {
+                    "s" => "inventory_2",
+                    "m" => "shelves",
+                    "l" => "local_shipping",
+                    "xl" => "warehouse",
+                    "cold" => "ac_unit",
+                    _ => "inventory_2"
+                };
+
+                <button type="button"
+                        class="fp-unit fp-unit--@room.Kind @takenClass"
+                        style="grid-area:@room.Grid; --i:@order;"
+                        aria-label="ห้อง @room.Id @room.Area ตารางเมตร @statusText"
+                        data-id="@room.Id"
+                        data-free="@(room.Free ? "1" : "0")"
+                        data-kind="@room.Kind"
+                        data-icon="@icon"
+                        data-area="@room.Area"
+                        data-ceil="@room.Height"
+                        data-truck="@room.Vehicle"
+                        data-power="@room.Power"
+                        data-price="@room.Price.ToString("N0")"
+                        data-zone="@room.Zone"
+                        data-note="@room.Note"
+                        data-img="@(room.Img)?w=480&q=70">
+                    <span class="fp-unit-photo" style="background-image:url('@(room.Img)?w=400&q=60')" aria-hidden="true"></span>
+                    <span class="fp-unit-top">
+                        <span class="fp-unit-code">@room.Id</span>
+                        @if (room.Free)
+                        {
+                            <i class="fp-dot" aria-hidden="true"></i>
+                        }
+                        else
+                        {
+                            <span class="material-symbols-outlined fp-lock" aria-hidden="true">lock</span>
+                        }
+                    </span>
+                    <span class="fp-unit-bottom">
+                        <span class="fp-unit-area">@room.Area ตร.ม.</span>
+                        <span class="fp-unit-price">฿@room.Price.ToString("N0")</span>
+                    </span>
+                </button>
+            }
+
+            <!-- ทางเดินรถกลางคลัง -->
+            <div class="fp-aisle" style="grid-area:4 / 6 / 5 / 13;" aria-hidden="true">
+                <span class="material-symbols-outlined">local_shipping</span>
+                <span>ทางเดินรถ / ลานโหลดสินค้า</span>
+                <span class="material-symbols-outlined">arrow_forward</span>
             </div>
+        </div>
 
-            <p class="fp-detail-zone">
-                <span id="detailZone">@firstRoom.Zone</span>, <span id="detailNote">@firstRoom.Note</span>
-            </p>
+        <!-- ถนนหน้าคลัง + ประตูทางเข้า -->
+        <div class="fp-road" aria-hidden="true">
+            <span class="fp-gate"><span class="material-symbols-outlined">door_sliding</span> ประตูทางเข้า</span>
+            <span class="fp-road-line"></span>
+            <span class="fp-gate"><span class="material-symbols-outlined">security</span> ป้อมยาม 24 ชม.</span>
+        </div>
 
-            <dl class="fp-spec">
-                <div><dt>พื้นที่</dt><dd><span id="detailArea">@firstRoom.Area</span> ตร.ม.</dd></div>
-                <div><dt>เพดานสูง</dt><dd id="detailCeil">@firstRoom.Height</dd></div>
-                <div><dt>รถที่เข้าได้</dt><dd id="detailTruck">@firstRoom.Vehicle</dd></div>
-                <div><dt>ไฟฟ้า</dt><dd id="detailPower">@firstRoom.Power</dd></div>
-            </dl>
+        <ul class="fp-legend">
+            <li><i class="fp-dot"></i>ว่าง</li>
+            <li><i class="fp-sw fp-sw--cold"></i>ห้องเย็น</li>
+            <li><span class="material-symbols-outlined fp-lock">lock</span>มีผู้เช่าแล้ว</li>
+        </ul>
 
-            <div class="fp-price">
-                <span>ค่าเช่า</span>
-                <strong>฿<span id="detailPrice">@firstRoom.Price.ToString("N0")</span></strong>
-                <span>ต่อเดือน</span>
+        <!-- ป๊อปอัปรายละเอียดห้อง (อยู่ในกรอบผัง JS ย้ายไปวางข้างห้องที่กด) -->
+        <div class="fp-pop" id="roomPop" role="dialog" aria-labelledby="popId" hidden>
+            <button type="button" class="fp-pop-close" id="popClose" aria-label="ปิด">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="fp-pop-img"><img id="popImg" src="" alt="" /></div>
+            <div class="fp-pop-body">
+                <div class="fp-pop-head">
+                    <span class="material-symbols-outlined" id="popIcon">inventory_2</span>
+                    <strong id="popId">-</strong>
+                    <span class="cu-status" id="popStatus">ว่าง</span>
+                </div>
+                <p class="fp-pop-zone"><span id="popZone"></span>, <span id="popNote"></span></p>
+                <dl class="fp-spec">
+                    <div><dt>พื้นที่</dt><dd><span id="popArea"></span> ตร.ม.</dd></div>
+                    <div><dt>เพดานสูง</dt><dd id="popCeil"></dd></div>
+                    <div><dt>รถที่เข้าได้</dt><dd id="popTruck"></dd></div>
+                    <div><dt>ไฟฟ้า</dt><dd id="popPower"></dd></div>
+                </dl>
+                <div class="fp-price">
+                    <span>ค่าเช่า</span>
+                    <strong>฿<span id="popPrice"></span></strong>
+                    <span>ต่อเดือน</span>
+                </div>
+                <p class="fp-taken-note" id="popTakenNote" hidden>ห้องนี้มีผู้เช่าหรือถูกจองแล้ว แต่จองช่วงเวลาถัดไปได้</p>
+                <div class="fp-actions">
+                    <a class="cu-btn cu-btn--primary" id="popBook" href="#">จองห้องนี้</a>
+                    <a class="cu-btn" id="popDetail" href="#">ดูสเปกห้อง</a>
+                </div>
             </div>
-
-            <!-- ปุ่มสำหรับห้องว่าง -->
-            <div class="fp-actions" id="actionsFree">
-                <a class="cu-btn cu-btn--primary" id="btnBook" href="@bookUrl/@firstRoom.Id">จองห้องนี้</a>
-                <a class="cu-btn" id="btnDetail" href="@detailUrl/@firstRoom.Id">ดูสเปกห้อง</a>
-            </div>
-
-            <!-- ข้อความสำหรับห้องที่มีผู้เช่าแล้ว -->
-            <div class="fp-actions" id="actionsTaken" hidden>
-                <p class="fp-taken-note">ห้องนี้มีผู้เช่าหรือถูกจองแล้ว แต่จองช่วงเวลาถัดไปได้</p>
-                <a class="cu-btn" id="btnDetailTaken" href="@detailUrl/@firstRoom.Id">ดูช่วงที่ว่าง</a>
-            </div>
-        </aside>
+        </div>
     </div>
 
     <!-- รายการห้องทั้งหมด -->
@@ -158,34 +196,41 @@
 
 @section Scripts {
 <script>
+    // JS ใช้แค่เปิด/ปิดป๊อปอัป ข้อมูลห้องทั้งหมดมาจาก Controller (ฝังไว้ใน data-* ของปุ่มห้อง)
     const detailUrl = '@detailUrl';
     const bookUrl = '@bookUrl';
+    const promoQuery = '@promoQuery';   // ?promo=โค้ด (ถ้ามาจากการ์ดโปรโมชั่น)
+    const planWrap = document.getElementById('planWrap');
+    const pop = document.getElementById('roomPop');
     const roomButtons = document.querySelectorAll('.fp-unit');
+    let currentButton = null;
 
-    // เลือกห้องบนผัง แล้วแสดงข้อมูลห้องนั้นในกล่องรายละเอียด
-    function selectRoom(button) {
-        // ไฮไลต์ห้องที่เลือก
+    function setText(id, text) {
+        document.getElementById(id).textContent = text;
+    }
+
+    // เปิดป๊อปอัปของห้องที่กด
+    function openRoom(button) {
         roomButtons.forEach(function (item) {
-            const isThis = (item === button);
-            item.classList.toggle('is-selected', isThis);
-            item.setAttribute('aria-pressed', isThis ? 'true' : 'false');
+            item.classList.toggle('is-selected', item === button);
         });
+        currentButton = button;
 
-        // ข้อมูลห้องเก็บไว้ใน data-* ของปุ่ม
         const room = button.dataset;
         const isFree = (room.free === '1');
 
-        document.getElementById('detailId').textContent = room.id;
-        document.getElementById('detailZone').textContent = room.zone;
-        document.getElementById('detailNote').textContent = room.note;
-        document.getElementById('detailArea').textContent = room.area;
-        document.getElementById('detailCeil').textContent = room.ceil;
-        document.getElementById('detailTruck').textContent = room.truck;
-        document.getElementById('detailPower').textContent = room.power;
-        document.getElementById('detailPrice').textContent = room.price;
+        setText('popId', room.id);
+        setText('popIcon', room.icon);
+        setText('popZone', room.zone);
+        setText('popNote', room.note);
+        setText('popArea', room.area);
+        setText('popCeil', room.ceil);
+        setText('popTruck', room.truck);
+        setText('popPower', room.power);
+        setText('popPrice', room.price);
+        document.getElementById('popImg').src = room.img;
 
-        // สถานะห้อง
-        const status = document.getElementById('detailStatus');
+        const status = document.getElementById('popStatus');
         if (!isFree) {
             status.textContent = 'มีผู้เช่าแล้ว';
         } else if (room.kind === 'cold') {
@@ -194,28 +239,110 @@
             status.textContent = 'ว่าง พร้อมส่งมอบ';
         }
         status.classList.toggle('is-taken', !isFree);
-        document.getElementById('roomDetail').classList.toggle('is-taken', !isFree);
+        pop.classList.toggle('is-taken', !isFree);
 
-        // ห้องว่างแสดงปุ่มจอง ห้องไม่ว่างแสดงข้อความแทน
-        document.getElementById('actionsFree').hidden = !isFree;
-        document.getElementById('actionsTaken').hidden = isFree;
-        document.getElementById('btnBook').href = bookUrl + '/' + room.id;
-        document.getElementById('btnDetail').href = detailUrl + '/' + room.id;
-        document.getElementById('btnDetailTaken').href = detailUrl + '/' + room.id;
+        // ห้องว่าง = ปุ่มจอง / ห้องไม่ว่าง = ดูช่วงที่ว่าง
+        document.getElementById('popTakenNote').hidden = isFree;
+        document.getElementById('popBook').hidden = !isFree;
+        document.getElementById('popBook').href = bookUrl + '/' + room.id + promoQuery;
+        const detail = document.getElementById('popDetail');
+        detail.href = detailUrl + '/' + room.id;
+        detail.textContent = isFree ? 'ดูสเปกห้อง' : 'ดูช่วงที่ว่าง';
+
+        pop.hidden = false;
+        placePopup(button);
+    }
+
+    // วางป๊อปอัปข้างห้องที่กด แต่ไม่ให้ล้นออกนอกกรอบผัง
+    function placePopup(button) {
+        const wrapBox = planWrap.getBoundingClientRect();
+        const roomBox = button.getBoundingClientRect();
+        const gap = 10;
+
+        // จอเล็ก: ป๊อปอัปเต็มความกว้างกรอบผัง ใต้ห้องที่กด
+        if (wrapBox.width < 640) {
+            let topSmall = roomBox.bottom - wrapBox.top + gap;
+            if (topSmall + pop.offsetHeight > wrapBox.height - gap) {
+                topSmall = Math.max(gap, wrapBox.height - pop.offsetHeight - gap);
+            }
+            pop.style.left = gap + 'px';
+            pop.style.top = topSmall + 'px';
+            return;
+        }
+
+        // ลองวางขวาของห้องก่อน ถ้าไม่พอค่อยวางซ้าย
+        let left = roomBox.right - wrapBox.left + gap;
+        if (left + pop.offsetWidth > wrapBox.width - gap) {
+            left = roomBox.left - wrapBox.left - pop.offsetWidth - gap;
+        }
+        if (left < gap) {
+            left = gap;
+        }
+
+        let top = roomBox.top - wrapBox.top;
+        if (top + pop.offsetHeight > wrapBox.height - gap) {
+            top = wrapBox.height - pop.offsetHeight - gap;
+        }
+        if (top < gap) {
+            top = gap;
+        }
+
+        pop.style.left = left + 'px';
+        pop.style.top = top + 'px';
+    }
+
+    function closeRoom() {
+        pop.hidden = true;
+        roomButtons.forEach(function (item) {
+            item.classList.remove('is-selected');
+        });
+        currentButton = null;
     }
 
     roomButtons.forEach(function (button) {
         button.addEventListener('click', function () {
-            selectRoom(button);
+            if (currentButton === button && !pop.hidden) {
+                closeRoom();
+            } else {
+                openRoom(button);
+            }
         });
     });
 
-    // ถ้ามาจากฟอร์มค้นหาหน้าหลัก (เช่น ?size=s) ให้เลือกห้องว่างห้องแรกของขนาดนั้น
+    document.getElementById('popClose').addEventListener('click', closeRoom);
+
+    // แสงไฟส่องตามเมาส์บนห้อง (แค่ลูกเล่นหน้าตา)
+    roomButtons.forEach(function (button) {
+        button.addEventListener('mousemove', function (e) {
+            const box = button.getBoundingClientRect();
+            button.style.setProperty('--mx', (e.clientX - box.left) + 'px');
+            button.style.setProperty('--my', (e.clientY - box.top) + 'px');
+        });
+    });
+
+    // กด Esc หรือกดที่อื่นนอกป๊อปอัป = ปิด
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !pop.hidden) {
+            closeRoom();
+        }
+    });
+    document.addEventListener('click', function (e) {
+        if (!pop.hidden && !pop.contains(e.target) && !e.target.closest('.fp-unit')) {
+            closeRoom();
+        }
+    });
+    window.addEventListener('resize', function () {
+        if (!pop.hidden && currentButton) {
+            placePopup(currentButton);
+        }
+    });
+
+    // ถ้ามาจากฟอร์มค้นหาหน้าหลัก (เช่น ?size=s) ให้เปิดห้องว่างห้องแรกของขนาดนั้น
     const size = new URLSearchParams(window.location.search).get('size');
     if (size && size !== 'all') {
         const match = document.querySelector('.fp-unit[data-kind="' + size + '"][data-free="1"]');
         if (match) {
-            selectRoom(match);
+            openRoom(match);
         }
     }
 </script>
