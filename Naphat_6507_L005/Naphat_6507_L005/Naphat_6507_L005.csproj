@@ -20,4 +20,10 @@
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
   </ItemGroup>
 
+  <!-- ไฟล์สลิปที่ลูกค้าอัปโหลด (wwwroot/uploads) ไม่ใช่โค้ด: ไม่ให้ dotnet watch รีสตาร์ตเว็บทุกครั้งที่มีสลิปใหม่ -->
+  <ItemGroup>
+    <Watch Remove="wwwroot\uploads\**" />
+    <Content Update="wwwroot\uploads\**" Watch="false" />
+  </ItemGroup>
+
 </Project>
