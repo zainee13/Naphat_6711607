@@ -7,6 +7,7 @@ namespace Naphat_6507_L005.Controllers;
 public class AdminController : Controller
 {
     private readonly Csi402dbContext _db;
+    // รับตัวเชื่อมฐานข้อมูลมาเก็บไว้ใน _db
     public AdminController(Csi402dbContext db)
     {
         _db = db;
@@ -15,6 +16,7 @@ public class AdminController : Controller
     // เข้าได้เฉพาะผู้ดูแลระบบ (ทุก action ต้องเช็คก่อน)
     private bool IsAdmin => HttpContext.Session.GetString("Role") == "Admin";
 
+    // ส่งชื่อและ Role ผ่าน ViewBag ให้ Layout แสดง
     private void SetUserBag()
     {
         ViewBag.FullName = HttpContext.Session.GetString("FullName") ?? "ผู้ดูแลระบบ";
@@ -39,6 +41,7 @@ public class AdminController : Controller
     }
 
     // รายชื่อผู้ใช้ ค้นหาด้วยชื่อผู้ใช้/ชื่อ/อีเมล (?q=) และกรองตามบทบาท (?role=)
+    // GET อ่านตาราง user ค้นหาด้วย q และกรองด้วย role แล้วส่ง List<User> ไปที่ View
     public IActionResult Users(string? q, string? role)
     {
         if (!IsAdmin)
@@ -114,6 +117,7 @@ public class AdminController : Controller
     }
 
     // เพิ่มผู้ใช้ใหม่ (POST) - ตรวจข้อมูลแล้วบันทึกลงตาราง user
+    // POST ตรวจกรอกครบ รหัสผ่านตรงกัน เบอร์ถูกหลัก ชื่อไม่ซ้ำ และ Role ถูกต้อง แล้ว INSERT ลงตาราง user
     [HttpPost]
     public IActionResult AddUser(AddUserViewModel data)
     {
@@ -171,6 +175,7 @@ public class AdminController : Controller
     }
 
     // หน้าแก้ไขข้อมูลผู้ใช้ (GET) - แบบเดียวกับ Lab10
+    // GET อ่านผู้ใช้ตาม id มาแสดงในฟอร์ม
     public IActionResult EditUser(int? id)
     {
         if (!IsAdmin)
@@ -188,6 +193,7 @@ public class AdminController : Controller
     }
 
     // บันทึกการแก้ไขข้อมูลผู้ใช้ (POST) - แบบเดียวกับ Lab10
+    // POST ตรวจเบอร์โทร แล้ว UPDATE ตาราง user
     [HttpPost]
     public IActionResult EditUser(User data)
     {
@@ -227,6 +233,7 @@ public class AdminController : Controller
 
     // ลบข้อมูลผู้ใช้ (POST เท่านั้น) - แบบเดียวกับ Lab10_1
     // ถ้าผู้ใช้มีข้อมูลผูกอยู่ (การจอง, การชำระที่ตรวจ, ใบเสร็จ, การคืนเงิน, สต็อก) ลบไม่ได้ ให้ระงับการใช้งานแทน
+    // POST ลบเฉพาะผู้ใช้ที่ไม่มีข้อมูลผูกอยู่
     [HttpPost]
     public IActionResult DeleteUser(int? id)
     {
@@ -266,6 +273,7 @@ public class AdminController : Controller
     private static readonly System.Globalization.CultureInfo _th = new("th-TH");
 
     // รายการโค้ดทั้งหมด พร้อมสถานะและจำนวนการจองที่ใช้
+    // GET อ่านทุกโค้ดจาก promocode นับการใช้จาก booking ที่ไม่ถูกยกเลิก และคำนวณสถานะ
     public IActionResult Promos()
     {
         if (!IsAdmin)
@@ -354,6 +362,7 @@ public class AdminController : Controller
     }
 
     // เพิ่มโค้ด (GET)
+    // GET แสดงฟอร์มเพิ่มโค้ดเปล่า
     [HttpGet]
     public IActionResult AddPromo()
     {
@@ -366,6 +375,7 @@ public class AdminController : Controller
     }
 
     // เพิ่มโค้ด (POST)
+    // POST ตรวจด้วย ValidatePromo และโค้ดไม่ซ้ำ แล้ว INSERT ลงตาราง promocode
     [HttpPost]
     public IActionResult AddPromo(PromoFormViewModel data)
     {
@@ -401,6 +411,7 @@ public class AdminController : Controller
     }
 
     // แก้ไขโค้ด (GET)
+    // GET อ่านโค้ดเดิมมาแสดงในฟอร์ม
     [HttpGet]
     public IActionResult EditPromo(string id)
     {
@@ -432,6 +443,7 @@ public class AdminController : Controller
     }
 
     // แก้ไขโค้ด (POST) เปลี่ยนตัวโค้ดไม่ได้ (การจองเก่าอ้างถึงโค้ดนี้อยู่)
+    // POST ตรวจด้วย ValidatePromo แล้ว UPDATE ตาราง promocode
     [HttpPost]
     public IActionResult EditPromo(PromoFormViewModel data)
     {
@@ -462,6 +474,7 @@ public class AdminController : Controller
     }
 
     // ลบโค้ด (POST) ถ้ามีการจองใช้โค้ดนี้แล้ว ลบไม่ได้ ให้ปิดใช้งานแทน (เก็บประวัติไว้)
+    // POST ลบได้เฉพาะโค้ดที่ยังไม่มีการจองใช้
     [HttpPost]
     public IActionResult DeletePromo(string id)
     {

@@ -10,6 +10,7 @@ public class CustomerServiceController : Controller
 {
     private readonly Csi402dbContext _db;
 
+    // รับตัวเชื่อมฐานข้อมูลมาเก็บไว้ใน _db
     public CustomerServiceController(Csi402dbContext db)
     {
         _db = db;
@@ -141,6 +142,7 @@ public class CustomerServiceController : Controller
     // เข้าได้เฉพาะพนักงานบริการลูกค้า
     private bool IsCustomerService => HttpContext.Session.GetString("Role") == "CustomerService";
 
+    // ส่งชื่อ Role และตัวเลขแจ้งเตือนผ่าน ViewBag ให้ Layout แสดง
     private void SetUserBag()
     {
         ViewBag.FullName = HttpContext.Session.GetString("FullName") ?? "พนักงานบริการลูกค้า";
@@ -165,6 +167,7 @@ public class CustomerServiceController : Controller
     // ===================== หน้า =====================
 
     // ภาพรวม: ตัวเลขสรุป + ตั๋วด่วนมากที่ยังไม่ปิด
+    // GET นับตั๋วตามสถานะและความด่วน แล้วส่งรายการตั๋วด่วนที่ยังไม่ปิด
     public IActionResult Dashboard()
     {
         if (!IsCustomerService)
@@ -186,6 +189,7 @@ public class CustomerServiceController : Controller
     }
 
     // รายการตั๋วทั้งหมด (กรองตามสถานะได้)
+    // GET รับ status แล้วเรียก GetTickets เรียงตั๋วที่รอตอบก่อน
     public IActionResult Tickets(string? status)
     {
         if (!IsCustomerService)
@@ -206,6 +210,7 @@ public class CustomerServiceController : Controller
     }
 
     // หน้าตั๋ว 1 ใบ: ข้อมูลลูกค้า + บทสนทนา + ปุ่มรับเรื่อง/ตอบ/ปรับความด่วน/ปิดตั๋ว
+    // GET อ่านตั๋วตาม id แล้วส่ง TicketViewModel ไปที่ View
     public IActionResult Ticket(int id)
     {
         if (!IsCustomerService)
@@ -224,6 +229,7 @@ public class CustomerServiceController : Controller
     }
 
     // รับเรื่อง (POST): ตัวเองเป็นผู้รับผิดชอบ สถานะกำลังดำเนินการ
+    // POST ใส่ผู้รับผิดชอบ และเปลี่ยนตั๋วเป็น InProgress
     [HttpPost]
     public IActionResult Assign(int id)
     {
@@ -255,6 +261,7 @@ public class CustomerServiceController : Controller
     }
 
     // ตอบลูกค้า (POST): ต่อท้ายบทสนทนา ถ้ายังไม่มีผู้รับผิดชอบให้เป็นคนตอบ
+    // POST ต่อข้อความท้าย Description (AppendMessage) และเปลี่ยนตั๋วใหม่เป็น InProgress
     [HttpPost]
     public IActionResult Reply(TicketReplyViewModel data)
     {
@@ -295,6 +302,7 @@ public class CustomerServiceController : Controller
     }
 
     // ปรับความด่วน (POST)
+    // POST ตรวจค่าความด่วน แล้ว UPDATE ตาราง supportticket
     [HttpPost]
     public IActionResult SetPriority(int id, string priority)
     {
@@ -323,6 +331,7 @@ public class CustomerServiceController : Controller
     }
 
     // ปิดตั๋ว (POST): บันทึกเวลาปิด
+    // POST เปลี่ยนเป็น Resolved และบันทึก ResolvedAt
     [HttpPost]
     public IActionResult Close(int id)
     {

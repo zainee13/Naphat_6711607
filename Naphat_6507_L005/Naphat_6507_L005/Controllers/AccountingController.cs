@@ -9,6 +9,7 @@ public class AccountingController : Controller
 {
     private readonly Csi402dbContext _db;
 
+    // รับตัวเชื่อมฐานข้อมูลมาเก็บไว้ใน _db
     public AccountingController(Csi402dbContext db)
     {
         _db = db;
@@ -21,6 +22,7 @@ public class AccountingController : Controller
     // เข้าได้เฉพาะพนักงานบัญชี
     private bool IsAccounting => HttpContext.Session.GetString("Role") == "Accounting";
 
+    // ส่งชื่อและ Role ผ่าน ViewBag ให้ Layout แสดง
     private void SetUserBag()
     {
         ViewBag.FullName = HttpContext.Session.GetString("FullName") ?? "พนักงานบัญชี";
@@ -83,6 +85,7 @@ public class AccountingController : Controller
     // ===================== หน้า =====================
 
     // ภาพรวม: ตัวเลขสรุป + รายการชำระที่รอตรวจ
+    // GET อ่าน payment ที่สถานะ Pending รวมยอด และนับรายการอนุมัติ / ปฏิเสธวันนี้ ส่งผ่าน ViewBag
     public IActionResult Dashboard()
     {
         if (!IsAccounting)
@@ -107,6 +110,7 @@ public class AccountingController : Controller
     }
 
     // หน้าตรวจการชำระ 1 รายการ (GET) - แบบเดียวกับ Admin/EditUser
+    // GET อ่านการชำระตาม id แล้วส่ง AccountingPaymentViewModel ไปที่ View
     public IActionResult VerifyPayment(int? id)
     {
         if (!IsAccounting)
@@ -125,6 +129,7 @@ public class AccountingController : Controller
     }
 
     // อนุมัติการชำระ (POST)
+    // POST เปลี่ยน payment เป็น Approved และ booking เป็น Active ออกใบเสร็จ และอัปเดตสถานะห้อง
     [HttpPost]
     public IActionResult Approve(int id)
     {
@@ -237,6 +242,7 @@ public class AccountingController : Controller
     }
 
     // รายการชำระที่อนุมัติแล้ว + เลขใบแจ้งหนี้ / ใบเสร็จ
+    // GET อ่าน payment ที่อนุมัติแล้ว พร้อมเลข invoice และ receipt
     public IActionResult Invoices()
     {
         if (!IsAccounting)
@@ -278,6 +284,7 @@ public class AccountingController : Controller
     }
 
     // ออกเอกสารย้อนหลังให้รายการที่อนุมัติไปก่อนมีระบบใบเสร็จ (POST)
+    // POST ตรวจว่าอนุมัติแล้ว แล้ว INSERT ตาราง invoice และ receipt
     [HttpPost]
     public IActionResult IssueDocuments(int id)
     {
@@ -310,6 +317,7 @@ public class AccountingController : Controller
     }
 
     // หน้าเอกสารสำหรับพิมพ์ (ฝ่ายบัญชีเปิดได้ทุกใบ)
+    // GET สร้างเอกสารด้วย BuildReceiptDocument เพื่อพิมพ์
     public IActionResult Document(string id)
     {
         if (!IsAccounting)
@@ -376,6 +384,7 @@ public class AccountingController : Controller
     }
 
     // ปฏิเสธการชำระ (POST): ลูกค้าต้องชำระใหม่ เหตุผลต่อท้าย Note ของการจอง
+    // POST เปลี่ยน payment เป็น Rejected และ booking กลับเป็น Pending
     [HttpPost]
     public IActionResult Reject(RejectPaymentViewModel data)
     {
@@ -429,6 +438,7 @@ public class AccountingController : Controller
 
     // รายรับรายวันในช่วงวันที่ (ค่าเริ่มต้น: วันที่ 1 ของเดือนนี้ ถึงวันนี้)
     // รายรับ = การชำระที่อนุมัติแล้ว นับตามวันที่อนุมัติ / คืนเงิน = ตาราง refund ตามวันที่คืน
+    // GET รับ from / to รวมยอด payment ที่อนุมัติตามวัน แยกค่าเช่ากับเงินประกันด้วย RentPart และหักเงินคืนจาก refund
     public IActionResult DailySummary(DateTime? from, DateTime? to)
     {
         if (!IsAccounting)
@@ -565,6 +575,7 @@ public class AccountingController : Controller
     }
 
     // สรุปรายรับรายเดือน (ย้อนหลัง 12 เดือน) ของฝ่ายบัญชี
+    // GET เรียก GetMonthlyRevenue รวมยอดจาก payment และ refund แยกตามเดือน
     public IActionResult MonthlySummary()
     {
         if (!IsAccounting)
@@ -619,6 +630,7 @@ public class AccountingController : Controller
     }
 
     // หน้ารวม: การจองที่คืนเงินประกันได้ + ประวัติการคืนเงิน
+    // GET อ่านการจองสถานะ Active และประวัติจากตาราง refund
     public IActionResult Refunds()
     {
         if (!IsAccounting)
@@ -656,6 +668,7 @@ public class AccountingController : Controller
     }
 
     // หน้าคืนเงินประกัน (GET)
+    // GET แสดงข้อมูลการจองและเงินประกัน
     [HttpGet]
     public IActionResult RefundDeposit(string id)
     {
@@ -680,6 +693,7 @@ public class AccountingController : Controller
     }
 
     // บันทึกการคืนเงินประกัน (POST): ลงตาราง refund, การจองสิ้นสุดสัญญา, ห้องกลับมาว่าง
+    // POST ตรวจว่าหักไม่เกินเงินประกัน แล้ว INSERT ลงตาราง refund เปลี่ยน booking เป็น Ended และเรียก RefreshRoomStatus
     [HttpPost]
     public IActionResult RefundDeposit(RefundFormViewModel data)
     {

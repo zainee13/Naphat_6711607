@@ -11,6 +11,7 @@ public class CustomerController : Controller
     private readonly Csi402dbContext _db;
     private readonly IWebHostEnvironment _env;
 
+    // รับตัวเชื่อมฐานข้อมูลมาเก็บไว้ใน _db
     public CustomerController(Csi402dbContext db, IWebHostEnvironment env)
     {
         _db = db;
@@ -49,6 +50,7 @@ public class CustomerController : Controller
     private string? StaffRole => HttpContext.Session.GetString("Role");
     private bool IsStaff => IsLoggedIn && StaffRole != "Customer" && StaffRole != "Admin";
 
+    // ส่งชื่อและ Role จาก Session ผ่าน ViewBag ให้ Layout แสดง
     private void SetUserBag()
     {
         var username = HttpContext.Session.GetString("Username");
@@ -310,6 +312,7 @@ public class CustomerController : Controller
     }
 
     // ระยะสัญญาที่เลือกได้ (ค่าอื่นใช้ 6 เดือน)
+    // ระยะสัญญารับแค่ 1, 3, 6, 12 เดือน ค่าอื่นใช้ 6
     private static int ValidMonths(int months) => months == 1 || months == 3 || months == 6 || months == 12 ? months : 6;
 
     // ===== รายการโปรโมชั่นให้เลือกตอนจอง (หน้า BookRoom) =====
@@ -497,6 +500,7 @@ public class CustomerController : Controller
 
     // ===================== หน้า =====================
 
+    // GET อ่านตาราง room และ review มานับจำนวนและเฉลี่ยคะแนน เลือกห้องแนะนำ และอ่านโค้ดส่วนลดที่ยังใช้ได้จาก promocode แล้วส่ง HomeViewModel ไปที่ View
     public IActionResult Dashboard()
     {
         if (IsStaff)
@@ -611,6 +615,7 @@ public class CustomerController : Controller
 
     // price = ช่วงงบต่อเดือนที่เลือกจากหน้าหลัก กรองรายการห้องด้านล่างผัง (ผังยังแสดงครบทุกห้อง)
     // promo = โค้ดส่วนลดที่กดมาจากการ์ดโปรโมชั่นหน้าหลัก (ส่งต่อไปหน้าจองให้กรอกไว้เลย)
+    // GET รับ price และ promo อ่านห้องทั้งหมดจากตาราง room แปลงเป็น RoomViewModel แล้วกรองตามงบ และเรียงห้องว่างขึ้นก่อน
     public IActionResult Search(string? price, string? promo)
     {
         if (!IsLoggedIn)
@@ -660,6 +665,7 @@ public class CustomerController : Controller
     }
 
     // review = true มาจากปุ่ม "เขียนรีวิว" ในหน้าการจองของฉัน (เปิดฟอร์มรีวิวไว้ให้เลย)
+    // GET อ่านห้อง รีวิวของห้อง ช่วงที่ถูกจอง และราคาเริ่มต้น แล้วส่ง RoomViewModel ไปที่ View
     public IActionResult RoomDetail(string id = "M-01", bool review = false)
     {
         if (!IsLoggedIn)
@@ -715,6 +721,7 @@ public class CustomerController : Controller
         return View(ToRoomViewModel(room, rating));
     }
 
+    // POST รับ ReviewViewModel ตรวจว่าเคยเช่าจริงและยังไม่เคยรีวิว แล้ว INSERT ลงตาราง review
     [HttpPost]
     public IActionResult AddReview(ReviewViewModel data)
     {
@@ -767,6 +774,7 @@ public class CustomerController : Controller
         return RedirectToAction("RoomDetail", new { id = room.RoomId });
     }
 
+    // GET เตรียมฟอร์มจองพร้อมข้อมูลผู้เช่า ช่วงที่ถูกจอง และรายการโปร แล้วส่ง BookingViewModel ไปที่ View
     [HttpGet]
     public IActionResult BookRoom(string id = "M-01", DateTime? startDate = null, int months = 6, string? promo = null)
     {
@@ -809,6 +817,7 @@ public class CustomerController : Controller
         return View(data);
     }
 
+    // POST ตรวจข้อมูล ช่วงเวลาไม่ซ้อน (IsPeriodFree) และโค้ดส่วนลด (CheckPromo) แล้ว INSERT ตาราง booking, stockitem, invoice และ Redirect ไปหน้าชำระเงิน
     [HttpPost]
     public IActionResult BookRoom(BookingViewModel data)
     {
@@ -990,6 +999,7 @@ public class CustomerController : Controller
         return RedirectToAction("Profile", new { tab = "payment", bookingId = booking.BookingId });
     }
 
+    // GET อ่านการจอง การชำระ สต็อก และข้อมูลส่วนตัวของลูกค้าที่ล็อกอินอยู่ แยกตาม tab
     public IActionResult Profile(string tab = "bookings", string? bookingId = null)
     {
         if (!IsLoggedIn)
@@ -1110,6 +1120,7 @@ public class CustomerController : Controller
         return View(info);
     }
 
+    // POST ตรวจว่าการจองยังรอชำระ วิธีชำระถูกต้อง และสลิปเป็นไฟล์รูป แล้ว INSERT ลงตาราง payment และเปลี่ยน booking เป็น Checking
     [HttpPost]
     public IActionResult Pay(PaymentViewModel data)
     {
@@ -1183,6 +1194,7 @@ public class CustomerController : Controller
         return RedirectToAction("Profile", new { tab = "bookings" });
     }
 
+    // POST ตรวจเบอร์โทรและเลขผู้เสียภาษี แล้ว UPDATE ตาราง user
     [HttpPost]
     public IActionResult SaveProfile(ProfileViewModel data)
     {
@@ -1272,6 +1284,7 @@ public class CustomerController : Controller
     // จำนวนข้อความของเจ้าหน้าที่ที่ลูกค้าเปิดอ่านแล้ว (เก็บใน Session เพราะตารางไม่มีช่องสถานะอ่านแล้ว)
     private int GetSeenCount(int ticketId) => HttpContext.Session.GetInt32("TicketSeen:" + ticketId) ?? 0;
 
+    // จำลง Session ว่าลูกค้าอ่านข้อความเจ้าหน้าที่ของเรื่องนี้แล้ว
     private void MarkSeen(TicketViewModel ticket)
     {
         HttpContext.Session.SetInt32("TicketSeen:" + ticket.TicketId, ticket.Messages.Count(m => m.IsStaff));

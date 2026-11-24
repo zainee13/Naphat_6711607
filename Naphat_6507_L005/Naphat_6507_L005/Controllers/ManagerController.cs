@@ -10,6 +10,7 @@ public class ManagerController : Controller
 {
     private readonly Csi402dbContext _db;
 
+    // รับตัวเชื่อมฐานข้อมูลมาเก็บไว้ใน _db
     public ManagerController(Csi402dbContext db)
     {
         _db = db;
@@ -39,6 +40,7 @@ public class ManagerController : Controller
     // เข้าได้เฉพาะผู้จัดการ
     private bool IsManager => HttpContext.Session.GetString("Role") == "Manager";
 
+    // ส่งชื่อและ Role ผ่าน ViewBag ให้ Layout แสดง
     private void SetUserBag()
     {
         ViewBag.FullName = HttpContext.Session.GetString("FullName") ?? "ผู้จัดการ";
@@ -101,6 +103,7 @@ public class ManagerController : Controller
     // ===================== หน้า =====================
 
     // ภาพรวมธุรกิจ
+    // GET รวมรายรับรายเดือนด้วย GetMonthlyRevenue นับห้องตามสถานะ และนับงานค้างของแต่ละฝ่าย แล้วส่งให้ View
     public IActionResult Dashboard()
     {
         if (!IsManager)
@@ -176,6 +179,7 @@ public class ManagerController : Controller
     }
 
     // รายงานรายรับรายเดือน (ย้อนหลัง 12 เดือน)
+    // GET เรียก AccountingController.GetMonthlyRevenue ใช้ฟังก์ชันเดียวกับฝ่ายบัญชี
     public IActionResult Revenue()
     {
         if (!IsManager)
@@ -198,6 +202,7 @@ public class ManagerController : Controller
     }
 
     // สถานะห้องทั้งหมด กรองตามสถานะได้ (?status=Available / Booked / Occupied)
+    // GET รับ status อ่านห้องทั้งหมดพร้อมผู้เช่า แล้วสรุปตามขนาด
     public IActionResult Rooms(string? status)
     {
         if (!IsManager)

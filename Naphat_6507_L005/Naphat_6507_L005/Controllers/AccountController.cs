@@ -8,11 +8,13 @@ public class AccountController : Controller
 {
     private readonly Csi402dbContext _db;
 
+    // รับตัวเชื่อมฐานข้อมูลมาเก็บไว้ใน _db
     public AccountController(Csi402dbContext db)
     {
         _db = db;
     }
 
+    // GET แสดงฟอร์มเข้าสู่ระบบ ถ้าล็อกอินอยู่แล้ว Redirect ตาม Role
     [HttpGet]
     public IActionResult Login()
     {
@@ -21,6 +23,7 @@ public class AccountController : Controller
         return View();
     }
 
+    // POST ค้นหาผู้ใช้ในตาราง user ที่ Username และ Password ตรงกัน ถ้าบัญชีถูกระงับหรือไม่พบ แสดง ViewBag.Error ถ้าพบ บันทึก Session แล้ว Redirect ตาม Role
     [HttpPost]
     public IActionResult Login(LoginViewModel data)
     {
@@ -45,12 +48,14 @@ public class AccountController : Controller
         return View(data);
     }
 
+    // GET แสดงฟอร์มสมัครสมาชิกเปล่า
     [HttpGet]
     public IActionResult Register()
     {
         return View();
     }
 
+    // POST ตรวจว่ากรอกครบ รหัสผ่านตรงกัน เบอร์โทรถูกหลัก และชื่อผู้ใช้ไม่ซ้ำ แล้ว INSERT ลงตาราง user และ Redirect ไปหน้า Login
     [HttpPost]
     public IActionResult Register(RegisterViewModel data)
     {
@@ -98,12 +103,14 @@ public class AccountController : Controller
         return RedirectToAction("Login");
     }
 
+    // ล้าง Session แล้วกลับหน้าหลัก
     public IActionResult Logout()
     {
         HttpContext.Session.Clear();
         return RedirectToAction("Dashboard", "Customer");
     }
 
+    // ส่งผู้ใช้ไปหน้าแรกตาม Role
     private IActionResult RedirectByRole(string role) => role switch
     {
         "Customer"        => RedirectToAction("Dashboard", "Customer"),

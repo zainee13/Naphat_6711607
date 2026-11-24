@@ -9,6 +9,7 @@ public class InventoryController : Controller
 {
     private readonly Csi402dbContext _db;
 
+    // รับตัวเชื่อมฐานข้อมูลมาเก็บไว้ใน _db
     public InventoryController(Csi402dbContext db)
     {
         _db = db;
@@ -21,6 +22,7 @@ public class InventoryController : Controller
     // เข้าได้เฉพาะพนักงานคลัง
     private bool IsInventory => HttpContext.Session.GetString("Role") == "Inventory";
 
+    // ส่งชื่อ Role และตัวเลขแจ้งเตือนผ่าน ViewBag ให้ Layout แสดง
     private void SetUserBag()
     {
         ViewBag.FullName = HttpContext.Session.GetString("FullName") ?? "พนักงานคลังสินค้า";
@@ -91,6 +93,7 @@ public class InventoryController : Controller
     // ===================== หน้า =====================
 
     // ภาพรวม: ตัวเลขสรุป + สินค้าใกล้หมด 5 อันดับ
+    // GET นับข้อมูลสรุปจาก stockitem แล้วส่งรายการสินค้าใกล้หมดไปที่ View
     public IActionResult Dashboard()
     {
         if (!IsInventory)
@@ -117,6 +120,7 @@ public class InventoryController : Controller
     }
 
     // รายการสต็อกทั้งหมด (กรองตามการจองได้)
+    // GET อ่านสินค้า กรองด้วย bookingId
     public IActionResult StockList(string? bookingId)
     {
         if (!IsInventory)
@@ -130,6 +134,7 @@ public class InventoryController : Controller
     }
 
     // สินค้าที่เหลือเท่ากับหรือน้อยกว่าจำนวนขั้นต่ำ
+    // GET อ่าน stockitem ที่ Quantity <= MinQuantity
     public IActionResult Alerts()
     {
         if (!IsInventory)
@@ -141,6 +146,7 @@ public class InventoryController : Controller
     }
 
     // หน้าเพิ่ม / แก้ไขสินค้า (GET) id = null คือเพิ่มใหม่ - แบบเดียวกับ Admin/EditUser
+    // GET แสดงฟอร์ม (มี id = แก้ไข)
     [HttpGet]
     public IActionResult AddStock(int? id, string? bookingId)
     {
@@ -176,6 +182,7 @@ public class InventoryController : Controller
     }
 
     // บันทึกการเพิ่ม / แก้ไขสินค้า (POST)
+    // POST ตรวจข้อมูลและจำนวนไม่ติดลบ แล้ว INSERT หรือ UPDATE ตาราง stockitem
     [HttpPost]
     public IActionResult AddStock(StockFormViewModel data)
     {
@@ -243,6 +250,7 @@ public class InventoryController : Controller
     }
 
     // รับเข้า / เบิกออก (POST)
+    // POST ตรวจว่าเบิกไม่เกินคงเหลือ แล้วอัปเดต Quantity
     [HttpPost]
     public IActionResult AdjustStock(StockAdjustViewModel data)
     {
@@ -339,6 +347,7 @@ public class InventoryController : Controller
     }
 
     // รายการการจองที่รอตรวจรับ
+    // GET อ่านการจองที่มีสินค้ารอตรวจรับจาก stockitem
     public IActionResult Receive()
     {
         if (!IsInventory)
@@ -350,6 +359,7 @@ public class InventoryController : Controller
     }
 
     // หน้าตรวจรับสินค้าของ 1 การจอง (GET): จำนวนที่ลูกค้าแจ้ง + ช่องกรอกจำนวนที่นับได้จริง
+    // GET อ่านสินค้าที่รอตรวจรับของการจอง
     [HttpGet]
     public IActionResult ReceiveItems(string id)
     {
@@ -386,6 +396,7 @@ public class InventoryController : Controller
     }
 
     // ยืนยันตรวจรับ (POST): บันทึกจำนวนจริง, คนตรวจรับเป็นพนักงาน, ถ้าไม่ตรงกับที่แจ้งจดไว้ใน booking.Note
+    // POST ตรวจว่าการจอง Active และจำนวนไม่ติดลบ แล้วอัปเดต stockitem
     [HttpPost]
     public IActionResult ReceiveItems(ReceiveFormViewModel data)
     {
