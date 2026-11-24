@@ -14,7 +14,7 @@ public class AdminController : Controller
     }
 
     // เข้าได้เฉพาะผู้ดูแลระบบ (ทุก action ต้องเช็คก่อน)
-    private bool IsAdmin => HttpContext.Session.GetString("Role") == "Admin";
+    private bool IsAdmin => AccountController.IsActiveUser(_db, HttpContext) && HttpContext.Session.GetString("Role") == "Admin";
 
     // ส่งชื่อและ Role ผ่าน ViewBag ให้ Layout แสดง
     private void SetUserBag()
@@ -193,7 +193,7 @@ public class AdminController : Controller
     }
 
     // บันทึกการแก้ไขข้อมูลผู้ใช้ (POST) - แบบเดียวกับ Lab10
-    // POST ตรวจเบอร์โทร แล้ว UPDATE ตาราง user
+    // POST ตรวจเบอร์โทรและชื่อไม่ซ้ำ แล้ว UPDATE ตาราง user
     [HttpPost]
     public IActionResult EditUser(User data)
     {
@@ -212,6 +212,22 @@ public class AdminController : Controller
         var user = (from u in _db.Users where u.UserId == data.UserId select u).FirstOrDefault();
         if (user != null)
         {
+            // ชื่อผู้ใช้ต้องไม่ซ้ำกับคนอื่น
+            var exists = (from u in _db.Users where u.Username == data.Username && u.UserId != data.UserId select u).Any();
+            if (exists)
+            {
+                TempData["Error"] = "ชื่อผู้ใช้ " + data.Username + " มีอยู่ในระบบแล้ว";
+                return RedirectToAction("EditUser", new { id = data.UserId });
+            }
+
+            // บัญชีที่ล็อกอินอยู่: ระงับหรือเปลี่ยนบทบาทตัวเองไม่ได้ (กันเข้าระบบไม่ได้)
+            bool isSelf = user.Username == HttpContext.Session.GetString("Username");
+            if (isSelf && (data.IsActive != true || data.Role != "Admin"))
+            {
+                TempData["Error"] = "ระงับหรือเปลี่ยนบทบาทบัญชีที่กำลังใช้งานอยู่ไม่ได้";
+                return RedirectToAction("EditUser", new { id = data.UserId });
+            }
+
             user.Username = data.Username;
             user.Fullname = data.Fullname;
             user.Email = data.Email;
@@ -226,14 +242,19 @@ public class AdminController : Controller
             }
 
             _db.SaveChanges();
+            if (isSelf)
+            {
+                HttpContext.Session.SetString("Username", user.Username);
+                HttpContext.Session.SetString("FullName", user.Fullname);
+            }
             TempData["Success"] = "บันทึกข้อมูลผู้ใช้ " + user.Username + " แล้ว";
         }
         return RedirectToAction("Users");
     }
 
     // ลบข้อมูลผู้ใช้ (POST เท่านั้น) - แบบเดียวกับ Lab10_1
-    // ถ้าผู้ใช้มีข้อมูลผูกอยู่ (การจอง, การชำระที่ตรวจ, ใบเสร็จ, การคืนเงิน, สต็อก) ลบไม่ได้ ให้ระงับการใช้งานแทน
-    // POST ลบเฉพาะผู้ใช้ที่ไม่มีข้อมูลผูกอยู่
+    // ถ้าผู้ใช้มีข้อมูลผูกอยู่ (การจอง, การชำระที่ตรวจ, ใบเสร็จ, การคืนเงิน, สต็อก, เรื่องแจ้งปัญหา) ลบไม่ได้ ให้ระงับการใช้งานแทน
+    // POST ลบเฉพาะผู้ใช้ที่ไม่มีข้อมูลผูกอยู่ และไม่ใช่บัญชีตัวเอง
     [HttpPost]
     public IActionResult DeleteUser(int? id)
     {
@@ -249,15 +270,23 @@ public class AdminController : Controller
             return RedirectToAction("Users");
         }
 
+        // ลบบัญชีที่กำลังใช้งานอยู่ไม่ได้ (กันเข้าระบบไม่ได้)
+        if (user.Username == HttpContext.Session.GetString("Username"))
+        {
+            TempData["Error"] = "ลบบัญชีที่กำลังใช้งานอยู่ไม่ได้";
+            return RedirectToAction("Users");
+        }
+
         bool inUse = (from b in _db.Bookings where b.UserId == user.UserId select b).Any()
                      || (from p in _db.Payments where p.VerifiedBy == user.UserId select p).Any()
                      || (from i in _db.Invoices where i.IssuedBy == user.UserId select i).Any()
                      || (from r in _db.Receipts where r.IssuedBy == user.UserId select r).Any()
                      || (from rf in _db.Refunds where rf.ProcessedBy == user.UserId select rf).Any()
-                     || (from s in _db.Stockitems where s.UpdatedBy == user.UserId select s).Any();
+                     || (from s in _db.Stockitems where s.UpdatedBy == user.UserId select s).Any()
+                     || (from t in _db.Supporttickets where t.UserId == user.UserId || t.AssignedTo == user.UserId select t).Any();
         if (inUse)
         {
-            TempData["Error"] = "ลบ " + user.Username + " ไม่ได้ เพราะมีข้อมูลการจองหรือเอกสารผูกอยู่ ให้แก้ไขเป็น \"ระงับการใช้งาน\" แทน";
+            TempData["Error"] = "ลบ " + user.Username + " ไม่ได้ เพราะมีข้อมูลการจอง เอกสาร หรือเรื่องแจ้งปัญหาผูกอยู่ ให้แก้ไขเป็น \"ระงับการใช้งาน\" แทน";
             return RedirectToAction("Users");
         }
 

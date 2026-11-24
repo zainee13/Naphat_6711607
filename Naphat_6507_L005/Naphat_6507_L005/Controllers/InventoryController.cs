@@ -20,7 +20,7 @@ public class InventoryController : Controller
     // ===================== ตัวช่วย =====================
 
     // เข้าได้เฉพาะพนักงานคลัง
-    private bool IsInventory => HttpContext.Session.GetString("Role") == "Inventory";
+    private bool IsInventory => AccountController.IsActiveUser(_db, HttpContext) && HttpContext.Session.GetString("Role") == "Inventory";
 
     // ส่งชื่อ Role และตัวเลขแจ้งเตือนผ่าน ViewBag ให้ Layout แสดง
     private void SetUserBag()

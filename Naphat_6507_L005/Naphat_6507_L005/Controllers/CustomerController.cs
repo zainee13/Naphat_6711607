@@ -44,7 +44,7 @@ public class CustomerController : Controller
 
     // ===================== ตัวช่วย =====================
 
-    private bool IsLoggedIn => !string.IsNullOrEmpty(HttpContext.Session.GetString("Username"));
+    private bool IsLoggedIn => AccountController.IsActiveUser(_db, HttpContext);
 
     // หน้าลูกค้าใช้ได้เฉพาะลูกค้ากับ Admin เว็บ พนักงานฝ่ายอื่น (บัญชี / คลัง / CS / ผู้จัดการ) ใช้ไม่ได้
     private string? StaffRole => HttpContext.Session.GetString("Role");

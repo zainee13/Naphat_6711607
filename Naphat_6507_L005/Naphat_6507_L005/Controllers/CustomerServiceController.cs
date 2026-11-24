@@ -140,7 +140,7 @@ public class CustomerServiceController : Controller
     // ===================== ตัวช่วย =====================
 
     // เข้าได้เฉพาะพนักงานบริการลูกค้า
-    private bool IsCustomerService => HttpContext.Session.GetString("Role") == "CustomerService";
+    private bool IsCustomerService => AccountController.IsActiveUser(_db, HttpContext) && HttpContext.Session.GetString("Role") == "CustomerService";
 
     // ส่งชื่อ Role และตัวเลขแจ้งเตือนผ่าน ViewBag ให้ Layout แสดง
     private void SetUserBag()

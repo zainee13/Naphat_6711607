@@ -18,7 +18,7 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult Login()
     {
-        if (HttpContext.Session.GetString("Role") != null)
+        if (IsActiveUser(_db, HttpContext))
             return RedirectByRole(HttpContext.Session.GetString("Role")!);
         return View();
     }
@@ -108,6 +108,22 @@ public class AccountController : Controller
     {
         HttpContext.Session.Clear();
         return RedirectToAction("Dashboard", "Customer");
+    }
+
+    // เช็คว่าผู้ใช้ใน Session ยังอยู่ในตาราง user และไม่ถูกระงับ ถ้าไม่ใช่ ล้าง Session (ต้องเข้าสู่ระบบใหม่)
+    public static bool IsActiveUser(Csi402dbContext db, HttpContext context)
+    {
+        var username = context.Session.GetString("Username");
+        if (string.IsNullOrEmpty(username))
+        {
+            return false;
+        }
+        var active = (from u in db.Users where u.Username == username && u.IsActive == true select u).Any();
+        if (!active)
+        {
+            context.Session.Clear();
+        }
+        return active;
     }
 
     // ส่งผู้ใช้ไปหน้าแรกตาม Role

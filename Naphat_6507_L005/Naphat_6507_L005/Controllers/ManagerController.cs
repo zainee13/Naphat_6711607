@@ -38,7 +38,7 @@ public class ManagerController : Controller
     // ===================== ตัวช่วย =====================
 
     // เข้าได้เฉพาะผู้จัดการ
-    private bool IsManager => HttpContext.Session.GetString("Role") == "Manager";
+    private bool IsManager => AccountController.IsActiveUser(_db, HttpContext) && HttpContext.Session.GetString("Role") == "Manager";
 
     // ส่งชื่อและ Role ผ่าน ViewBag ให้ Layout แสดง
     private void SetUserBag()

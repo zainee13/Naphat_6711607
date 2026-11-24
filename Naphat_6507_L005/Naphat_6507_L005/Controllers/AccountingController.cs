@@ -20,7 +20,7 @@ public class AccountingController : Controller
     // ===================== ตัวช่วย =====================
 
     // เข้าได้เฉพาะพนักงานบัญชี
-    private bool IsAccounting => HttpContext.Session.GetString("Role") == "Accounting";
+    private bool IsAccounting => AccountController.IsActiveUser(_db, HttpContext) && HttpContext.Session.GetString("Role") == "Accounting";
 
     // ส่งชื่อและ Role ผ่าน ViewBag ให้ Layout แสดง
     private void SetUserBag()
