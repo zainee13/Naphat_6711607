@@ -127,27 +127,27 @@
 .bk-promo-close { width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.08); color: var(--cu-text); cursor: pointer; }
 .bk-promo-close .material-symbols-outlined { font-size: 18px; }
 
-.bk-promo-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 360px; overflow-y: auto; }
+.bk-promo-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 380px; overflow-y: auto; overscroll-behavior: contain;
+    color-scheme: dark; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.25) transparent; scrollbar-gutter: stable; }
 .bk-promo-item { border: 1px solid var(--cu-line); border-radius: 10px; overflow: hidden; transition: border-color .15s ease; }
 .bk-promo-item:hover { border-color: rgba(244, 90, 51, 0.6); }
 .bk-promo-item.is-selected { border-color: #f45a33; box-shadow: 0 0 0 1px #f45a33 inset; }
 .bk-promo-pick {
-    position: relative;
     width: 100%;
-    display: flex; align-items: center; gap: 12px;
+    display: grid; grid-template-columns: 78px minmax(0, 1fr); align-items: start; gap: 8px 12px;
     padding: 12px; border: 0; background: transparent;
     color: var(--cu-text); font: inherit; text-align: left; cursor: pointer;
 }
 .bk-promo-pick:disabled { cursor: not-allowed; }
 .bk-promo-big {
-    flex: none; min-width: 72px; font-size: 20px; font-weight: 600; line-height: 1.1;
+    font-size: 18px; font-weight: 600; line-height: 1.25; white-space: nowrap;
     background: var(--cu-grad); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
 }
 .bk-promo-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 13px; color: var(--cu-muted); }
 .bk-promo-info strong { color: var(--cu-text); font-size: 14px; letter-spacing: 0.04em; }
 .bk-promo-why { color: var(--cu-warn); font-size: 12px; }
 .bk-promo-why[hidden] { display: none; }
-.bk-promo-badge { position: absolute; top: 10px; right: 10px; font-size: 11px; padding: 2px 8px; border-radius: 40px; background: rgba(244, 90, 51, 0.15); color: #ffb08f; }
+.bk-promo-badge { grid-column: 2; justify-self: start; font-size: 11px; padding: 2px 8px; border-radius: 40px; background: rgba(244, 90, 51, 0.15); color: #ffb08f; }
 .bk-promo-item.is-disabled .bk-promo-big,
 .bk-promo-item.is-disabled .bk-promo-info strong { opacity: 0.45; }
 
