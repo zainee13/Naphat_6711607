@@ -44,9 +44,13 @@
                 <dt class="col-5">ระยะสัญญา</dt><dd class="col-7">@Model.Period (@Model.Months เดือน)</dd>
                 <dt class="col-5">ค่าเช่าเดือนแรก</dt><dd class="col-7">฿@Model.MonthlyRate.ToString("N0")</dd>
                 <dt class="col-5">เงินประกัน @depositMonths เดือน</dt><dd class="col-7">฿@Model.Deposit.ToString("N0")</dd>
-                <dt class="col-5">ยอดที่ต้องได้รับ</dt><dd class="col-7 fw-bold">฿@((Model.MonthlyRate + Model.Deposit).ToString("N0"))</dd>
+                @if (Model.DiscountAmount > 0)
+                {
+                    <dt class="col-5">ส่วนลดจากโค้ด @Model.PromoCode</dt><dd class="col-7 text-success">−฿@Model.DiscountAmount.ToString("N0")</dd>
+                }
+                <dt class="col-5">ยอดที่ต้องได้รับ</dt><dd class="col-7 fw-bold">฿@((Model.MonthlyRate - Model.DiscountAmount + Model.Deposit).ToString("N0"))</dd>
             </dl>
-            @if (Model.Amount != Model.MonthlyRate + Model.Deposit)
+            @if (Model.Amount != Model.MonthlyRate - Model.DiscountAmount + Model.Deposit)
             {
                 <div class="alert alert-warning mt-2 mb-0">ยอดที่แจ้งชำระไม่ตรงกับยอดที่ต้องได้รับ</div>
             }

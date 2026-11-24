@@ -59,6 +59,8 @@ public class AccountingController : Controller
             item.MonthlyRate = row.r.MonthlyRate;
             item.Months = row.r.MonthlyRate > 0 ? (int)(row.b.TotalRent / row.r.MonthlyRate) : 0;
             item.Deposit = row.b.Deposit;
+            item.DiscountAmount = row.b.DiscountAmount ?? 0;
+            item.PromoCode = row.b.PromoCode;
             item.Amount = row.p.Amount;
             item.MethodText = CustomerController._payMethodText.ContainsKey(row.p.PaymentMethod)
                               ? CustomerController._payMethodText[row.p.PaymentMethod] : row.p.PaymentMethod;

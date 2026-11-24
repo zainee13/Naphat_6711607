@@ -16,6 +16,8 @@ public class AccountingPaymentViewModel
     public int Months { get; set; }
     public decimal MonthlyRate { get; set; }
     public decimal Deposit { get; set; }
+    public decimal DiscountAmount { get; set; }     // ส่วนลดจากโค้ดที่ลูกค้าใช้ตอนจอง
+    public string? PromoCode { get; set; }
     public decimal Amount { get; set; }
     public string MethodText { get; set; } = "";
     public string PaidDate { get; set; } = "";
